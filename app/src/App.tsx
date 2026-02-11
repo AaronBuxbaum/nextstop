@@ -56,7 +56,7 @@ function App() {
           <button
             className="secondary"
             onClick={() =>
-              window.open('/skills/frontend-design/SKILL.md', '_blank')
+              window.open('https://github.com/AaronBuxbaum/nextstop/blob/main/skills/frontend-design/SKILL.md', '_blank')
             }
           >
             Read the Skills

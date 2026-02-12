@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import styles from './page.module.css';
 
 export default function SignUpPage() {
@@ -63,7 +64,7 @@ export default function SignUpPage() {
         router.push('/plans');
         router.refresh();
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.');
       setIsLoading(false);
     }
@@ -160,15 +161,15 @@ export default function SignUpPage() {
 
         <p className={styles.footer}>
           Already have an account?{' '}
-          <a href="/auth/signin" className={styles.link}>
+          <Link href="/auth/signin" className={styles.link}>
             Sign in
-          </a>
+          </Link>
         </p>
 
         <p className={styles.footer}>
-          <a href="/" className={styles.link}>
+          <Link href="/" className={styles.link}>
             ← Back to home
-          </a>
+          </Link>
         </p>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useState, FormEvent, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import styles from './page.module.css';
 
 function SignInForm() {
@@ -37,7 +38,7 @@ function SignInForm() {
         router.push(callbackUrl);
         router.refresh();
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.');
       setIsLoading(false);
     }
@@ -99,16 +100,16 @@ function SignInForm() {
         </form>
 
         <p className={styles.footer}>
-          Don't have an account?{' '}
-          <a href="/auth/signup" className={styles.link}>
+          Don&apos;t have an account?{' '}
+          <Link href="/auth/signup" className={styles.link}>
             Sign up
-          </a>
+          </Link>
         </p>
 
         <p className={styles.footer}>
-          <a href="/" className={styles.link}>
+          <Link href="/" className={styles.link}>
             ← Back to home
-          </a>
+          </Link>
         </p>
       </div>
     </div>

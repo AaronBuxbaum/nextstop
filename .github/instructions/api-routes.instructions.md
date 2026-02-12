@@ -32,8 +32,10 @@ export async function GET() {
 import { sql } from "@/lib/db";
 
 // Use parameterized queries with template literals
+// Always specify columns explicitly (avoid SELECT *)
 const results = await sql`
-  SELECT * FROM plans
+  SELECT id, title, description, user_id, created_at, updated_at
+  FROM plans
   WHERE user_id = ${userId}
   ORDER BY created_at DESC
 `;

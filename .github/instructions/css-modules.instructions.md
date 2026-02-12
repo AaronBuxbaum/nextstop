@@ -58,7 +58,7 @@ NextStop uses a distinctive design system with custom CSS variables defined in `
 
 4. **Use semantic class names**
    - Good: `.card`, `.header`, `.title`, `.actions`
-   - Acceptable for component-specific utilities: `.cardSpacing`, `.cardLayout`
+   - Acceptable for component-specific utilities: `.card-spacing`, `.card-layout`
    - Avoid: Generic utility-style names like `.mt-4`, `.flex`, `.text-lg`
 
 5. **Keep transitions smooth and subtle**

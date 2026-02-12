@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Event } from '@/types';
+import { parseTimeString } from '@/lib/timeUtils';
 import { WeatherInfo } from './WeatherInfo';
 import { TravelTime } from './TravelTime';
 import styles from './Timeline.module.css';
@@ -19,20 +20,6 @@ interface TimelineProps {
   onDragEnd?: () => void;
   draggedEventId?: string | null;
   editingEventId?: string | null;
-}
-
-// Helper function to parse time string in HH:MM format
-function parseTimeString(time: string): number | null {
-  const parts = time.split(':');
-  if (parts.length < 2) return null;
-  
-  const hours = parseInt(parts[0], 10);
-  const minutes = parseInt(parts[1], 10);
-  
-  if (isNaN(hours) || isNaN(minutes)) return null;
-  if (hours < 0 || hours >= 24 || minutes < 0 || minutes >= 60) return null;
-  
-  return hours * 60 + minutes;
 }
 
 export function Timeline({

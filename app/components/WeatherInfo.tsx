@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { extractHourFromTime } from '@/lib/timeUtils';
 import styles from './WeatherInfo.module.css';
 
 interface WeatherData {
@@ -97,13 +98,10 @@ export function WeatherInfo({ location, date, time, className }: WeatherInfoProp
           // Find the closest hour to the specified time
           let hourIndex = 0;
           if (time) {
-            const timeParts = time.split(':');
-            if (timeParts.length >= 2) {
-              const hours = parseInt(timeParts[0], 10);
+            const hours = extractHourFromTime(time);
+            if (hours !== null) {
               // Find the index in hourly data that matches our time
-              if (!isNaN(hours) && hours >= 0 && hours < 24) {
-                hourIndex = Math.min(hours, weatherData.hourly.time.length - 1);
-              }
+              hourIndex = Math.min(hours, weatherData.hourly.time.length - 1);
             }
           } else {
             // Default to noon if no time specified

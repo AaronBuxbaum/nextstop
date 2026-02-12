@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
+import { parseTimeString } from "@/lib/timeUtils";
 
 // PATCH /api/events/[id] - Update an event
 export async function PATCH(
@@ -73,21 +74,10 @@ export async function PATCH(
         ORDER BY position ASC
       `;
 
-      // Helper function to parse time for comparison
-      const parseTimeForComparison = (time: string | null): number | null => {
-        if (!time) return null;
-        const parts = time.split(':');
-        if (parts.length < 2) return null;
-        const hours = parseInt(parts[0], 10);
-        const minutes = parseInt(parts[1], 10);
-        if (isNaN(hours) || isNaN(minutes)) return null;
-        return hours * 60 + minutes;
-      };
-
       // Find the correct position based on chronological order
       // Events should be ordered by start_time if they have one
       let targetPosition = 0;
-      const updatedTimeMinutes = parseTimeForComparison(updatedStartTime);
+      const updatedTimeMinutes = parseTimeString(updatedStartTime);
       
       for (let i = 0; i < allEvents.length; i++) {
         const evt = allEvents[i];
@@ -95,7 +85,7 @@ export async function PATCH(
         if (evt.id === id) continue;
         
         // If this event has a start_time and it's before our updated time, increment position
-        const evtTimeMinutes = parseTimeForComparison(evt.start_time);
+        const evtTimeMinutes = parseTimeString(evt.start_time);
         if (evtTimeMinutes !== null && updatedTimeMinutes !== null && evtTimeMinutes < updatedTimeMinutes) {
           targetPosition = i + 1;
         }

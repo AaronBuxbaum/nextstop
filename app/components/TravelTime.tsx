@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { formatDuration } from '@/lib/timeUtils';
 import styles from './TravelTime.module.css';
 
 interface TravelTimeProps {
@@ -41,14 +42,6 @@ async function getDrivingTime(from: Coordinates, to: Coordinates): Promise<numbe
   } catch {
     return null;
   }
-}
-
-function formatDuration(seconds: number): string {
-  const mins = Math.round(seconds / 60);
-  if (mins < 60) return `${mins} min`;
-  const hrs = Math.floor(mins / 60);
-  const remainMins = mins % 60;
-  return remainMins > 0 ? `${hrs}h ${remainMins}m` : `${hrs}h`;
 }
 
 export function TravelTime({ fromLocation, toLocation, timeBetween }: TravelTimeProps) {
@@ -112,7 +105,7 @@ export function TravelTime({ fromLocation, toLocation, timeBetween }: TravelTime
       setTransit(formatDuration(transitSec));
       
       // Check if there's enough time between events
-      if (timeBetween !== undefined && transitSec != null) {
+      if (timeBetween !== undefined && transitSec !== null) {
         const timeBetweenSec = timeBetween * 60;
         // Use transit time as the typical mode for comparison
         setHasEnoughTime(timeBetweenSec >= transitSec);

@@ -50,15 +50,15 @@ export async function PATCH(
     } = body;
 
     // Use provided values or keep current ones
-    let updatedTitle = title !== undefined ? title : currentEvent.title;
-    let updatedDescription = description !== undefined ? description : currentEvent.description;
-    let updatedLocation = location !== undefined ? location : currentEvent.location;
-    let updatedStartTime = startTime !== undefined ? startTime : currentEvent.start_time;
+    const updatedTitle = title !== undefined ? title : currentEvent.title;
+    const updatedDescription = description !== undefined ? description : currentEvent.description;
+    const updatedLocation = location !== undefined ? location : currentEvent.location;
+    const updatedStartTime = startTime !== undefined ? startTime : currentEvent.start_time;
     let updatedEndTime = endTime !== undefined ? endTime : currentEvent.end_time;
     let updatedDuration = duration !== undefined ? duration : currentEvent.duration;
-    let updatedNotes = notes !== undefined ? notes : currentEvent.notes;
-    let updatedTags = tags !== undefined ? JSON.stringify(tags) : currentEvent.tags;
-    let updatedIsOptional = isOptional !== undefined ? isOptional : currentEvent.is_optional;
+    const updatedNotes = notes !== undefined ? notes : currentEvent.notes;
+    const updatedTags = tags !== undefined ? JSON.stringify(tags) : currentEvent.tags;
+    const updatedIsOptional = isOptional !== undefined ? isOptional : currentEvent.is_optional;
 
     // Calculate missing time fields after updates
     // If start and end times are provided, calculate duration

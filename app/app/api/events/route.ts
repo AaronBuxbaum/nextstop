@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Calculate missing time fields
-    let finalStartTime = startTime || null;
+    const finalStartTime = startTime || null;
     let finalEndTime = endTime || null;
     let finalDuration = duration || null;
 

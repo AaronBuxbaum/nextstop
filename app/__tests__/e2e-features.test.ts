@@ -136,13 +136,6 @@ describe('E2E: Time Calculation Feature', () => {
     });
 
     it('should handle events with no time data', () => {
-      const event = {
-        title: 'All-day event',
-        startTime: '',
-        endTime: '',
-        duration: null,
-      };
-
       // System gracefully handles missing time data
       expect(calculateDuration('', '')).toBeNull();
       expect(calculateEndTime('', 0)).toBeNull();
@@ -164,7 +157,6 @@ describe('E2E: Location Autocomplete Feature', () => {
   describe('Scenario 1: User in New York searches for coffee', () => {
     it('should prioritize NYC results', () => {
       const userLocation = { lat: 40.7580, lon: -73.9855 };
-      const query = 'starbucks';
 
       // Viewbox calculation for NYC
       const viewbox = `${userLocation.lon - 0.15},${userLocation.lat + 0.15},${userLocation.lon + 0.15},${userLocation.lat - 0.15}`;

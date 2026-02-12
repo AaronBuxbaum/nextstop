@@ -7,12 +7,6 @@ import { describe, it, expect } from 'vitest';
 describe('Event Time Calculation Integration', () => {
   describe('Creating events with time fields', () => {
     it('should calculate duration when start and end times are provided', () => {
-      const event = {
-        title: 'Morning Coffee',
-        startTime: '09:00',
-        endTime: '10:30',
-      };
-
       // Expected: duration should be calculated as 90 minutes
       const expectedDuration = 90;
       
@@ -21,12 +15,6 @@ describe('Event Time Calculation Integration', () => {
     });
 
     it('should calculate end time when start time and duration are provided', () => {
-      const event = {
-        title: 'Museum Visit',
-        startTime: '14:00',
-        duration: 120,
-      };
-
       // Expected: end time should be calculated as 16:00
       const expectedEndTime = '16:00';
       

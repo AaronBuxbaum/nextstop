@@ -81,13 +81,13 @@ export async function PATCH(
       
       for (let i = 0; i < allEvents.length; i++) {
         const evt = allEvents[i];
-        // Skip the current event
+        // Skip the current event when calculating position
         if (evt.id === id) continue;
         
-        // If this event has a start_time and it's before our updated time, increment position
+        // If this event has a start_time and it's before our updated time, increment target position
         const evtTimeMinutes = parseTimeString(evt.start_time);
         if (evtTimeMinutes !== null && updatedTimeMinutes !== null && evtTimeMinutes < updatedTimeMinutes) {
-          targetPosition = i + 1;
+          targetPosition++;
         }
       }
 

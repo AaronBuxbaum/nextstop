@@ -96,16 +96,13 @@ export function WeatherInfo({ location, date, time, className }: WeatherInfoProp
 
         if (date && weatherData.hourly) {
           // Find the closest hour to the specified time
-          let hourIndex = 0;
+          let hourIndex = 12; // Default to noon
           if (time) {
             const hours = extractHourFromTime(time);
-            if (hours !== null) {
-              // Find the index in hourly data that matches our time
-              hourIndex = Math.min(hours, weatherData.hourly.time.length - 1);
+            if (hours !== null && hours < weatherData.hourly.time.length) {
+              // Use the hour directly as the index in the hourly data array
+              hourIndex = hours;
             }
-          } else {
-            // Default to noon if no time specified
-            hourIndex = 12;
           }
           
           const temperature = weatherData.hourly.temperature_2m[hourIndex];

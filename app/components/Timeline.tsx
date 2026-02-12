@@ -22,6 +22,35 @@ interface TimelineProps {
   editingEventId?: string | null;
 }
 
+// Calculate time between two consecutive events
+function calculateTimeBetween(currentEvent: Event, nextEvent: Event): number | undefined {
+  // Calculate time between events if both have times
+  if (currentEvent.endTime && nextEvent.startTime) {
+    const endMinutes = parseTimeString(currentEvent.endTime);
+    const startMinutes = parseTimeString(nextEvent.startTime);
+    
+    if (endMinutes !== null && startMinutes !== null) {
+      const timeBetween = startMinutes - endMinutes;
+      // Note: Negative values indicate next-day events, which we don't currently support
+      // For multi-day plans, consider using full date-time values instead of just times
+      if (timeBetween >= 0) return timeBetween;
+    }
+  } else if (currentEvent.startTime && currentEvent.duration && nextEvent.startTime) {
+    // Calculate using start time + duration
+    const startMinutes = parseTimeString(currentEvent.startTime);
+    const nextStartMinutes = parseTimeString(nextEvent.startTime);
+    
+    if (startMinutes !== null && nextStartMinutes !== null) {
+      const endMinutes = startMinutes + currentEvent.duration;
+      const timeBetween = nextStartMinutes - endMinutes;
+      
+      if (timeBetween >= 0) return timeBetween;
+    }
+  }
+  
+  return undefined;
+}
+
 export function Timeline({
   events,
   planDate,
@@ -203,46 +232,16 @@ export function Timeline({
             {/* Travel time between consecutive events with locations */}
             {index < events.length - 1 &&
               event.location &&
-              events[index + 1].location && (() => {
-                const currentEvent = event;
-                const nextEvent = events[index + 1];
-                let timeBetween: number | undefined;
-                
-                // Calculate time between events if both have times
-                if (currentEvent.endTime && nextEvent.startTime) {
-                  const endMinutes = parseTimeString(currentEvent.endTime);
-                  const startMinutes = parseTimeString(nextEvent.startTime);
-                  
-                  if (endMinutes !== null && startMinutes !== null) {
-                    timeBetween = startMinutes - endMinutes;
-                    // Note: Negative values indicate next-day events, which we don't currently support
-                    // For multi-day plans, consider using full date-time values instead of just times
-                    if (timeBetween < 0) timeBetween = undefined;
-                  }
-                } else if (currentEvent.startTime && currentEvent.duration && nextEvent.startTime) {
-                  // Calculate using start time + duration
-                  const startMinutes = parseTimeString(currentEvent.startTime);
-                  const nextStartMinutes = parseTimeString(nextEvent.startTime);
-                  
-                  if (startMinutes !== null && nextStartMinutes !== null) {
-                    const endMinutes = startMinutes + currentEvent.duration;
-                    timeBetween = nextStartMinutes - endMinutes;
-                    
-                    if (timeBetween < 0) timeBetween = undefined;
-                  }
-                }
-                
-                return (
-                  <div className={styles.travelTimeRow}>
-                    <div className={styles.travelTimeMarker} />
-                    <TravelTime
-                      fromLocation={currentEvent.location}
-                      toLocation={nextEvent.location}
-                      timeBetween={timeBetween}
-                    />
-                  </div>
-                );
-              })()
+              events[index + 1].location && (
+                <div className={styles.travelTimeRow}>
+                  <div className={styles.travelTimeMarker} />
+                  <TravelTime
+                    fromLocation={event.location}
+                    toLocation={events[index + 1].location}
+                    timeBetween={calculateTimeBetween(event, events[index + 1])}
+                  />
+                </div>
+              )
             }
           </React.Fragment>
         );

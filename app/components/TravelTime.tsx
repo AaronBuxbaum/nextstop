@@ -112,7 +112,7 @@ export function TravelTime({ fromLocation, toLocation, timeBetween }: TravelTime
       setTransit(formatDuration(transitSec));
       
       // Check if there's enough time between events
-      if (timeBetween !== undefined) {
+      if (timeBetween !== undefined && transitSec != null) {
         const timeBetweenSec = timeBetween * 60;
         // Use transit time as the typical mode for comparison
         setHasEnoughTime(timeBetweenSec >= transitSec);

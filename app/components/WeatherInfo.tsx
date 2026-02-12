@@ -98,7 +98,7 @@ export function WeatherInfo({ location, date, time, className }: WeatherInfoProp
           let hourIndex = 0;
           if (time) {
             const timeParts = time.split(':');
-            if (timeParts.length >= 1) {
+            if (timeParts.length >= 2) {
               const hours = parseInt(timeParts[0], 10);
               // Find the index in hourly data that matches our time
               if (!isNaN(hours) && hours >= 0 && hours < 24) {

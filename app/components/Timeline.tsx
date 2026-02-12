@@ -228,7 +228,8 @@ export function Timeline({
                   
                   if (endMinutes !== null && startMinutes !== null) {
                     timeBetween = startMinutes - endMinutes;
-                    // Handle negative values (next day) or invalid values
+                    // Note: Negative values indicate next-day events, which we don't currently support
+                    // For multi-day plans, consider using full date-time values instead of just times
                     if (timeBetween < 0) timeBetween = undefined;
                   }
                 } else if (currentEvent.startTime && currentEvent.duration && nextEvent.startTime) {

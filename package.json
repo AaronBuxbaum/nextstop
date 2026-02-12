@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "cd app && npm run dev",
     "build": "cd app && npm run build",
-    "preview": "cd app && npm run preview",
+    "start": "cd app && npm start",
     "lint": "cd app && npm run lint"
   },
   "repository": {
@@ -16,7 +16,7 @@
   "keywords": [
     "react",
     "typescript",
-    "vite",
+    "nextjs",
     "anthropic",
     "frontend-design",
     "ai-assisted"

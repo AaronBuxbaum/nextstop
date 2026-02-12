@@ -1,4 +1,4 @@
-.app-container {
+.appContainer {
   min-height: 100vh;
   padding: calc(var(--spacing-unit) * 4);
   max-width: 1400px;
@@ -39,7 +39,7 @@
   }
 }
 
-.accent-block {
+.accentBlock {
   position: absolute;
   top: 10%;
   right: -5%;
@@ -107,14 +107,14 @@
   animation: slideInUp 0.8s ease-out 0.4s both;
 }
 
-.feature-grid {
+.featureGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: calc(var(--spacing-unit) * 4);
   margin-top: calc(var(--spacing-unit) * 6);
 }
 
-.feature-card {
+.featureCard {
   padding: calc(var(--spacing-unit) * 4);
   border: var(--border-weight) solid var(--color-secondary);
   background: white;
@@ -124,15 +124,15 @@
   animation: fadeInScale 0.6s ease-out both;
 }
 
-.feature-card:nth-child(1) {
+.featureCard:nth-child(1) {
   animation-delay: 0.6s;
 }
 
-.feature-card:nth-child(2) {
+.featureCard:nth-child(2) {
   animation-delay: 0.75s;
 }
 
-.feature-card:nth-child(3) {
+.featureCard:nth-child(3) {
   animation-delay: 0.9s;
 }
 
@@ -147,7 +147,7 @@
   }
 }
 
-.feature-card::before {
+.featureCard::before {
   content: '';
   position: absolute;
   top: 0;
@@ -158,34 +158,34 @@
   transition: height 0.3s ease;
 }
 
-.feature-card:hover {
+.featureCard:hover {
   transform: translateY(-5px) scale(1.02);
 }
 
-.feature-card:hover::before {
+.featureCard:hover::before {
   height: 100%;
 }
 
-.feature-card h2 {
+.featureCard h2 {
   font-size: 2rem;
   margin: 0 0 calc(var(--spacing-unit) * 2) 0;
   color: var(--color-secondary);
 }
 
-.feature-card p {
+.featureCard p {
   margin: 0;
   line-height: 1.7;
   color: #333;
 }
 
-.cta-section {
+.ctaSection {
   text-align: center;
   padding: calc(var(--spacing-unit) * 12) 0;
   border-top: var(--border-weight) solid var(--color-secondary);
   animation: slideInUp 0.8s ease-out 0.6s both;
 }
 
-.cta-section h2 {
+.ctaSection h2 {
   font-size: clamp(2.5rem, 6vw, 4rem);
   margin: 0 0 calc(var(--spacing-unit) * 3) 0;
   color: var(--color-secondary);
@@ -199,44 +199,44 @@
   color: #333;
 }
 
-.button-group {
+.buttonGroup {
   display: flex;
   gap: calc(var(--spacing-unit) * 3);
   justify-content: center;
   flex-wrap: wrap;
 }
 
-.button-group button {
+.buttonGroup button {
   animation: fadeInScale 0.5s ease-out both;
 }
 
-.button-group button:first-child {
+.buttonGroup button:first-child {
   animation-delay: 1.2s;
 }
 
-.button-group button:nth-child(2) {
+.buttonGroup button:nth-child(2) {
   animation-delay: 1.35s;
 }
 
-.button-group button:hover {
+.buttonGroup button:hover {
   transform: scale(1.05);
 }
 
-.button-group button:active {
+.buttonGroup button:active {
   transform: scale(0.95);
 }
 
-.button-group button.secondary {
+.buttonGroup .secondary {
   background: var(--color-secondary);
   color: var(--color-bg);
   border-color: var(--color-secondary);
 }
 
-.button-group button.secondary::before {
+.buttonGroup .secondary::before {
   background: var(--color-accent);
 }
 
-.button-group button.secondary:hover {
+.buttonGroup .secondary:hover {
   border-color: var(--color-accent);
   color: var(--color-secondary);
 }
@@ -257,7 +257,7 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .app-container {
+  .appContainer {
     padding: calc(var(--spacing-unit) * 2);
   }
 
@@ -276,28 +276,28 @@
     text-align: center;
   }
 
-  .accent-block {
+  .accentBlock {
     width: 200px;
     height: 200px;
   }
 
-  .feature-grid {
+  .featureGrid {
     grid-template-columns: 1fr;
   }
 
-  .button-group {
+  .buttonGroup {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .button-group button {
+  .buttonGroup button {
     width: 100%;
   }
 }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .feature-card {
+  .featureCard {
     border-width: 4px;
   }
 
@@ -305,5 +305,3 @@
     height: 10px;
   }
 }
-
-

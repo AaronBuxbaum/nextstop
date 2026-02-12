@@ -19,7 +19,7 @@ The project uses a modular skill system inspired by Anthropic's Claude Code plug
 
 ```
 nextstop/
-├── app/              # Frontend application (React + TypeScript + Vite)
+├── app/              # Frontend application (Next.js + TypeScript)
 ├── skills/           # Modular AI instruction sets
 │   └── frontend-design/  # Guides for building distinctive UIs
 └── .github/          # CI/CD and project configuration
@@ -27,11 +27,11 @@ nextstop/
 
 ### Tech Stack
 
-- **Frontend Framework**: React 18 with TypeScript
-- **Build Tool**: Vite for fast development and optimized builds
-- **Styling**: CSS Modules with support for modern CSS features
+- **Frontend Framework**: Next.js 15 with React 19 and TypeScript
+- **Styling**: CSS Modules with Tailwind CSS
 - **Type Safety**: Full TypeScript coverage
 - **Code Quality**: ESLint for consistent code style
+- **Deployment**: Optimized for Vercel with automatic deployments
 
 ## 🚀 Getting Started
 
@@ -59,7 +59,7 @@ npm install
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173`
+The application will be available at `http://localhost:3000`
 
 ## 📚 Skills
 
@@ -75,9 +75,9 @@ See the [skills README](./skills/README.md) for more details on using and creati
 
 In the `app/` directory:
 
-- `npm run dev` - Start development server
+- `npm run dev` - Start development server with Turbopack
 - `npm run build` - Build for production
-- `npm run preview` - Preview production build
+- `npm start` - Start production server
 - `npm run lint` - Run ESLint
 
 ### Code Standards
@@ -101,7 +101,7 @@ In the `app/` directory:
 - [Anthropic Skills Guide](https://platform.claude.com/docs/en/build-with-claude/skills-guide)
 - [Frontend Aesthetics Cookbook](https://github.com/anthropics/claude-cookbooks/blob/main/coding/prompting_for_frontend_aesthetics.ipynb)
 - [Claude Code](https://github.com/anthropics/claude-code)
-- [Vite Documentation](https://vitejs.dev/)
+- [Next.js Documentation](https://nextjs.org/docs)
 - [React Documentation](https://react.dev/)
 
 ## 📝 License

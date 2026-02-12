@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { Plan, Event, Branch, AIAnalysis, AISuggestion } from '@/types';
+import { Plan, Event, Branch, DecisionLogic, AIAnalysis, AISuggestion } from '@/types';
 import { EventCard } from '@/components/EventCard';
 import { LocationAutocomplete } from '@/components/LocationAutocomplete';
 import { TravelTime } from '@/components/TravelTime';
@@ -50,7 +50,7 @@ export default function PlanDetailPage() {
   const [newOption, setNewOption] = useState({
     label: '',
     description: '',
-    logicType: 'preference' as 'time' | 'weather' | 'preference' | 'budget' | 'custom',
+    logicType: 'preference' as DecisionLogic['type'],
     logicCondition: '',
   });
 

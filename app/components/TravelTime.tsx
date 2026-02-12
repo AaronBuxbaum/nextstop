@@ -101,7 +101,9 @@ export function TravelTime({ fromLocation, toLocation }: TravelTimeProps) {
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       const distanceKm = earthRadiusKm * c * 1.4; // road factor
       const walkingSec = (distanceKm / 5) * 3600;
-      const transitSec = walkingSec * 0.4;
+      // Transit is estimated at ~40% of walking time (avg transit speed ~12.5 km/h vs ~5 km/h walking)
+      const TRANSIT_TO_WALKING_RATIO = 0.4;
+      const transitSec = walkingSec * TRANSIT_TO_WALKING_RATIO;
 
       setDriving(formatDuration(drivingSec));
       setWalking(formatDuration(walkingSec));

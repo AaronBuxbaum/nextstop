@@ -42,7 +42,12 @@ export async function POST(req: NextRequest) {
       SELECT id, start_time FROM events WHERE plan_id = ${planId}
     `;
 
-    const eventMap = new Map<string, string | null>(events.map((e: { id: string; start_time: string | null }) => [e.id, e.start_time]));
+    interface EventTimeRecord {
+      id: string;
+      start_time: string | null;
+    }
+
+    const eventMap = new Map<string, string | null>(events.map((e: EventTimeRecord) => [e.id, e.start_time]));
 
     // Validate that events with start_time respect chronological order
     let lastTime: string | null = null;

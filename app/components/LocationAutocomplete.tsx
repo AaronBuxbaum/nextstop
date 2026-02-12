@@ -27,6 +27,7 @@ export function LocationAutocomplete({
 }: LocationAutocompleteProps) {
   const [results, setResults] = useState<NominatimResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
   const [showDropdown, setShowDropdown] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -74,6 +75,7 @@ export function LocationAutocomplete({
     onChange(result.display_name);
     setShowDropdown(false);
     setResults([]);
+    setFocusedIndex(-1);
   };
 
   // Close dropdown on outside click
@@ -114,13 +116,13 @@ export function LocationAutocomplete({
       {isLoading && <span className={styles.spinner}>⏳</span>}
       {showDropdown && (
         <ul className={styles.dropdown} role="listbox" id="location-autocomplete-list">
-          {results.map((result) => (
+          {results.map((result, index) => (
             <li
               key={result.place_id}
               className={styles.option}
               onClick={() => handleSelect(result)}
               role="option"
-              aria-selected={false}
+              aria-selected={index === focusedIndex}
             >
               <span className={styles.optionIcon}>📍</span>
               <span className={styles.optionText}>{result.display_name}</span>

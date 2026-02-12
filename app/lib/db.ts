@@ -19,7 +19,8 @@ export const sql = process.env.DATABASE_URL
     })();
 
 // Database initialization script
-// NOTE: This is a simple initialization for development.
+// NOTE: This function is called automatically on server startup via instrumentation.ts
+// Do NOT call this function in API routes or per-request handlers.
 // For production, consider using a migration tool like:
 // - node-pg-migrate: https://github.com/salsita/node-pg-migrate
 // - Prisma Migrate: https://www.prisma.io/docs/concepts/components/prisma-migrate

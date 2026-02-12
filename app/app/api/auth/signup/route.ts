@@ -1,19 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
-import { sql, initDatabase } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { nanoid } from "nanoid";
 
 export async function POST(req: NextRequest) {
   try {
-    // Initialize database before first use
-    // This is safe to call multiple times as it uses CREATE TABLE IF NOT EXISTS
-    try {
-      await initDatabase();
-    } catch (initError) {
-      // Log initialization error but continue - tables might already exist
-      console.error("Database initialization error:", initError);
-    }
-
     const body = await req.json();
     const { name, email, password } = body;
 

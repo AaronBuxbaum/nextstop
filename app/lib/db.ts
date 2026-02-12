@@ -12,6 +12,7 @@ export const sql = process.env.DATABASE_URL
   ? neon(process.env.DATABASE_URL)
   : (() => {
       // Mock SQL function for build time
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mockSql = (() => Promise.resolve([])) as any;
       mockSql.unsafe = () => mockSql;
       return mockSql;

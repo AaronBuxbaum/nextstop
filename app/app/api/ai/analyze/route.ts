@@ -53,7 +53,7 @@ Description: ${plan.description || 'None provided'}
 Current Theme: ${plan.theme || 'None set'}
 
 Events (${events.length}):
-${events.map((e: any, idx: number) => `
+${events.map((e: { title: string; location?: string; start_time?: string; end_time?: string; duration?: number; description?: string; notes?: string }, idx: number) => `
 ${idx + 1}. ${e.title}
    Location: ${e.location || 'Not specified'}
    Time: ${e.start_time || 'Not specified'} - ${e.end_time || 'Not specified'}
@@ -98,7 +98,7 @@ Please provide a comprehensive analysis in the following JSON format:
       } else {
         throw new Error("No JSON found in response");
       }
-    } catch (parseError) {
+    } catch {
       // If parsing fails, return a structured error
       return NextResponse.json({
         error: "Failed to parse AI response",

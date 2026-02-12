@@ -33,7 +33,6 @@ jobs:
 
     - name: Lint code
       run: cd app && npm run lint
-      continue-on-error: true
 
     - name: Run tests
       run: cd app && npm test -- --run

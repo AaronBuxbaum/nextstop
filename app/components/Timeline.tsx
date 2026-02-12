@@ -8,6 +8,7 @@ import styles from './Timeline.module.css';
 
 interface TimelineProps {
   events: Event[];
+  planDate?: string; // Plan date in YYYY-MM-DD format
   onEventClick?: (event: Event) => void;
   onEdit?: (event: Event) => void;
   onDelete?: (eventId: string) => void;
@@ -22,6 +23,7 @@ interface TimelineProps {
 
 export function Timeline({
   events,
+  planDate,
   onEventClick,
   onEdit,
   onDelete,
@@ -173,7 +175,11 @@ export function Timeline({
                   )}
                   {event.location && (
                     <div className={styles.detail}>
-                      <WeatherInfo location={event.location} />
+                      <WeatherInfo 
+                        location={event.location}
+                        date={planDate}
+                        time={event.startTime}
+                      />
                     </div>
                   )}
                 </div>
@@ -196,15 +202,45 @@ export function Timeline({
             {/* Travel time between consecutive events with locations */}
             {index < events.length - 1 &&
               event.location &&
-              events[index + 1].location && (
-                <div className={styles.travelTimeRow}>
-                  <div className={styles.travelTimeMarker} />
-                  <TravelTime
-                    fromLocation={event.location}
-                    toLocation={events[index + 1].location}
-                  />
-                </div>
-              )}
+              events[index + 1].location && (() => {
+                const currentEvent = event;
+                const nextEvent = events[index + 1];
+                let timeBetween: number | undefined;
+                
+                // Calculate time between events if both have times
+                if (currentEvent.endTime && nextEvent.startTime) {
+                  // Parse times in HH:MM format
+                  const [endHour, endMin] = currentEvent.endTime.split(':').map(Number);
+                  const [startHour, startMin] = nextEvent.startTime.split(':').map(Number);
+                  const endMinutes = endHour * 60 + endMin;
+                  const startMinutes = startHour * 60 + startMin;
+                  timeBetween = startMinutes - endMinutes;
+                  
+                  // Handle negative values (next day) or invalid values
+                  if (timeBetween < 0) timeBetween = undefined;
+                } else if (currentEvent.startTime && currentEvent.duration && nextEvent.startTime) {
+                  // Calculate using start time + duration
+                  const [startHour, startMin] = currentEvent.startTime.split(':').map(Number);
+                  const [nextStartHour, nextStartMin] = nextEvent.startTime.split(':').map(Number);
+                  const endMinutes = startHour * 60 + startMin + currentEvent.duration;
+                  const nextStartMinutes = nextStartHour * 60 + nextStartMin;
+                  timeBetween = nextStartMinutes - endMinutes;
+                  
+                  if (timeBetween < 0) timeBetween = undefined;
+                }
+                
+                return (
+                  <div className={styles.travelTimeRow}>
+                    <div className={styles.travelTimeMarker} />
+                    <TravelTime
+                      fromLocation={currentEvent.location}
+                      toLocation={nextEvent.location}
+                      timeBetween={timeBetween}
+                    />
+                  </div>
+                );
+              })()
+            }
           </React.Fragment>
         );
       })}

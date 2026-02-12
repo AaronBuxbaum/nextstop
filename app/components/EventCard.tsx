@@ -11,6 +11,7 @@ interface DragHandleProps {
 
 interface EventCardProps {
   event: Event;
+  planDate?: string; // Plan date in YYYY-MM-DD format
   onEdit?: (event: Event) => void;
   onDelete?: (eventId: string) => void;
   onToggleOptional?: (eventId: string, isOptional: boolean) => void;
@@ -24,6 +25,7 @@ interface EventCardProps {
 
 export function EventCard({
   event,
+  planDate,
   onEdit,
   onDelete,
   onToggleOptional,
@@ -137,7 +139,11 @@ export function EventCard({
 
         {event.location && (
           <div className={styles.detail}>
-            <WeatherInfo location={event.location} />
+            <WeatherInfo 
+              location={event.location}
+              date={planDate}
+              time={event.startTime}
+            />
           </div>
         )}
       </div>

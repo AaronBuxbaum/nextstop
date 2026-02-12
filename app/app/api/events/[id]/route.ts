@@ -59,6 +59,41 @@ export async function PATCH(
     const updatedTags = tags !== undefined ? JSON.stringify(tags) : currentEvent.tags;
     const updatedIsOptional = isOptional !== undefined ? isOptional : currentEvent.is_optional;
 
+    // Check if start_time changed and if reordering is needed
+    const startTimeChanged = startTime !== undefined && startTime !== currentEvent.start_time;
+    let needsReorder = false;
+    let newPosition = currentEvent.position;
+
+    if (startTimeChanged && updatedStartTime) {
+      // Get all events in the plan ordered by position
+      const allEvents = await sql`
+        SELECT id, start_time, position
+        FROM events
+        WHERE plan_id = ${currentEvent.plan_id}
+        ORDER BY position ASC
+      `;
+
+      // Find the correct position based on chronological order
+      // Events should be ordered by start_time if they have one
+      let targetPosition = 0;
+      for (let i = 0; i < allEvents.length; i++) {
+        const evt = allEvents[i];
+        // Skip the current event
+        if (evt.id === id) continue;
+        
+        // If this event has a start_time and it's before our updated time, increment position
+        if (evt.start_time && evt.start_time < updatedStartTime) {
+          targetPosition = i + 1;
+        }
+      }
+
+      // Only reorder if position actually changed
+      if (targetPosition !== currentEvent.position) {
+        needsReorder = true;
+        newPosition = targetPosition;
+      }
+    }
+
     // Execute update with all values
     await sql`
       UPDATE events 
@@ -75,6 +110,33 @@ export async function PATCH(
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}
     `;
+
+    // Reorder if needed
+    if (needsReorder) {
+      const allEvents = await sql`
+        SELECT id, position
+        FROM events
+        WHERE plan_id = ${currentEvent.plan_id}
+        ORDER BY position ASC
+      `;
+
+      // Build new order: remove current event and insert at new position
+      const eventIds = allEvents.map((e: { id: string }) => e.id);
+      const currentIndex = eventIds.indexOf(id);
+      if (currentIndex !== -1) {
+        eventIds.splice(currentIndex, 1);
+      }
+      eventIds.splice(newPosition, 0, id);
+
+      // Update positions for all events
+      for (let i = 0; i < eventIds.length; i++) {
+        await sql`
+          UPDATE events
+          SET position = ${i}, updated_at = CURRENT_TIMESTAMP
+          WHERE id = ${eventIds[i]}
+        `;
+      }
+    }
 
     const result = await sql`
       SELECT * FROM events WHERE id = ${id}

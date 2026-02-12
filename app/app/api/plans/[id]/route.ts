@@ -35,7 +35,7 @@ export async function GET(
     const events = await sql`
       SELECT * FROM events 
       WHERE plan_id = ${id}
-      ORDER BY created_at
+      ORDER BY position ASC, created_at ASC
     `;
 
     // Get branches with options

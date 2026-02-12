@@ -15,6 +15,7 @@ export async function GET() {
 
     const plans = await sql`
       SELECT p.*, 
+        (SELECT COUNT(*) FROM events WHERE events.plan_id = p.id)::int as event_count,
         COALESCE(
           json_agg(
             DISTINCT jsonb_build_object(

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plan } from '@/types';
 import styles from './page.module.css';
@@ -14,14 +14,14 @@ export default function PlansPage() {
   const [newPlanTitle, setNewPlanTitle] = useState('');
 
   // Helper to handle fetch with auth redirect
-  const fetchWithAuth = async (url: string, options?: RequestInit) => {
+  const fetchWithAuth = useCallback(async (url: string, options?: RequestInit): Promise<Response | null> => {
     const response = await fetch(url, options);
     if (response.status === 401) {
       router.push('/auth/signin');
       return null;
     }
     return response;
-  };
+  }, [router]);
 
   useEffect(() => {
     fetchPlans();
@@ -30,8 +30,10 @@ export default function PlansPage() {
   const fetchPlans = async () => {
     try {
       const response = await fetchWithAuth('/api/plans');
-      if (!response) return;
-      if (!response.ok) throw new Error('Failed to fetch plans');
+      if (!response?.ok) {
+        if (response) throw new Error('Failed to fetch plans');
+        return; // Redirected to sign-in
+      }
       const data = await response.json();
       setPlans(data);
     } catch (err) {
@@ -51,8 +53,10 @@ export default function PlansPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: newPlanTitle }),
       });
-      if (!response) return;
-      if (!response.ok) throw new Error('Failed to create plan');
+      if (!response?.ok) {
+        if (response) throw new Error('Failed to create plan');
+        return; // Redirected to sign-in
+      }
       
       const newPlan = await response.json();
       setPlans([newPlan, ...plans]);
@@ -71,8 +75,10 @@ export default function PlansPage() {
       const response = await fetchWithAuth(`/api/plans/${id}`, {
         method: 'DELETE',
       });
-      if (!response) return;
-      if (!response.ok) throw new Error('Failed to delete plan');
+      if (!response?.ok) {
+        if (response) throw new Error('Failed to delete plan');
+        return; // Redirected to sign-in
+      }
       
       setPlans(plans.filter(plan => plan.id !== id));
     } catch (err) {

@@ -15,8 +15,8 @@ const courierPrime = Courier_Prime({
 });
 
 export const metadata: Metadata = {
-  title: "nextstop - Distinctive Design Meets Modern Development",
-  description: "A modern web application built with Anthropic's best practices for AI-assisted development",
+  title: "NextStop - AI-Powered Outing Planner",
+  description: "Plan amazing outings with AI assistance, real-time collaboration, and smart event management",
 };
 
 export default function RootLayout({

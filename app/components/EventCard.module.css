@@ -1,0 +1,127 @@
+.card {
+  background: var(--card-bg, white);
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.card:hover {
+  border-color: var(--primary-color, #3b82f6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.card.editing {
+  border-color: var(--warning-color, #f59e0b);
+  background: var(--warning-bg, #fffbeb);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  font-family: var(--font-display), serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary, #111827);
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editButton,
+.deleteButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.editButton {
+  color: var(--primary-color, #3b82f6);
+}
+
+.editButton:hover {
+  background: var(--primary-color, #3b82f6);
+  color: white;
+}
+
+.deleteButton {
+  color: var(--danger-color, #ef4444);
+}
+
+.deleteButton:hover {
+  background: var(--danger-color, #ef4444);
+  color: white;
+}
+
+.description {
+  color: var(--text-secondary, #6b7280);
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.detail {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-body), monospace;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.icon {
+  font-size: 1rem;
+}
+
+.notes {
+  background: var(--notes-bg, #f9fafb);
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  margin-top: 0.75rem;
+  font-family: var(--font-body), monospace;
+}
+
+.notes strong {
+  color: var(--text-primary, #111827);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--tag-bg, #dbeafe);
+  color: var(--tag-color, #1e40af);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-family: var(--font-body), monospace;
+  font-weight: 600;
+}

@@ -1,0 +1,26 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit, 8px) * 0.5);
+  padding: calc(var(--spacing-unit, 8px) * 0.5) calc(var(--spacing-unit, 8px));
+  background: var(--notes-bg, #f9fafb);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: calc(var(--spacing-unit, 8px) * 0.5);
+  font-family: var(--font-body), monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+  transition: all 0.2s ease;
+}
+
+.icon {
+  font-size: 1rem;
+}
+
+.temp {
+  font-weight: 700;
+  color: var(--text-primary, #111827);
+}
+
+.desc {
+  color: var(--text-secondary, #6b7280);
+}

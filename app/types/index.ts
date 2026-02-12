@@ -19,6 +19,7 @@ export interface Event {
   notes?: string;
   tags?: string[];
   position?: number;
+  isOptional?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

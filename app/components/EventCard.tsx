@@ -3,6 +3,7 @@
 import { Event } from '@/types';
 import styles from './EventCard.module.css';
 import React from 'react';
+import { WeatherInfo } from './WeatherInfo';
 
 interface DragHandleProps {
   onDragStart: (e: React.DragEvent) => void;
@@ -12,6 +13,7 @@ interface EventCardProps {
   event: Event;
   onEdit?: (event: Event) => void;
   onDelete?: (eventId: string) => void;
+  onToggleOptional?: (eventId: string, isOptional: boolean) => void;
   isEditing?: boolean;
   isDragging?: boolean;
   onDragOver?: (e: React.DragEvent) => void;
@@ -24,6 +26,7 @@ export function EventCard({
   event,
   onEdit,
   onDelete,
+  onToggleOptional,
   isEditing,
   isDragging,
   onDragOver,
@@ -31,9 +34,13 @@ export function EventCard({
   onDragEnd,
   dragHandleProps,
 }: EventCardProps) {
+  const mapsUrl = event.location
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`
+    : null;
+
   return (
     <div
-      className={`${styles.card} ${isEditing ? styles.editing : ''} ${isDragging ? styles.dragging : ''}`}
+      className={`${styles.card} ${isEditing ? styles.editing : ''} ${isDragging ? styles.dragging : ''} ${event.isOptional ? styles.optional : ''}`}
       onDragOver={onDragOver}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
@@ -52,9 +59,21 @@ export function EventCard({
             </span>
           )}
           <h3 className={styles.title}>{event.title}</h3>
+          {event.isOptional && (
+            <span className={styles.optionalBadge}>Optional</span>
+          )}
         </div>
-        {(onEdit || onDelete) && (
+        {(onEdit || onDelete || onToggleOptional) && (
           <div className={styles.actions}>
+            {onToggleOptional && (
+              <button
+                onClick={() => onToggleOptional(event.id, !event.isOptional)}
+                className={styles.optionalButton}
+                aria-label={event.isOptional ? 'Mark as required' : 'Mark as optional'}
+              >
+                {event.isOptional ? '★ Required' : '☆ Optional'}
+              </button>
+            )}
             {onEdit && (
               <button 
                 onClick={() => onEdit(event)}
@@ -86,6 +105,17 @@ export function EventCard({
           <div className={styles.detail}>
             <span className={styles.icon}>📍</span>
             <span>{event.location}</span>
+            {mapsUrl && (
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.mapLink}
+                aria-label={`View ${event.location} on Google Maps`}
+              >
+                🗺️ Map
+              </a>
+            )}
           </div>
         )}
 
@@ -102,6 +132,12 @@ export function EventCard({
           <div className={styles.detail}>
             <span className={styles.icon}>⏱️</span>
             <span>{event.duration} minutes</span>
+          </div>
+        )}
+
+        {event.location && (
+          <div className={styles.detail}>
+            <WeatherInfo location={event.location} />
           </div>
         )}
       </div>

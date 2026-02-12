@@ -156,3 +156,59 @@
   font-family: var(--font-body), monospace;
   font-weight: 600;
 }
+
+.card.optional {
+  border-style: dashed;
+  opacity: 0.85;
+}
+
+.optionalBadge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  background: var(--tag-bg, #dbeafe);
+  color: var(--tag-color, #1e40af);
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-family: var(--font-body), monospace;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.optionalButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+  transition: all 0.2s ease;
+}
+
+.optionalButton:hover {
+  background: var(--tag-bg, #dbeafe);
+  border-color: var(--tag-color, #1e40af);
+  color: var(--tag-color, #1e40af);
+}
+
+.mapLink {
+  font-family: var(--font-body), monospace;
+  font-size: 0.75rem;
+  color: var(--primary-color, #3b82f6);
+  text-decoration: none;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--primary-color, #3b82f6);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.mapLink:hover {
+  background: var(--primary-color, #3b82f6);
+  color: white;
+}
+
+.mapLink::after {
+  display: none;
+}

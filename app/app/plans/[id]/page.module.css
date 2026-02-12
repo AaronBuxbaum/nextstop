@@ -340,3 +340,55 @@
   display: block;
   margin-bottom: 0.25rem;
 }
+
+.backNav {
+  margin-bottom: 1.5rem;
+}
+
+.backButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--text-secondary, #6b7280);
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.backButton:hover {
+  border-color: var(--primary-color, #3b82f6);
+  color: var(--primary-color, #3b82f6);
+  transform: translateY(-2px);
+}
+
+.shareRow {
+  margin-top: 1rem;
+}
+
+.timelineButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: var(--text-primary, #111827);
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timelineButton:hover {
+  border-color: var(--primary-color, #3b82f6);
+  transform: translateY(-2px);
+}
+
+.timelineSection {
+  background: var(--panel-bg, #fafafa);
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}

@@ -167,8 +167,7 @@ export const handlers = [
 
   // AI API
   http.post('/api/ai/generate-event', async ({ request }) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const body = await request.json() as any;
+    const body = await request.json() as { planId: string; userInput: string };
     const { userInput } = body;
     
     // Simple mock response for testing

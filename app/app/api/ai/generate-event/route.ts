@@ -5,6 +5,13 @@ import { sql } from "@/lib/db";
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
+interface EventListItem {
+  title: string;
+  location?: string;
+  start_time?: string;
+  duration?: number;
+}
+
 // POST /api/ai/generate-event - Generate an event from natural language input
 export async function POST(req: NextRequest) {
   try {
@@ -56,7 +63,7 @@ Description: ${plan.description || 'None provided'}
 Theme: ${plan.theme || 'None set'}
 
 Existing Events (in order):
-${events.map((e: { title: string; location?: string; start_time?: string; duration?: number }, idx: number) => `
+${events.map((e: EventListItem, idx: number) => `
 ${idx + 1}. ${e.title}${e.location ? ` at ${e.location}` : ''}${e.start_time ? ` (${e.start_time})` : ''}${e.duration ? ` - ${e.duration} minutes` : ''}
 `).join('')}
 
@@ -102,7 +109,8 @@ Guidelines:
       } else {
         throw new Error("No JSON found in response");
       }
-    } catch {
+    } catch (parseError) {
+      console.error("Failed to parse AI response:", parseError, "Raw text:", text);
       return NextResponse.json({
         error: "Failed to parse AI response",
         rawResponse: text,

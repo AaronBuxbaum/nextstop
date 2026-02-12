@@ -267,7 +267,7 @@ export default function PlanDetailPage() {
       <section className={styles.eventsSection}>
         <div className={styles.sectionHeader}>
           <h2>Events</h2>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div className={styles.buttonGroup}>
             {!showAiGenerator && !isAddingEvent && (
               <button
                 onClick={() => setShowAiGenerator(true)}
@@ -289,10 +289,10 @@ export default function PlanDetailPage() {
 
         {showAiGenerator && (
           <form onSubmit={generateEventFromAI} className={styles.eventForm}>
-            <h3 style={{ fontFamily: 'var(--font-display), serif', marginBottom: '1rem' }}>
+            <h3 className={styles.aiGeneratorTitle}>
               ✨ AI Event Generator
             </h3>
-            <p style={{ fontFamily: 'var(--font-body), monospace', color: 'var(--text-secondary, #6b7280)', marginBottom: '1rem' }}>
+            <p className={styles.aiGeneratorDescription}>
               Describe the event you want to add in natural language. For example: &ldquo;I want to go to dinner at Eataly after the walk in the park&rdquo;
             </p>
             <textarea

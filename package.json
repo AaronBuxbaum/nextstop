@@ -1,0 +1,34 @@
+{
+  "name": "nextstop",
+  "version": "1.0.0",
+  "description": "A modern web application built with Anthropic's best practices",
+  "private": true,
+  "scripts": {
+    "dev": "cd app && npm run dev",
+    "build": "cd app && npm run build",
+    "start": "cd app && npm start",
+    "lint": "cd app && npm run lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AaronBuxbaum/nextstop.git"
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "nextjs",
+    "anthropic",
+    "frontend-design",
+    "ai-assisted"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AaronBuxbaum/nextstop/issues"
+  },
+  "homepage": "https://github.com/AaronBuxbaum/nextstop#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

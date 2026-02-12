@@ -16,6 +16,8 @@ interface LocationAutocompleteProps {
   onSelect: (displayName: string) => void;
   placeholder?: string;
   className?: string;
+  centerLat?: number;
+  centerLon?: number;
 }
 
 export function LocationAutocomplete({
@@ -24,6 +26,8 @@ export function LocationAutocomplete({
   onSelect,
   placeholder = 'Search location...',
   className,
+  centerLat,
+  centerLon,
 }: LocationAutocompleteProps) {
   const [results, setResults] = useState<NominatimResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -41,10 +45,21 @@ export function LocationAutocomplete({
 
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`,
-        { headers: { 'User-Agent': 'NextStop/1.0' } }
-      );
+      // Build URL with optional viewbox parameter for centering
+      let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+      
+      // Add viewbox parameter if center coordinates are provided
+      // Viewbox creates a ~10 mile radius around the center point
+      if (centerLat !== undefined && centerLon !== undefined) {
+        const latDelta = 0.15; // approximately 10 miles
+        const lonDelta = 0.15;
+        const viewbox = `${centerLon - lonDelta},${centerLat + latDelta},${centerLon + lonDelta},${centerLat - latDelta}`;
+        url += `&viewbox=${viewbox}&bounded=0`;
+      }
+      
+      const response = await fetch(url, { 
+        headers: { 'User-Agent': 'NextStop/1.0' } 
+      });
       if (response.ok) {
         const data: NominatimResult[] = await response.json();
         setResults(data);
@@ -55,7 +70,7 @@ export function LocationAutocomplete({
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [centerLat, centerLon]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;

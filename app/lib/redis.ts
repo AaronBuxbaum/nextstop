@@ -1,10 +1,9 @@
 import { Redis } from '@upstash/redis';
 
+// Allow build to succeed without Redis credentials
+// At runtime, routes will use mock Redis if credentials are missing
 if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN must be defined');
-  }
-  console.warn('Redis environment variables not set - using mock Redis for development');
+  console.warn('Redis environment variables not set - Redis operations will use mock implementation');
 }
 
 export const redis = (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)

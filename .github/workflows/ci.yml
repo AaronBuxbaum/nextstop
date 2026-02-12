@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [25.x]
 
     steps:
     - name: Checkout code
@@ -33,6 +33,9 @@ jobs:
 
     - name: Lint code
       run: cd app && npm run lint
+
+    - name: Run tests
+      run: cd app && npm test -- --run
 
     - name: Build Next.js application
       run: cd app && npm run build

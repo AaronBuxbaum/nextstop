@@ -140,9 +140,13 @@ export default function PlanDetailPage() {
     }
   };
 
-  // Time calculation handlers for new event form
-  const handleNewEventTimeChange = (field: 'startTime' | 'endTime' | 'duration', value: string) => {
-    const updated = { ...newEvent, [field]: value };
+  // Shared time calculation logic
+  const calculateTimeFields = (
+    eventData: { startTime: string; endTime: string; duration: string },
+    field: 'startTime' | 'endTime' | 'duration',
+    value: string
+  ) => {
+    const updated = { ...eventData, [field]: value };
 
     // Calculate duration if both start and end times are provided
     if (field === 'startTime' || field === 'endTime') {
@@ -165,35 +169,17 @@ export default function PlanDetailPage() {
       }
     }
 
-    setNewEvent(updated);
+    return updated;
+  };
+
+  // Time calculation handlers for new event form
+  const handleNewEventTimeChange = (field: 'startTime' | 'endTime' | 'duration', value: string) => {
+    setNewEvent(calculateTimeFields(newEvent, field, value));
   };
 
   // Time calculation handlers for edit event form
   const handleEditEventTimeChange = (field: 'startTime' | 'endTime' | 'duration', value: string) => {
-    const updated = { ...editForm, [field]: value };
-
-    // Calculate duration if both start and end times are provided
-    if (field === 'startTime' || field === 'endTime') {
-      if (updated.startTime && updated.endTime) {
-        const duration = calculateDuration(updated.startTime, updated.endTime);
-        if (duration !== null) {
-          updated.duration = String(duration);
-        }
-      }
-    }
-
-    // Calculate end time if start time and duration are provided
-    if ((field === 'startTime' || field === 'duration') && updated.startTime && updated.duration) {
-      const durationNum = parseInt(updated.duration);
-      if (!isNaN(durationNum) && durationNum > 0) {
-        const endTime = calculateEndTime(updated.startTime, durationNum);
-        if (endTime !== null) {
-          updated.endTime = endTime;
-        }
-      }
-    }
-
-    setEditForm(updated);
+    setEditForm(calculateTimeFields(editForm, field, value));
   };
 
   // Event editing

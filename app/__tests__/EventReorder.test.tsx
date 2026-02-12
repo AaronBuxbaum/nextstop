@@ -18,6 +18,7 @@ vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
 import { PATCH } from '@/app/api/events/[id]/route';
 import { sql } from '@/lib/db';
 import { getServerSession } from 'next-auth';
+import { NextRequest } from 'next/server';
 
 describe('Event Reordering on Time Change', () => {
   const mockSession = {
@@ -80,7 +81,7 @@ describe('Event Reordering on Time Change', () => {
 
     const req = {
       json: async () => ({ startTime: '08:00' }),
-    } as any;
+    } as NextRequest;
 
     const params = Promise.resolve({ id: eventId });
 
@@ -135,7 +136,7 @@ describe('Event Reordering on Time Change', () => {
 
     const req = {
       json: async () => ({ startTime: '14:00' }),
-    } as any;
+    } as NextRequest;
 
     const params = Promise.resolve({ id: eventId });
 
@@ -179,7 +180,7 @@ describe('Event Reordering on Time Change', () => {
 
     const req = {
       json: async () => ({ startTime: '12:30' }),
-    } as any;
+    } as NextRequest;
 
     const params = Promise.resolve({ id: eventId });
 
@@ -217,7 +218,7 @@ describe('Event Reordering on Time Change', () => {
 
     const req = {
       json: async () => ({ title: 'Updated Lunch' }),
-    } as any;
+    } as NextRequest;
 
     const params = Promise.resolve({ id: eventId });
 

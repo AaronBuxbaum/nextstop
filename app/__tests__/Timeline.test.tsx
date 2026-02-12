@@ -5,13 +5,13 @@ import type { Event } from '@/types';
 
 // Mock WeatherInfo and TravelTime to avoid external API calls
 vi.mock('@/components/WeatherInfo', () => ({
-  WeatherInfo: ({ location, date, time }: { location: string; date?: string; time?: string }) => (
+  WeatherInfo: () => (
     <span data-testid="weather-info">Weather</span>
   ),
 }));
 
 vi.mock('@/components/TravelTime', () => ({
-  TravelTime: ({ fromLocation, toLocation, timeBetween }: { 
+  TravelTime: ({ timeBetween }: { 
     fromLocation: string; 
     toLocation: string;
     timeBetween?: number;

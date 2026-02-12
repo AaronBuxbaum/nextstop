@@ -23,17 +23,11 @@ export default function PlansPage() {
     return response;
   }, [router]);
 
-  useEffect(() => {
-    fetchPlans();
-  }, []);
-
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
     try {
       const response = await fetchWithAuth('/api/plans');
-      if (!response?.ok) {
-        if (response) throw new Error('Failed to fetch plans');
-        return; // Redirected to sign-in
-      }
+      if (!response) return; // Redirected to sign-in
+      if (!response.ok) throw new Error('Failed to fetch plans');
       const data = await response.json();
       setPlans(data);
     } catch (err) {
@@ -41,7 +35,11 @@ export default function PlansPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchWithAuth]);
+
+  useEffect(() => {
+    fetchPlans();
+  }, [fetchPlans]);
 
   const createPlan = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,10 +51,8 @@ export default function PlansPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: newPlanTitle }),
       });
-      if (!response?.ok) {
-        if (response) throw new Error('Failed to create plan');
-        return; // Redirected to sign-in
-      }
+      if (!response) return; // Redirected to sign-in
+      if (!response.ok) throw new Error('Failed to create plan');
       
       const newPlan = await response.json();
       setPlans([newPlan, ...plans]);
@@ -75,10 +71,8 @@ export default function PlansPage() {
       const response = await fetchWithAuth(`/api/plans/${id}`, {
         method: 'DELETE',
       });
-      if (!response?.ok) {
-        if (response) throw new Error('Failed to delete plan');
-        return; // Redirected to sign-in
-      }
+      if (!response) return; // Redirected to sign-in
+      if (!response.ok) throw new Error('Failed to delete plan');
       
       setPlans(plans.filter(plan => plan.id !== id));
     } catch (err) {

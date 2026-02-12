@@ -1,11 +1,21 @@
 import { neon } from '@neondatabase/serverless';
 
 if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is not defined');
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('DATABASE_URL is not defined');
+  }
+  console.warn('DATABASE_URL is not defined - using mock database for development');
 }
 
 // Create a connection pool
-export const sql = neon(process.env.DATABASE_URL);
+export const sql = process.env.DATABASE_URL 
+  ? neon(process.env.DATABASE_URL)
+  : (() => {
+      // Mock SQL function for build time
+      const mockSql = (() => Promise.resolve([])) as any;
+      mockSql.unsafe = () => mockSql;
+      return mockSql;
+    })();
 
 // Database initialization script
 export const initDatabase = async () => {

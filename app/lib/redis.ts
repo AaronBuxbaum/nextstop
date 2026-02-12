@@ -1,13 +1,25 @@
 import { Redis } from '@upstash/redis';
 
 if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-  throw new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN must be defined');
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN must be defined');
+  }
+  console.warn('Redis environment variables not set - using mock Redis for development');
 }
 
-export const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+export const redis = (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    })
+  : {
+      // Mock Redis for build time
+      publish: async () => {},
+      hset: async () => {},
+      hgetall: async () => null,
+      hdel: async () => {},
+      expire: async () => {},
+    } as any;
 
 // Helper functions for collaboration
 export const publishUpdate = async (planId: string, update: any) => {
@@ -26,7 +38,7 @@ export const setUserPresence = async (planId: string, userId: string, userName: 
 };
 
 export const getUserPresence = async (planId: string) => {
-  const presence = await redis.hgetall<Record<string, string>>(`presence:${planId}`);
+  const presence = await redis.hgetall(`presence:${planId}`) as Record<string, string> | null;
   if (!presence) return [];
   
   return Object.entries(presence).map(([userId, data]) => ({
@@ -52,7 +64,7 @@ export const clearEditingState = async (planId: string, elementId: string) => {
 };
 
 export const getEditingStates = async (planId: string) => {
-  const states = await redis.hgetall<Record<string, string>>(`editing:${planId}`);
+  const states = await redis.hgetall(`editing:${planId}`) as Record<string, string> | null;
   if (!states) return [];
   
   return Object.entries(states).map(([elementId, data]) => ({

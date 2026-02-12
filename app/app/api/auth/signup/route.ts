@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
-import { sql } from "@/lib/db";
+import { sql, initDatabase } from "@/lib/db";
 import { nanoid } from "nanoid";
+
+// Track if database has been initialized
+let isDbInitialized = false;
 
 export async function POST(req: NextRequest) {
   try {
+    // Initialize database on first signup attempt
+    if (!isDbInitialized) {
+      try {
+        await initDatabase();
+        isDbInitialized = true;
+      } catch (error) {
+        // If initialization fails, log but continue - tables might already exist
+        console.warn("Database initialization attempted:", error);
+      }
+    }
+
     const body = await req.json();
     const { name, email, password } = body;
 

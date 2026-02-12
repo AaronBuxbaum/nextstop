@@ -18,50 +18,48 @@ export default function Home() {
       <section className={styles.content}>
         <div className={styles.featureGrid}>
           <div className={styles.featureCard}>
-            <h2>Bold Typography</h2>
+            <h2>AI-Powered Planning</h2>
             <p>
-              Distinctive font combinations that elevate every interface. No generic system fonts
-              here.
+              Get intelligent suggestions for pacing, quality, and themes. AI helps you create
+              unforgettable experiences.
             </p>
           </div>
 
           <div className={styles.featureCard}>
-            <h2>Creative Motion</h2>
+            <h2>Real-Time Collaboration</h2>
             <p>
-              High-impact animations that delight users. Staggered reveals and purposeful
-              transitions.
+              Plan together with friends and family. See updates in real-time as your group builds
+              the perfect day.
             </p>
           </div>
 
           <div className={styles.featureCard}>
-            <h2>Intentional Design</h2>
+            <h2>Branching & Options</h2>
             <p>
-              Every choice is deliberate. From color palettes to spatial composition, nothing is
-              accidental.
+              Create flexible plans with multiple options. Adapt to weather, preferences, or
+              spontaneous decisions.
             </p>
           </div>
         </div>
       </section>
 
       <section className={styles.ctaSection}>
-        <h2>Built with Anthropic&apos;s Best Practices</h2>
+        <h2>Plan Your Perfect Outing</h2>
         <p className={styles.description}>
-          This project demonstrates how to create production-grade applications using AI-assisted
-          development with skills-based architecture.
+          NextStop helps you plan amazing outings with AI-powered suggestions, real-time collaboration,
+          and smart pacing analysis. Create your first plan today!
         </p>
         <div className={styles.buttonGroup}>
           <button
-            onClick={() => window.open('https://github.com/AaronBuxbaum/nextstop', '_blank')}
+            onClick={() => window.location.href = '/plans'}
           >
-            View on GitHub
+            Start Planning
           </button>
           <button
             className={styles.secondary}
-            onClick={() =>
-              window.open('https://github.com/AaronBuxbaum/nextstop/blob/main/skills/frontend-design/SKILL.md', '_blank')
-            }
+            onClick={() => window.open('https://github.com/AaronBuxbaum/nextstop', '_blank')}
           >
-            Read the Skills
+            View on GitHub
           </button>
         </div>
       </section>

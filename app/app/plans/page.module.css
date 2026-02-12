@@ -1,0 +1,241 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color, #e5e7eb);
+}
+
+.title {
+  font-family: var(--font-display), serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin: 0;
+  color: var(--text-primary, #111827);
+}
+
+.subtitle {
+  font-family: var(--font-body), monospace;
+  color: var(--text-secondary, #6b7280);
+  margin: 0.5rem 0 0 0;
+}
+
+.createButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.createButton:hover {
+  background: var(--primary-hover, #2563eb);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.createForm {
+  background: var(--form-bg, #f9fafb);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  border: 2px solid var(--border-color, #e5e7eb);
+}
+
+.input {
+  font-family: var(--font-body), monospace;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary-color, #3b82f6);
+}
+
+.formActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.submitButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submitButton:hover {
+  background: var(--primary-hover, #2563eb);
+}
+
+.cancelButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: var(--text-secondary, #6b7280);
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  border-color: var(--text-secondary, #6b7280);
+  background: var(--hover-bg, #f3f4f6);
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 3rem;
+  font-family: var(--font-body), monospace;
+  color: var(--text-secondary, #6b7280);
+}
+
+.error {
+  color: var(--danger-color, #ef4444);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.emptyState h2 {
+  font-family: var(--font-display), serif;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary, #111827);
+}
+
+.emptyState p {
+  font-family: var(--font-body), monospace;
+  color: var(--text-secondary, #6b7280);
+  margin-bottom: 2rem;
+}
+
+.planGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.planCard {
+  background: white;
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.planCard:hover {
+  border-color: var(--primary-color, #3b82f6);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+.planCardContent {
+  padding: 1.5rem;
+  cursor: pointer;
+}
+
+.planTitle {
+  font-family: var(--font-display), serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary, #111827);
+}
+
+.planDescription {
+  font-family: var(--font-body), monospace;
+  color: var(--text-secondary, #6b7280);
+  font-size: 0.875rem;
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+}
+
+.theme {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--theme-bg, #fef3c7);
+  color: var(--theme-color, #92400e);
+  border-radius: 9999px;
+  font-family: var(--font-body), monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.themeIcon {
+  font-size: 1rem;
+}
+
+.planMeta {
+  font-family: var(--font-body), monospace;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.planActions {
+  display: flex;
+  border-top: 2px solid var(--border-color, #e5e7eb);
+}
+
+.viewButton,
+.deleteButton {
+  font-family: var(--font-body), monospace;
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.viewButton {
+  color: var(--primary-color, #3b82f6);
+  border-right: 2px solid var(--border-color, #e5e7eb);
+}
+
+.viewButton:hover {
+  background: var(--primary-bg, #eff6ff);
+}
+
+.deleteButton {
+  color: var(--danger-color, #ef4444);
+}
+
+.deleteButton:hover {
+  background: var(--danger-bg, #fef2f2);
+}

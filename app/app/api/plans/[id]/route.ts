@@ -103,35 +103,26 @@ export async function PATCH(
       return NextResponse.json({ error: "Plan not found or unauthorized" }, { status: 404 });
     }
 
-    const updates = [];
-    const values = [];
+    // Get current plan values
+    const currentPlan = planResult[0];
 
-    if (title !== undefined) {
-      updates.push(`title = $${updates.length + 1}`);
-      values.push(title);
-    }
-    if (description !== undefined) {
-      updates.push(`description = $${updates.length + 1}`);
-      values.push(description);
-    }
-    if (theme !== undefined) {
-      updates.push(`theme = $${updates.length + 1}`);
-      values.push(theme);
-    }
-    if (isPublic !== undefined) {
-      updates.push(`is_public = $${updates.length + 1}`);
-      values.push(isPublic);
-    }
+    // Use provided values or keep current ones
+    const updatedTitle = title !== undefined ? title : currentPlan.title;
+    const updatedDescription = description !== undefined ? description : currentPlan.description;
+    const updatedTheme = theme !== undefined ? theme : currentPlan.theme;
+    const updatedIsPublic = isPublic !== undefined ? isPublic : currentPlan.is_public;
 
-    updates.push(`updated_at = CURRENT_TIMESTAMP`);
-
-    if (updates.length > 1) { // More than just updated_at
-      await sql`
-        UPDATE plans 
-        SET ${sql.unsafe(updates.join(', '))}
-        WHERE id = ${id}
-      `;
-    }
+    // Execute update with all values
+    await sql`
+      UPDATE plans 
+      SET 
+        title = ${updatedTitle},
+        description = ${updatedDescription},
+        theme = ${updatedTheme},
+        is_public = ${updatedIsPublic},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+    `;
 
     const result = await sql`
       SELECT * FROM plans WHERE id = ${id}

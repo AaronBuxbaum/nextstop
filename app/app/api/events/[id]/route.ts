@@ -35,7 +35,7 @@ export async function PATCH(
       );
     }
 
-    const updates = [];
+    const currentEvent = eventResult[0];
     const {
       title,
       description,
@@ -48,23 +48,33 @@ export async function PATCH(
       isOptional,
     } = body;
 
-    if (title !== undefined) updates.push(sql`title = ${title}`);
-    if (description !== undefined) updates.push(sql`description = ${description}`);
-    if (location !== undefined) updates.push(sql`location = ${location}`);
-    if (startTime !== undefined) updates.push(sql`start_time = ${startTime}`);
-    if (endTime !== undefined) updates.push(sql`end_time = ${endTime}`);
-    if (duration !== undefined) updates.push(sql`duration = ${duration}`);
-    if (notes !== undefined) updates.push(sql`notes = ${notes}`);
-    if (tags !== undefined) updates.push(sql`tags = ${JSON.stringify(tags)}`);
-    if (isOptional !== undefined) updates.push(sql`is_optional = ${isOptional}`);
+    // Use provided values or keep current ones
+    const updatedTitle = title !== undefined ? title : currentEvent.title;
+    const updatedDescription = description !== undefined ? description : currentEvent.description;
+    const updatedLocation = location !== undefined ? location : currentEvent.location;
+    const updatedStartTime = startTime !== undefined ? startTime : currentEvent.start_time;
+    const updatedEndTime = endTime !== undefined ? endTime : currentEvent.end_time;
+    const updatedDuration = duration !== undefined ? duration : currentEvent.duration;
+    const updatedNotes = notes !== undefined ? notes : currentEvent.notes;
+    const updatedTags = tags !== undefined ? JSON.stringify(tags) : currentEvent.tags;
+    const updatedIsOptional = isOptional !== undefined ? isOptional : currentEvent.is_optional;
 
-    if (updates.length > 0) {
-      await sql`
-        UPDATE events 
-        SET ${sql.unsafe(updates.join(', '))}, updated_at = CURRENT_TIMESTAMP
-        WHERE id = ${id}
-      `;
-    }
+    // Execute update with all values
+    await sql`
+      UPDATE events 
+      SET 
+        title = ${updatedTitle},
+        description = ${updatedDescription},
+        location = ${updatedLocation},
+        start_time = ${updatedStartTime},
+        end_time = ${updatedEndTime},
+        duration = ${updatedDuration},
+        notes = ${updatedNotes},
+        tags = ${updatedTags},
+        is_optional = ${updatedIsOptional},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+    `;
 
     const result = await sql`
       SELECT * FROM events WHERE id = ${id}

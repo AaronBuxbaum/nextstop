@@ -18,6 +18,11 @@ export const sql = process.env.DATABASE_URL
     })();
 
 // Database initialization script
+// NOTE: This is a simple initialization for development.
+// For production, consider using a migration tool like:
+// - node-pg-migrate: https://github.com/salsita/node-pg-migrate
+// - Prisma Migrate: https://www.prisma.io/docs/concepts/components/prisma-migrate
+// - Drizzle ORM: https://orm.drizzle.team/
 export const initDatabase = async () => {
   try {
     // Users table

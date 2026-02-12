@@ -268,7 +268,7 @@ export default function PlanDetailPage() {
               <input
                 type="time"
                 value={newEvent.endTime}
-                onChange={(e) => setNewEvent({ ...newEvent, startTime: e.target.value })}
+                onChange={(e) => setNewEvent({ ...newEvent, endTime: e.target.value })}
                 placeholder="End time"
                 className={styles.input}
               />

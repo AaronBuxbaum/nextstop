@@ -1,10 +1,9 @@
 import { neon } from '@neondatabase/serverless';
 
+// Allow build to succeed without DATABASE_URL
+// At runtime, routes will get 500 errors if DATABASE_URL is missing, which is acceptable
 if (!process.env.DATABASE_URL) {
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('DATABASE_URL is not defined');
-  }
-  console.warn('DATABASE_URL is not defined - using mock database for development');
+  console.warn('DATABASE_URL is not defined - database operations will fail');
 }
 
 // Create a connection pool

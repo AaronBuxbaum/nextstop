@@ -57,9 +57,10 @@ Or use any password generator to create a long, random string.
 3. Import your GitHub repository
 4. Configure the project:
    - **Framework Preset**: Next.js
-   - **Root Directory**: `app`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `.next`
+   - **Root Directory**: `app` (⚠️ **IMPORTANT**: This must be set correctly for the build to succeed)
+   - **Build Command**: Leave empty (will use default from package.json)
+   - **Install Command**: Leave empty (will use default)
+   - **Output Directory**: Leave empty (will use default `.next`)
 
 5. Add Environment Variables:
 

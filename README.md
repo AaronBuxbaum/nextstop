@@ -321,6 +321,7 @@ git push origin main
    - Go to [Vercel Dashboard](https://vercel.com/)
    - Click "New Project"
    - Import your GitHub repository
+   - ⚠️ **IMPORTANT**: Set **Root Directory** to `app` in the project settings
    - Configure environment variables
    - Deploy!
 
@@ -337,6 +338,8 @@ In Vercel dashboard, add all variables from `.env.example`:
 4. **Database Setup:**
    - Neon Postgres is automatically production-ready
    - No additional configuration needed
+
+> **Note**: This project uses a monorepo structure with the Next.js app in the `app/` directory. Make sure to set the Root Directory to `app` in Vercel's project settings for successful deployment.
 
 ### Production Checklist
 

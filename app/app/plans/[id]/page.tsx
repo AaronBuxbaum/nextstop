@@ -9,12 +9,15 @@ import { TravelTime } from '@/components/TravelTime';
 import { BranchCard } from '@/components/BranchCard';
 import { Timeline } from '@/components/Timeline';
 import { SharePlan } from '@/components/SharePlan';
+import { useGeolocation } from '@/lib/useGeolocation';
+import { calculateDuration, calculateEndTime } from '@/lib/timeUtils';
 import styles from './page.module.css';
 
 export default function PlanDetailPage() {
   const params = useParams();
   const router = useRouter();
   const planId = params.id as string;
+  const userLocation = useGeolocation();
 
   const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
@@ -135,6 +138,62 @@ export default function PlanDetailPage() {
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to delete event');
     }
+  };
+
+  // Time calculation handlers for new event form
+  const handleNewEventTimeChange = (field: 'startTime' | 'endTime' | 'duration', value: string) => {
+    const updated = { ...newEvent, [field]: value };
+
+    // Calculate duration if both start and end times are provided
+    if (field === 'startTime' || field === 'endTime') {
+      if (updated.startTime && updated.endTime) {
+        const duration = calculateDuration(updated.startTime, updated.endTime);
+        if (duration !== null) {
+          updated.duration = String(duration);
+        }
+      }
+    }
+
+    // Calculate end time if start time and duration are provided
+    if ((field === 'startTime' || field === 'duration') && updated.startTime && updated.duration) {
+      const durationNum = parseInt(updated.duration);
+      if (!isNaN(durationNum) && durationNum > 0) {
+        const endTime = calculateEndTime(updated.startTime, durationNum);
+        if (endTime !== null) {
+          updated.endTime = endTime;
+        }
+      }
+    }
+
+    setNewEvent(updated);
+  };
+
+  // Time calculation handlers for edit event form
+  const handleEditEventTimeChange = (field: 'startTime' | 'endTime' | 'duration', value: string) => {
+    const updated = { ...editForm, [field]: value };
+
+    // Calculate duration if both start and end times are provided
+    if (field === 'startTime' || field === 'endTime') {
+      if (updated.startTime && updated.endTime) {
+        const duration = calculateDuration(updated.startTime, updated.endTime);
+        if (duration !== null) {
+          updated.duration = String(duration);
+        }
+      }
+    }
+
+    // Calculate end time if start time and duration are provided
+    if ((field === 'startTime' || field === 'duration') && updated.startTime && updated.duration) {
+      const durationNum = parseInt(updated.duration);
+      if (!isNaN(durationNum) && durationNum > 0) {
+        const endTime = calculateEndTime(updated.startTime, durationNum);
+        if (endTime !== null) {
+          updated.endTime = endTime;
+        }
+      }
+    }
+
+    setEditForm(updated);
   };
 
   // Event editing
@@ -624,26 +683,28 @@ export default function PlanDetailPage() {
               onSelect={(displayName) => setNewEvent({ ...newEvent, location: displayName })}
               placeholder="Location"
               className={styles.input}
+              centerLat={userLocation.lat}
+              centerLon={userLocation.lon}
             />
             <div className={styles.timeRow}>
               <input
                 type="time"
                 value={newEvent.startTime}
-                onChange={(e) => setNewEvent({ ...newEvent, startTime: e.target.value })}
+                onChange={(e) => handleNewEventTimeChange('startTime', e.target.value)}
                 placeholder="Start time"
                 className={styles.input}
               />
               <input
                 type="time"
                 value={newEvent.endTime}
-                onChange={(e) => setNewEvent({ ...newEvent, endTime: e.target.value })}
+                onChange={(e) => handleNewEventTimeChange('endTime', e.target.value)}
                 placeholder="End time"
                 className={styles.input}
               />
               <input
                 type="number"
                 value={newEvent.duration}
-                onChange={(e) => setNewEvent({ ...newEvent, duration: e.target.value })}
+                onChange={(e) => handleNewEventTimeChange('duration', e.target.value)}
                 placeholder="Duration (min)"
                 className={styles.input}
               />
@@ -695,26 +756,28 @@ export default function PlanDetailPage() {
               onSelect={(displayName) => setEditForm({ ...editForm, location: displayName })}
               placeholder="Location"
               className={styles.input}
+              centerLat={userLocation.lat}
+              centerLon={userLocation.lon}
             />
             <div className={styles.timeRow}>
               <input
                 type="time"
                 value={editForm.startTime}
-                onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
+                onChange={(e) => handleEditEventTimeChange('startTime', e.target.value)}
                 placeholder="Start time"
                 className={styles.input}
               />
               <input
                 type="time"
                 value={editForm.endTime}
-                onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
+                onChange={(e) => handleEditEventTimeChange('endTime', e.target.value)}
                 placeholder="End time"
                 className={styles.input}
               />
               <input
                 type="number"
                 value={editForm.duration}
-                onChange={(e) => setEditForm({ ...editForm, duration: e.target.value })}
+                onChange={(e) => handleEditEventTimeChange('duration', e.target.value)}
                 placeholder="Duration (min)"
                 className={styles.input}
               />

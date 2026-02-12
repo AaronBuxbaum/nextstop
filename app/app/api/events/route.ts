@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
 import { nanoid } from "nanoid";
+import { calculateDuration, calculateEndTime } from "@/lib/timeUtils";
 
 // POST /api/events - Create a new event
 export async function POST(req: NextRequest) {
@@ -32,6 +33,27 @@ export async function POST(req: NextRequest) {
         { error: "Plan ID and title are required" },
         { status: 400 }
       );
+    }
+
+    // Calculate missing time fields
+    let finalStartTime = startTime || null;
+    let finalEndTime = endTime || null;
+    let finalDuration = duration || null;
+
+    // If start and end times are provided, calculate duration
+    if (finalStartTime && finalEndTime && !finalDuration) {
+      const calculated = calculateDuration(finalStartTime, finalEndTime);
+      if (calculated !== null) {
+        finalDuration = calculated;
+      }
+    }
+
+    // If start time and duration are provided, calculate end time
+    if (finalStartTime && finalDuration && !finalEndTime) {
+      const calculated = calculateEndTime(finalStartTime, finalDuration);
+      if (calculated !== null) {
+        finalEndTime = calculated;
+      }
     }
 
     // Verify user has access to the plan
@@ -64,7 +86,7 @@ export async function POST(req: NextRequest) {
       )
       VALUES (
         ${id}, ${planId}, ${title}, ${description || null}, ${location || null},
-        ${startTime || null}, ${endTime || null}, ${duration || null}, 
+        ${finalStartTime}, ${finalEndTime}, ${finalDuration}, 
         ${notes || null}, ${JSON.stringify(tags)}, ${isOptional}, ${position}
       )
     `;

@@ -57,10 +57,10 @@ Or use any password generator to create a long, random string.
 3. Import your GitHub repository
 4. Configure the project:
    - **Framework Preset**: Next.js
-   - **Root Directory**: `app` (⚠️ **IMPORTANT**: This must be set correctly for the build to succeed)
-   - **Build Command**: Leave empty (will use default from package.json)
-   - **Install Command**: Leave empty (will use default)
-   - **Output Directory**: Leave empty (will use default `.next`)
+   - **Root Directory**: Leave as default (the `vercel.json` file handles the `app` subdirectory configuration)
+   - **Build Command**: Leave empty (will use configuration from vercel.json)
+   - **Install Command**: Leave empty (will use configuration from vercel.json)
+   - **Output Directory**: Leave empty (will use configuration from vercel.json)
 
 5. Add Environment Variables:
 
@@ -82,15 +82,17 @@ NEXTAUTH_URL=https://[your-app].vercel.app
 npm install -g vercel
 ```
 
-2. Navigate to your project:
+2. Navigate to your project root:
 ```bash
-cd nextstop/app
+cd nextstop
 ```
 
 3. Deploy:
 ```bash
 vercel
 ```
+
+Note: The `vercel.json` configuration file automatically handles the `app` subdirectory setup.
 
 4. Follow the prompts to link your project
 

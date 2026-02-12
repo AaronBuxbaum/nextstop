@@ -8,6 +8,7 @@
     "build": "cd app && npm run build",
     "start": "cd app && npm start",
     "lint": "cd app && npm run lint",
+    "typecheck": "cd app && npm run typecheck",
     "test": "cd app && npm test"
   },
   "repository": {

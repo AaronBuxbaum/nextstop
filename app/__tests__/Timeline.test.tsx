@@ -197,6 +197,7 @@ describe('Timeline Component', () => {
       {
         id: '1',
         title: 'Event 1',
+        description: 'First event',
         location: 'Location 1',
         startTime: '09:00',
         endTime: '10:00',
@@ -206,6 +207,7 @@ describe('Timeline Component', () => {
       {
         id: '2',
         title: 'Event 2',
+        description: 'Second event',
         location: 'Location 2',
         startTime: '10:30',
         createdAt: new Date(),

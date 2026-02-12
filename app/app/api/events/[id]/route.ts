@@ -156,7 +156,7 @@ export async function PATCH(
       // Update positions for all events in batches to avoid too many queries
       // Use Promise.all to update them in parallel
       await Promise.all(
-        eventIds.map((eventId, idx) => 
+        eventIds.map((eventId: string, idx: number) => 
           sql`
             UPDATE events
             SET position = ${idx}, updated_at = CURRENT_TIMESTAMP

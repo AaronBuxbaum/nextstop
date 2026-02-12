@@ -54,7 +54,7 @@ Description: ${plan.description || 'None provided'}
 Theme: ${plan.theme || 'None set'}
 
 Current Events (${events.length}):
-${events.map((e: any, idx: number) => `
+${events.map((e: { title: string; location?: string; start_time?: string; duration?: number; description?: string }, idx: number) => `
 ${idx + 1}. ${e.title} - ${e.location || 'Location TBD'}
    Time: ${e.start_time || 'TBD'} ${e.duration ? `(${e.duration} min)` : ''}
    ${e.description || ''}
@@ -91,7 +91,7 @@ Please provide suggestions in the following JSON array format:
       } else {
         throw new Error("No JSON array found in response");
       }
-    } catch (parseError) {
+    } catch {
       return NextResponse.json({
         error: "Failed to parse AI response",
         rawResponse: text,

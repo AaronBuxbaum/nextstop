@@ -5,7 +5,7 @@ import { sql } from "@/lib/db";
 import { nanoid } from "nanoid";
 
 // GET /api/plans - Get all plans for the current user
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     

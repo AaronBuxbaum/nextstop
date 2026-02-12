@@ -57,6 +57,7 @@ export const handlers = [
   }),
 
   http.post('/api/plans', async ({ request }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body = await request.json() as any;
     const newPlan = {
       id: `plan-${Date.now()}`,
@@ -72,6 +73,7 @@ export const handlers = [
 
   http.patch('/api/plans/:id', async ({ params, request }) => {
     const { id } = params;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body = await request.json() as any;
     const planIndex = mockPlans.findIndex(p => p.id === id);
     
@@ -102,6 +104,7 @@ export const handlers = [
 
   // Events API
   http.post('/api/events', async ({ request }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body = await request.json() as any;
     const newEvent = {
       id: `event-${Date.now()}`,
@@ -115,6 +118,7 @@ export const handlers = [
 
   http.patch('/api/events/:id', async ({ params, request }) => {
     const { id } = params;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body = await request.json() as any;
     const eventIndex = mockEvents.findIndex(e => e.id === id);
     
@@ -145,6 +149,7 @@ export const handlers = [
 
   // Auth API
   http.post('/api/auth/signin', async ({ request }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body = await request.json() as any;
     
     if (body.email && body.password) {

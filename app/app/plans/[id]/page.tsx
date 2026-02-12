@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { Plan, Event, AIAnalysis, AISuggestion } from '@/types';
+import { Plan, AIAnalysis, AISuggestion } from '@/types';
 import { EventCard } from '@/components/EventCard';
 import styles from './page.module.css';
 
@@ -29,11 +29,7 @@ export default function PlanDetailPage() {
     notes: '',
   });
 
-  useEffect(() => {
-    fetchPlan();
-  }, [planId]);
-
-  const fetchPlan = async () => {
+  const fetchPlan = useCallback(async () => {
     try {
       const response = await fetch(`/api/plans/${planId}`);
       if (!response.ok) throw new Error('Failed to fetch plan');
@@ -44,7 +40,11 @@ export default function PlanDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [planId]);
+
+  useEffect(() => {
+    fetchPlan();
+  }, [fetchPlan]);
 
   const createEvent = async (e: React.FormEvent) => {
     e.preventDefault();

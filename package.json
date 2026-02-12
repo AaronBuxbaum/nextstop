@@ -7,7 +7,8 @@
     "dev": "cd app && npm run dev",
     "build": "cd app && npm run build",
     "start": "cd app && npm start",
-    "lint": "cd app && npm run lint"
+    "lint": "cd app && npm run lint",
+    "test": "cd app && npm test"
   },
   "repository": {
     "type": "git",
@@ -28,7 +29,7 @@
   },
   "homepage": "https://github.com/AaronBuxbaum/nextstop#readme",
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "node": ">=25.0.0",
+    "npm": ">=10.0.0"
   }
 }

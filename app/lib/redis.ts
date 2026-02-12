@@ -19,9 +19,11 @@ export const redis = (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_
       hgetall: async () => null,
       hdel: async () => {},
       expire: async () => {},
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
 // Helper functions for collaboration
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const publishUpdate = async (planId: string, update: any) => {
   await redis.publish(`plan:${planId}`, JSON.stringify(update));
 };

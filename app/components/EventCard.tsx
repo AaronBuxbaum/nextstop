@@ -1,7 +1,6 @@
 'use client';
 
 import { Event } from '@/types';
-import { format } from 'date-fns';
 import styles from './EventCard.module.css';
 
 interface EventCardProps {

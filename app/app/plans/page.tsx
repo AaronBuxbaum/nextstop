@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plan } from '@/types';
 import styles from './page.module.css';
@@ -13,13 +13,20 @@ export default function PlansPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [newPlanTitle, setNewPlanTitle] = useState('');
 
-  useEffect(() => {
-    fetchPlans();
-  }, []);
+  // Helper to handle fetch with auth redirect
+  const fetchWithAuth = useCallback(async (url: string, options?: RequestInit): Promise<Response | null> => {
+    const response = await fetch(url, options);
+    if (response.status === 401) {
+      router.push('/auth/signin');
+      return null;
+    }
+    return response;
+  }, [router]);
 
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
     try {
-      const response = await fetch('/api/plans');
+      const response = await fetchWithAuth('/api/plans');
+      if (!response) return; // Redirected to sign-in
       if (!response.ok) throw new Error('Failed to fetch plans');
       const data = await response.json();
       setPlans(data);
@@ -28,19 +35,23 @@ export default function PlansPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchWithAuth]);
+
+  useEffect(() => {
+    fetchPlans();
+  }, [fetchPlans]);
 
   const createPlan = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPlanTitle.trim()) return;
 
     try {
-      const response = await fetch('/api/plans', {
+      const response = await fetchWithAuth('/api/plans', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: newPlanTitle }),
       });
-
+      if (!response) return; // Redirected to sign-in
       if (!response.ok) throw new Error('Failed to create plan');
       
       const newPlan = await response.json();
@@ -57,10 +68,10 @@ export default function PlansPage() {
     if (!confirm('Are you sure you want to delete this plan?')) return;
 
     try {
-      const response = await fetch(`/api/plans/${id}`, {
+      const response = await fetchWithAuth(`/api/plans/${id}`, {
         method: 'DELETE',
       });
-
+      if (!response) return; // Redirected to sign-in
       if (!response.ok) throw new Error('Failed to delete plan');
       
       setPlans(plans.filter(plan => plan.id !== id));

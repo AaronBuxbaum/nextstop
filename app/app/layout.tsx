@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Courier_Prime } from "next/font/google";
+import SessionProvider from "@/components/SessionProvider";
 import "./globals.css";
 
 const playfairDisplay = Playfair_Display({
@@ -29,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${playfairDisplay.variable} ${courierPrime.variable}`}
       >
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

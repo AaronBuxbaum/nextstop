@@ -6,8 +6,12 @@ import type { Event } from '@/types';
 
 // Mock WeatherInfo to avoid external API calls in tests
 vi.mock('@/components/WeatherInfo', () => ({
-  WeatherInfo: ({ location }: { location: string }) => (
-    <span data-testid="weather-info">Weather for {location}</span>
+  WeatherInfo: ({ location, date, time }: { location: string; date?: string; time?: string }) => (
+    <span data-testid="weather-info">
+      Weather for {location}
+      {date && ` on ${date}`}
+      {time && ` at ${time}`}
+    </span>
   ),
 }));
 
@@ -83,5 +87,13 @@ describe('EventCard - New Features', () => {
   it('renders weather info for events with location', () => {
     render(<EventCard event={mockEvent} />);
     expect(screen.getByTestId('weather-info')).toBeInTheDocument();
+  });
+
+  it('passes plan date and event time to weather component', () => {
+    const planDate = '2024-07-15';
+    render(<EventCard event={mockEvent} planDate={planDate} />);
+    const weatherInfo = screen.getByTestId('weather-info');
+    expect(weatherInfo).toHaveTextContent('on 2024-07-15');
+    expect(weatherInfo).toHaveTextContent('at 09:00');
   });
 });

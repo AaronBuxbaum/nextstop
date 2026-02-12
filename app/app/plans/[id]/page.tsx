@@ -249,11 +249,12 @@ export default function PlanDetailPage() {
 
       if (!response.ok) throw new Error('Failed to update event');
 
-      stopEditing(editingEvent.id);
-      setEditingEvent(null);
       await fetchPlan();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to update event');
+    } finally {
+      stopEditing(editingEvent.id);
+      setEditingEvent(null);
     }
   };
 

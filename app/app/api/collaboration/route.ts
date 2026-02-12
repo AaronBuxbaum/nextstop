@@ -67,9 +67,15 @@ export async function POST(req: NextRequest) {
         break;
 
       case "startEditing":
-        if (!elementId || typeof elementId !== "string" || !elementType || typeof elementType !== "string") {
+        if (!elementId || typeof elementId !== "string") {
           return NextResponse.json(
-            { error: "elementId and elementType are required and must be strings" },
+            { error: "elementId is required and must be a string" },
+            { status: 400 }
+          );
+        }
+        if (!elementType || typeof elementType !== "string") {
+          return NextResponse.json(
+            { error: "elementType is required and must be a string" },
             { status: 400 }
           );
         }

@@ -14,13 +14,11 @@ interface GeocodedEvent {
 }
 
 function buildMapUrl(events: GeocodedEvent[]): string {
-  const eventsWithLocations = events.filter((e) => e.event.location);
-
-  if (eventsWithLocations.length === 0) return '';
+  if (events.length === 0) return '';
 
   // For a simple embedded map, use an OpenStreetMap-based approach
   // We'll search for the first location to center the map
-  const firstLocation = encodeURIComponent(eventsWithLocations[0].event.location);
+  const firstLocation = encodeURIComponent(events[0].event.location);
   return `https://www.openstreetmap.org/export/embed.html?bbox=&layer=mapnik&marker=&query=${firstLocation}`;
 }
 

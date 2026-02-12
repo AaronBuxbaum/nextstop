@@ -21,10 +21,11 @@ const AVATAR_COLORS = [
 function getInitials(name: string): string {
   return name
     .split(' ')
+    .filter((n) => n.length > 0)
     .map((n) => n[0])
     .join('')
     .toUpperCase()
-    .slice(0, 2);
+    .slice(0, 2) || '?';
 }
 
 function getColor(userId: string): string {

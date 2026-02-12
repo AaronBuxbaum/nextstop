@@ -129,6 +129,20 @@ export const initDatabase = async () => {
       )
     `;
 
+    // Migration: Add position column to events table if it doesn't exist
+    // This handles databases created before the position column was added
+    await sql`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'events' AND column_name = 'position'
+        ) THEN
+          ALTER TABLE events ADD COLUMN position INTEGER DEFAULT 0;
+        END IF;
+      END $$;
+    `;
+
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization failed:', error);

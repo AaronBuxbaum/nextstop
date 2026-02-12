@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, description, theme, isPublic = false } = body;
+    const { title, description, date, theme, isPublic = false } = body;
 
     if (!title) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -61,8 +61,8 @@ export async function POST(req: NextRequest) {
     const id = nanoid();
     
     await sql`
-      INSERT INTO plans (id, title, description, theme, user_id, is_public)
-      VALUES (${id}, ${title}, ${description || null}, ${theme || null}, ${session.user.id}, ${isPublic})
+      INSERT INTO plans (id, title, description, date, theme, user_id, is_public)
+      VALUES (${id}, ${title}, ${description || null}, ${date || null}, ${theme || null}, ${session.user.id}, ${isPublic})
     `;
 
     const result = await sql`

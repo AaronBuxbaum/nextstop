@@ -366,6 +366,43 @@
 
 .shareRow {
   margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.planEditButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--text-secondary, #6b7280);
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.planEditButton:hover {
+  border-color: var(--primary-color, #3b82f6);
+  color: var(--primary-color, #3b82f6);
+  transform: translateY(-2px);
+}
+
+.date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--tag-bg, #dbeafe);
+  color: var(--tag-color, #1e40af);
+  border-radius: 9999px;
+  font-family: var(--font-body), monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 .timelineButton {

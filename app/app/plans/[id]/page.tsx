@@ -3,9 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Plan, Event, Branch, DecisionLogic, AIAnalysis, AISuggestion } from '@/types';
-import { EventCard } from '@/components/EventCard';
 import { LocationAutocomplete } from '@/components/LocationAutocomplete';
-import { TravelTime } from '@/components/TravelTime';
 import { BranchCard } from '@/components/BranchCard';
 import { Timeline } from '@/components/Timeline';
 import { SharePlan } from '@/components/SharePlan';
@@ -26,7 +24,15 @@ export default function PlanDetailPage() {
   const [isGeneratingEvent, setIsGeneratingEvent] = useState(false);
   const [aiInput, setAiInput] = useState('');
   const [showAiGenerator, setShowAiGenerator] = useState(false);
-  const [showTimeline, setShowTimeline] = useState(false);
+
+  // Plan editing state
+  const [isEditingPlan, setIsEditingPlan] = useState(false);
+  const [planEditForm, setPlanEditForm] = useState({
+    title: '',
+    description: '',
+    date: '',
+    theme: '',
+  });
 
   // Drag state
   const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
@@ -77,7 +83,26 @@ export default function PlanDetailPage() {
       const response = await fetch(`/api/plans/${planId}`);
       if (!response.ok) throw new Error('Failed to fetch plan');
       const data = await response.json();
-      setPlan(data);
+      // Map snake_case API response to camelCase Plan interface
+      const mappedPlan: Plan = {
+        ...data,
+        isPublic: data.is_public ?? data.isPublic ?? false,
+        userId: data.user_id ?? data.userId,
+        createdAt: data.created_at ?? data.createdAt,
+        updatedAt: data.updated_at ?? data.updatedAt,
+        events: (data.events || []).map((ev: Record<string, unknown>) => ({
+          ...ev,
+          startTime: ev.start_time ?? ev.startTime,
+          endTime: ev.end_time ?? ev.endTime,
+          isOptional: ev.is_optional ?? ev.isOptional ?? false,
+          createdAt: ev.created_at ?? ev.createdAt,
+          updatedAt: ev.updated_at ?? ev.updatedAt,
+        })),
+        branches: data.branches || [],
+        optionalEvents: data.optionalEvents || [],
+        collaborators: data.collaborators || [],
+      };
+      setPlan(mappedPlan);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -271,6 +296,42 @@ export default function PlanDetailPage() {
     }
   };
 
+  // Plan editing
+  const startEditPlan = () => {
+    if (!plan) return;
+    setPlanEditForm({
+      title: plan.title || '',
+      description: plan.description || '',
+      date: plan.date || '',
+      theme: plan.theme || '',
+    });
+    setIsEditingPlan(true);
+  };
+
+  const saveEditPlan = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!planEditForm.title.trim()) return;
+
+    try {
+      const response = await fetch(`/api/plans/${planId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: planEditForm.title,
+          description: planEditForm.description || null,
+          date: planEditForm.date || null,
+          theme: planEditForm.theme || null,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update plan');
+      setIsEditingPlan(false);
+      await fetchPlan();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to update plan');
+    }
+  };
+
   // Branch handlers
   const createBranch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -442,6 +503,12 @@ export default function PlanDetailPage() {
         <div>
           <h1 className={styles.title}>{plan.title}</h1>
           {plan.description && <p className={styles.description}>{plan.description}</p>}
+          {plan.date && (
+            <div className={styles.date}>
+              <span className={styles.dateIcon}>📅</span>
+              {plan.date}
+            </div>
+          )}
           {plan.theme && (
             <div className={styles.theme}>
               <span className={styles.themeIcon}>🎨</span>
@@ -454,6 +521,13 @@ export default function PlanDetailPage() {
               isPublic={plan.isPublic}
               onTogglePublic={togglePublic}
             />
+            <button
+              onClick={startEditPlan}
+              className={styles.planEditButton}
+              aria-label="Edit plan details"
+            >
+              ✏️ Edit Plan
+            </button>
           </div>
         </div>
         <div className={styles.aiActions}>
@@ -472,6 +546,61 @@ export default function PlanDetailPage() {
           </button>
         </div>
       </header>
+
+      {/* Plan edit form */}
+      {isEditingPlan && (
+        <form onSubmit={saveEditPlan} className={styles.eventForm}>
+          <h3 className={styles.editFormTitle}>Edit Plan</h3>
+          <input
+            type="text"
+            value={planEditForm.title}
+            onChange={(e) => setPlanEditForm({ ...planEditForm, title: e.target.value })}
+            placeholder="Plan title*"
+            className={styles.input}
+            required
+          />
+          <textarea
+            value={planEditForm.description}
+            onChange={(e) => setPlanEditForm({ ...planEditForm, description: e.target.value })}
+            placeholder="Description"
+            className={styles.textarea}
+            rows={3}
+          />
+          <div className={styles.timeRow}>
+            <div>
+              <label className={styles.selectLabel}>Date</label>
+              <input
+                type="date"
+                value={planEditForm.date}
+                onChange={(e) => setPlanEditForm({ ...planEditForm, date: e.target.value })}
+                className={styles.input}
+              />
+            </div>
+            <div>
+              <label className={styles.selectLabel}>Theme</label>
+              <input
+                type="text"
+                value={planEditForm.theme}
+                onChange={(e) => setPlanEditForm({ ...planEditForm, theme: e.target.value })}
+                placeholder="Theme"
+                className={styles.input}
+              />
+            </div>
+          </div>
+          <div className={styles.formActions}>
+            <button type="submit" className={styles.submitButton}>
+              Save Changes
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditingPlan(false)}
+              className={styles.cancelButton}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
 
       {analysis && (
         <div className={styles.analysisPanel}>
@@ -530,13 +659,6 @@ export default function PlanDetailPage() {
         <div className={styles.sectionHeader}>
           <h2>Events</h2>
           <div className={styles.buttonGroup}>
-            <button
-              onClick={() => setShowTimeline(!showTimeline)}
-              className={styles.timelineButton}
-              aria-label={showTimeline ? 'Hide timeline' : 'Show timeline'}
-            >
-              {showTimeline ? '📋 List View' : '📅 Timeline'}
-            </button>
             {!showAiGenerator && !isAddingEvent && (
               <button
                 onClick={() => setShowAiGenerator(true)}
@@ -555,13 +677,6 @@ export default function PlanDetailPage() {
             )}
           </div>
         </div>
-
-        {/* Timeline view */}
-        {showTimeline && plan.events && plan.events.length > 0 && (
-          <div className={styles.timelineSection}>
-            <Timeline events={plan.events} onEventClick={startEditEvent} />
-          </div>
-        )}
 
         {showAiGenerator && (
           <form onSubmit={generateEventFromAI} className={styles.eventForm}>
@@ -742,34 +857,20 @@ export default function PlanDetailPage() {
         )}
 
         {plan.events && plan.events.length > 0 ? (
-          <div className={styles.eventsList}>
-            {plan.events.map((event, index) => (
-              <React.Fragment key={event.id}>
-                <EventCard
-                  event={event}
-                  onEdit={startEditEvent}
-                  onDelete={deleteEvent}
-                  onToggleOptional={toggleOptional}
-                  isEditing={editingEvent?.id === event.id}
-                  isDragging={draggedEventId === event.id}
-                  dragHandleProps={{
-                    onDragStart: () => handleDragStart(event.id),
-                  }}
-                  onDragOver={handleDragOver}
-                  onDrop={() => handleDrop(event.id)}
-                  onDragEnd={handleDragEnd}
-                />
-                {/* Travel time between consecutive events with locations */}
-                {index < plan.events.length - 1 &&
-                  event.location &&
-                  plan.events[index + 1].location && (
-                    <TravelTime
-                      fromLocation={event.location}
-                      toLocation={plan.events[index + 1].location}
-                    />
-                  )}
-              </React.Fragment>
-            ))}
+          <div className={styles.timelineSection}>
+            <Timeline
+              events={plan.events}
+              onEventClick={startEditEvent}
+              onEdit={startEditEvent}
+              onDelete={deleteEvent}
+              onToggleOptional={toggleOptional}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onDragEnd={handleDragEnd}
+              draggedEventId={draggedEventId}
+              editingEventId={editingEvent?.id || null}
+            />
           </div>
         ) : (
           <div className={styles.emptyState}>

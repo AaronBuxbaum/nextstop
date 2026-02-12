@@ -45,6 +45,7 @@ export const initDatabase = async () => {
         id TEXT PRIMARY KEY,
         title TEXT NOT NULL,
         description TEXT,
+        date TEXT,
         theme TEXT,
         user_id TEXT NOT NULL,
         is_public BOOLEAN DEFAULT FALSE,
@@ -151,6 +152,19 @@ export const initDatabase = async () => {
           SET position = ranked_events.new_position
           FROM ranked_events
           WHERE events.id = ranked_events.id;
+        END IF;
+      END $$;
+    `;
+
+    // Migration: Add date column to plans table if it doesn't exist
+    await sql`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'plans' AND column_name = 'date'
+        ) THEN
+          ALTER TABLE plans ADD COLUMN date TEXT;
         END IF;
       END $$;
     `;

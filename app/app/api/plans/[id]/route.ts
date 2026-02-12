@@ -91,7 +91,7 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await req.json();
-    const { title, description, theme, isPublic } = body;
+    const { title, description, date, theme, isPublic } = body;
 
     // Check authorization
     const planResult = await sql`
@@ -109,6 +109,7 @@ export async function PATCH(
     // Use provided values or keep current ones
     const updatedTitle = title !== undefined ? title : currentPlan.title;
     const updatedDescription = description !== undefined ? description : currentPlan.description;
+    const updatedDate = date !== undefined ? date : currentPlan.date;
     const updatedTheme = theme !== undefined ? theme : currentPlan.theme;
     const updatedIsPublic = isPublic !== undefined ? isPublic : currentPlan.is_public;
 
@@ -118,6 +119,7 @@ export async function PATCH(
       SET 
         title = ${updatedTitle},
         description = ${updatedDescription},
+        date = ${updatedDate},
         theme = ${updatedTheme},
         is_public = ${updatedIsPublic},
         updated_at = CURRENT_TIMESTAMP

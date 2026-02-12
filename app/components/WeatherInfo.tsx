@@ -60,7 +60,10 @@ export function WeatherInfo({ location, className }: WeatherInfoProps) {
         // Geocode the location using Nominatim
         const geoRes = await fetch(
           `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`,
-          { signal: controller.signal }
+          {
+            signal: controller.signal,
+            headers: { 'User-Agent': 'NextStop-Outing-Planner/1.0' },
+          }
         );
         const geoData = await geoRes.json();
 

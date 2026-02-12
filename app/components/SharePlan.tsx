@@ -18,20 +18,31 @@ export function SharePlan({ planId, isPublic, onTogglePublic }: SharePlanProps) 
     : `/plans/${planId}`;
 
   const handleCopyLink = async () => {
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        return;
+      } catch {
+        // Fall through to fallback
+      }
+    }
+
+    // Fallback for older browsers
     try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = shareUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
       document.body.appendChild(textArea);
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch {
+      alert('Unable to copy link. Please copy manually: ' + shareUrl);
     }
   };
 

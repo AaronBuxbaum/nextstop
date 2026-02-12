@@ -3,20 +3,15 @@ import { hash } from "bcryptjs";
 import { sql, initDatabase } from "@/lib/db";
 import { nanoid } from "nanoid";
 
-// Track if database has been initialized
-let isDbInitialized = false;
-
 export async function POST(req: NextRequest) {
   try {
-    // Initialize database on first signup attempt
-    if (!isDbInitialized) {
-      try {
-        await initDatabase();
-        isDbInitialized = true;
-      } catch (error) {
-        // If initialization fails, log but continue - tables might already exist
-        console.warn("Database initialization attempted:", error);
-      }
+    // Initialize database before first use
+    // This is safe to call multiple times as it uses CREATE TABLE IF NOT EXISTS
+    try {
+      await initDatabase();
+    } catch (initError) {
+      // Log initialization error but continue - tables might already exist
+      console.error("Database initialization error:", initError);
     }
 
     const body = await req.json();

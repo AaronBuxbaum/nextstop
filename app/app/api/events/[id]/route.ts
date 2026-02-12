@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
-import { calculateDuration, calculateEndTime } from "@/lib/timeUtils";
+import { calculateDuration, calculateEndTime, parseTimeString } from "@/lib/timeUtils";
 
 // PATCH /api/events/[id] - Update an event
 export async function PATCH(
@@ -80,6 +80,44 @@ export async function PATCH(
         updatedEndTime = calculated;
       }
     }
+    
+    // Check if start_time changed and if reordering is needed
+    const startTimeChanged = startTime !== undefined && startTime !== currentEvent.start_time;
+    let needsReorder = false;
+    let newPosition = currentEvent.position;
+
+    if (startTimeChanged && updatedStartTime) {
+      // Get all events in the plan ordered by position
+      const allEvents = await sql`
+        SELECT id, start_time, position
+        FROM events
+        WHERE plan_id = ${currentEvent.plan_id}
+        ORDER BY position ASC
+      `;
+
+      // Find the correct position based on chronological order
+      // Events should be ordered by start_time if they have one
+      let targetPosition = 0;
+      const updatedTimeMinutes = parseTimeString(updatedStartTime);
+      
+      for (let i = 0; i < allEvents.length; i++) {
+        const evt = allEvents[i];
+        // Skip the current event when calculating position
+        if (evt.id === id) continue;
+        
+        // If this event has a start_time and it's before our updated time, increment target position
+        const evtTimeMinutes = parseTimeString(evt.start_time);
+        if (evtTimeMinutes !== null && updatedTimeMinutes !== null && evtTimeMinutes < updatedTimeMinutes) {
+          targetPosition++;
+        }
+      }
+
+      // Only reorder if position actually changed
+      if (targetPosition !== currentEvent.position) {
+        needsReorder = true;
+        newPosition = targetPosition;
+      }
+    }
 
     // Execute update with all values
     await sql`
@@ -97,6 +135,36 @@ export async function PATCH(
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}
     `;
+
+    // Reorder if needed
+    if (needsReorder) {
+      const allEvents = await sql`
+        SELECT id, position
+        FROM events
+        WHERE plan_id = ${currentEvent.plan_id}
+        ORDER BY position ASC
+      `;
+
+      // Build new order: remove current event and insert at new position
+      const eventIds = allEvents.map((e: { id: string }) => e.id);
+      const currentIndex = eventIds.indexOf(id);
+      if (currentIndex !== -1) {
+        eventIds.splice(currentIndex, 1);
+      }
+      eventIds.splice(newPosition, 0, id);
+
+      // Update positions for all events in batches to avoid too many queries
+      // Use Promise.all to update them in parallel
+      await Promise.all(
+        eventIds.map((eventId: string, idx: number) => 
+          sql`
+            UPDATE events
+            SET position = ${idx}, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ${eventId}
+          `
+        )
+      );
+    }
 
     const result = await sql`
       SELECT * FROM events WHERE id = ${id}

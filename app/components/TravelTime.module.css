@@ -1,7 +1,9 @@
 .bar {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.25rem;
   padding: 0.5rem 1rem;
   margin: 0.25rem 0;
   background: var(--travel-bg, #f0f9ff);
@@ -45,4 +47,16 @@
   font-size: 0.8rem;
   color: var(--text-secondary, #6b7280);
   white-space: nowrap;
+}
+
+.timeBetween {
+  font-family: var(--font-body), monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+  white-space: nowrap;
+}
+
+.tooTight {
+  color: #f59e0b;
+  font-weight: 600;
 }

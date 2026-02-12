@@ -2,12 +2,14 @@
 
 import React from 'react';
 import { Event } from '@/types';
+import { parseTimeString } from '@/lib/timeUtils';
 import { WeatherInfo } from './WeatherInfo';
 import { TravelTime } from './TravelTime';
 import styles from './Timeline.module.css';
 
 interface TimelineProps {
   events: Event[];
+  planDate?: string; // Plan date in YYYY-MM-DD format
   onEventClick?: (event: Event) => void;
   onEdit?: (event: Event) => void;
   onDelete?: (eventId: string) => void;
@@ -20,8 +22,38 @@ interface TimelineProps {
   editingEventId?: string | null;
 }
 
+// Calculate time between two consecutive events
+function calculateTimeBetween(currentEvent: Event, nextEvent: Event): number | undefined {
+  // Calculate time between events if both have times
+  if (currentEvent.endTime && nextEvent.startTime) {
+    const endMinutes = parseTimeString(currentEvent.endTime);
+    const startMinutes = parseTimeString(nextEvent.startTime);
+    
+    if (endMinutes !== null && startMinutes !== null) {
+      const timeBetween = startMinutes - endMinutes;
+      // Note: Negative values indicate next-day events, which we don't currently support
+      // For multi-day plans, consider using full date-time values instead of just times
+      if (timeBetween >= 0) return timeBetween;
+    }
+  } else if (currentEvent.startTime && currentEvent.duration && nextEvent.startTime) {
+    // Calculate using start time + duration
+    const startMinutes = parseTimeString(currentEvent.startTime);
+    const nextStartMinutes = parseTimeString(nextEvent.startTime);
+    
+    if (startMinutes !== null && nextStartMinutes !== null) {
+      const endMinutes = startMinutes + currentEvent.duration;
+      const timeBetween = nextStartMinutes - endMinutes;
+      
+      if (timeBetween >= 0) return timeBetween;
+    }
+  }
+  
+  return undefined;
+}
+
 export function Timeline({
   events,
+  planDate,
   onEventClick,
   onEdit,
   onDelete,
@@ -173,7 +205,11 @@ export function Timeline({
                   )}
                   {event.location && (
                     <div className={styles.detail}>
-                      <WeatherInfo location={event.location} />
+                      <WeatherInfo 
+                        location={event.location}
+                        date={planDate}
+                        time={event.startTime}
+                      />
                     </div>
                   )}
                 </div>
@@ -202,9 +238,11 @@ export function Timeline({
                   <TravelTime
                     fromLocation={event.location}
                     toLocation={events[index + 1].location}
+                    timeBetween={calculateTimeBetween(event, events[index + 1])}
                   />
                 </div>
-              )}
+              )
+            }
           </React.Fragment>
         );
       })}

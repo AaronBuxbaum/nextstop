@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { formatDuration } from '@/lib/timeUtils';
 import styles from './TravelTime.module.css';
 
 interface TravelTimeProps {
   fromLocation: string;
   toLocation: string;
+  timeBetween?: number; // Time between events in minutes (if events have end/start times)
 }
 
 interface Coordinates {
@@ -42,20 +44,13 @@ async function getDrivingTime(from: Coordinates, to: Coordinates): Promise<numbe
   }
 }
 
-function formatDuration(seconds: number): string {
-  const mins = Math.round(seconds / 60);
-  if (mins < 60) return `${mins} min`;
-  const hrs = Math.floor(mins / 60);
-  const remainMins = mins % 60;
-  return remainMins > 0 ? `${hrs}h ${remainMins}m` : `${hrs}h`;
-}
-
-export function TravelTime({ fromLocation, toLocation }: TravelTimeProps) {
+export function TravelTime({ fromLocation, toLocation, timeBetween }: TravelTimeProps) {
   const [driving, setDriving] = useState<string | null>(null);
   const [walking, setWalking] = useState<string | null>(null);
   const [transit, setTransit] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [hasEnoughTime, setHasEnoughTime] = useState<boolean | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -108,12 +103,20 @@ export function TravelTime({ fromLocation, toLocation }: TravelTimeProps) {
       setDriving(formatDuration(drivingSec));
       setWalking(formatDuration(walkingSec));
       setTransit(formatDuration(transitSec));
+      
+      // Check if there's enough time between events
+      if (timeBetween !== undefined && transitSec !== null) {
+        const timeBetweenSec = timeBetween * 60;
+        // Use transit time as the typical mode for comparison
+        setHasEnoughTime(timeBetweenSec >= transitSec);
+      }
+      
       setLoading(false);
     }
 
     calculate();
     return () => { cancelled = true; };
-  }, [fromLocation, toLocation]);
+  }, [fromLocation, toLocation, timeBetween]);
 
   if (error) return null;
 
@@ -122,23 +125,33 @@ export function TravelTime({ fromLocation, toLocation }: TravelTimeProps) {
       {loading ? (
         <span className={styles.loadingText}>Calculating travel time...</span>
       ) : (
-        <div className={styles.modes}>
-          {walking && (
-            <span className={styles.mode} title="Walking">
-              🚶 {walking}
+        <>
+          <div className={styles.modes}>
+            {walking && (
+              <span className={styles.mode} title="Walking">
+                🚶 {walking}
+              </span>
+            )}
+            {transit && (
+              <span className={styles.mode} title="Transit">
+                🚌 {transit}
+              </span>
+            )}
+            {driving && (
+              <span className={styles.mode} title="Driving">
+                🚗 {driving}
+              </span>
+            )}
+          </div>
+          {timeBetween !== undefined && hasEnoughTime !== null && (
+            <span 
+              className={`${styles.timeBetween} ${!hasEnoughTime ? styles.tooTight : ''}`}
+              title={hasEnoughTime ? 'Enough time between events' : 'Tight schedule - may need more time'}
+            >
+              {hasEnoughTime ? '✓' : '⚠️'} {formatDuration(timeBetween * 60)} between events
             </span>
           )}
-          {transit && (
-            <span className={styles.mode} title="Transit">
-              🚌 {transit}
-            </span>
-          )}
-          {driving && (
-            <span className={styles.mode} title="Driving">
-              🚗 {driving}
-            </span>
-          )}
-        </div>
+        </>
       )}
     </div>
   );

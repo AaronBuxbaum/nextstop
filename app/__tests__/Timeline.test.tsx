@@ -3,6 +3,23 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { Timeline } from '@/components/Timeline';
 import type { Event } from '@/types';
 
+// Mock WeatherInfo and TravelTime to avoid external API calls
+vi.mock('@/components/WeatherInfo', () => ({
+  WeatherInfo: () => (
+    <span data-testid="weather-info">Weather</span>
+  ),
+}));
+
+vi.mock('@/components/TravelTime', () => ({
+  TravelTime: ({ timeBetween }: { 
+    fromLocation: string; 
+    toLocation: string;
+    timeBetween?: number;
+  }) => (
+    <span data-testid="travel-time">Travel time{timeBetween ? ` (${timeBetween}min)` : ''}</span>
+  ),
+}));
+
 describe('Timeline Component', () => {
   const mockEvents: Event[] = [
     {
@@ -159,5 +176,47 @@ describe('Timeline Component', () => {
     render(<Timeline events={mockEvents} />);
     const mapLinks = screen.getAllByLabelText(/view .* on google maps/i);
     expect(mapLinks.length).toBe(3);
+  });
+
+  it('passes planDate to weather component', () => {
+    const planDate = '2024-07-15';
+    render(<Timeline events={mockEvents} planDate={planDate} />);
+    // WeatherInfo should be rendered (mocked)
+    expect(screen.getAllByTestId('weather-info').length).toBeGreaterThan(0);
+  });
+
+  it('shows travel time between consecutive events with locations', () => {
+    render(<Timeline events={mockEvents} />);
+    // Should show travel times between events (mocked)
+    const travelTimes = screen.getAllByTestId('travel-time');
+    expect(travelTimes.length).toBeGreaterThan(0);
+  });
+
+  it('calculates time between events when times are available', () => {
+    const eventsWithTimes: Event[] = [
+      {
+        id: '1',
+        title: 'Event 1',
+        description: 'First event',
+        location: 'Location 1',
+        startTime: '09:00',
+        endTime: '10:00',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: '2',
+        title: 'Event 2',
+        description: 'Second event',
+        location: 'Location 2',
+        startTime: '10:30',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+    render(<Timeline events={eventsWithTimes} />);
+    // Check that travel time component is rendered with time between
+    const travelTime = screen.getByTestId('travel-time');
+    expect(travelTime).toHaveTextContent('30min'); // 30 minutes between 10:00 and 10:30
   });
 });

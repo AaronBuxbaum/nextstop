@@ -909,6 +909,7 @@ export default function PlanDetailPage() {
           <div className={styles.timelineSection}>
             <Timeline
               events={plan.events}
+              planDate={plan.date}
               onEventClick={startEditEvent}
               onEdit={startEditEvent}
               onDelete={deleteEvent}

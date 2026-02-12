@@ -14,4 +14,15 @@ describe('TravelTime Component', () => {
     );
     expect(container).toBeTruthy();
   });
+
+  it('accepts timeBetween prop for schedule warnings', () => {
+    const { container } = render(
+      <TravelTime 
+        fromLocation="Central Park, New York" 
+        toLocation="Times Square, New York"
+        timeBetween={30}
+      />
+    );
+    expect(container).toBeTruthy();
+  });
 });

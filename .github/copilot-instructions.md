@@ -114,7 +114,10 @@ NextStop helps users plan amazing outings with:
 - Use MSW for mocking API calls
 - Test edge cases and error scenarios
 - Aim for >80% code coverage on critical paths
-- Run tests before committing: `npm test`
+- **MUST run and pass before considering PR ready:**
+  - `npm test` - Run all tests
+  - `npm run typecheck` - TypeScript type checking
+  - `npm run lint` - ESLint code quality checks
 
 ## Project Structure
 
@@ -158,7 +161,9 @@ app/
 
 3. **Testing:**
    - Run tests: `npm test`
+   - Run typecheck: `npm run typecheck`
    - Run linter: `npm run lint`
+   - **All three must pass before PR is ready**
    - Test in browser: `npm run dev`
    - Verify all functionality works
 

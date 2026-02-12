@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { extractHourFromTime } from '@/lib/timeUtils';
 import styles from './WeatherInfo.module.css';
 
 interface WeatherData {
@@ -11,6 +12,8 @@ interface WeatherData {
 
 interface WeatherInfoProps {
   location: string;
+  date?: string; // Date in YYYY-MM-DD format for forecast
+  time?: string; // Time in HH:MM format for specific hour
   className?: string;
 }
 
@@ -42,7 +45,7 @@ function getWeatherFromCode(code: number): { description: string; icon: string }
   return weatherCodeMap[code] || { description: 'Unknown', icon: '❓' };
 }
 
-export function WeatherInfo({ location, className }: WeatherInfoProps) {
+export function WeatherInfo({ location, date, time, className }: WeatherInfoProps) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,14 +78,44 @@ export function WeatherInfo({ location, className }: WeatherInfoProps) {
 
         const { lat, lon } = geoData[0];
 
-        // Get weather using Open-Meteo (free, no API key)
-        const weatherRes = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`,
-          { signal: controller.signal }
-        );
+        // Build weather API URL based on whether we have a date
+        let weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`;
+        
+        if (date) {
+          // Forecast for specific date - use hourly data
+          const startDate = date;
+          const endDate = date; // Same day
+          weatherUrl += `&start_date=${startDate}&end_date=${endDate}&hourly=temperature_2m,weathercode&temperature_unit=fahrenheit&timezone=auto`;
+        } else {
+          // Current weather
+          weatherUrl += `&current_weather=true&temperature_unit=fahrenheit`;
+        }
+
+        const weatherRes = await fetch(weatherUrl, { signal: controller.signal });
         const weatherData = await weatherRes.json();
 
-        if (weatherData.current_weather) {
+        if (date && weatherData.hourly) {
+          // Find the closest hour to the specified time
+          let hourIndex = 12; // Default to noon
+          if (time) {
+            const hours = extractHourFromTime(time);
+            if (hours !== null && hours < weatherData.hourly.time.length) {
+              // Use the hour directly as the index in the hourly data array
+              hourIndex = hours;
+            }
+          }
+          
+          const temperature = weatherData.hourly.temperature_2m[hourIndex];
+          const weathercode = weatherData.hourly.weathercode[hourIndex];
+          const info = getWeatherFromCode(weathercode);
+          
+          setWeather({
+            temperature: Math.round(temperature),
+            description: info.description,
+            icon: info.icon,
+          });
+        } else if (weatherData.current_weather) {
+          // Current weather fallback
           const { temperature, weathercode } = weatherData.current_weather;
           const info = getWeatherFromCode(weathercode);
           const temperatureF = Math.round(temperature * 9 / 5 + 32);
@@ -104,7 +137,7 @@ export function WeatherInfo({ location, className }: WeatherInfoProps) {
     fetchWeather();
 
     return () => controller.abort();
-  }, [location]);
+  }, [location, date, time]);
 
   if (!location) return null;
   if (loading) return <span className={`${styles.container} ${className || ''}`} aria-label="Loading weather">🌡️ Loading...</span>;

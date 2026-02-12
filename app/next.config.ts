@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Enable instrumentation hook for database initialization on server startup
+  experimental: {
+    instrumentationHook: true,
+  },
 };
 
 export default nextConfig;

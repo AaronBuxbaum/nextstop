@@ -269,4 +269,19 @@ export const handlers = [
     mockBranchOptions.push(newOption);
     return HttpResponse.json(newOption, { status: 201 });
   }),
+
+  // Collaboration API
+  http.get('/api/collaboration', () => {
+    return HttpResponse.json({
+      activeUsers: [],
+      editingStates: [],
+    });
+  }),
+
+  http.post('/api/collaboration', () => {
+    return HttpResponse.json({
+      activeUsers: [],
+      editingStates: [],
+    });
+  }),
 ];

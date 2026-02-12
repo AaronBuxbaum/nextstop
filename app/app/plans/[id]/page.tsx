@@ -2,12 +2,16 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Plan, Event, Branch, DecisionLogic, AIAnalysis, AISuggestion } from '@/types';
 import { LocationAutocomplete } from '@/components/LocationAutocomplete';
 import { BranchCard } from '@/components/BranchCard';
 import { Timeline } from '@/components/Timeline';
 import { SharePlan } from '@/components/SharePlan';
+import { PresenceIndicators } from '@/components/PresenceIndicators';
+import { MapView } from '@/components/MapView';
 import { useGeolocation } from '@/lib/useGeolocation';
+import { useCollaboration } from '@/lib/useCollaboration';
 import { calculateDuration, calculateEndTime } from '@/lib/timeUtils';
 import styles from './page.module.css';
 
@@ -16,8 +20,15 @@ export default function PlanDetailPage() {
   const router = useRouter();
   const planId = params.id as string;
   const userLocation = useGeolocation();
+  const { data: session } = useSession();
+
+  const { activeUsers, startEditing, stopEditing } = useCollaboration({
+    planId,
+    enabled: !!session?.user,
+  });
 
   const [plan, setPlan] = useState<Plan | null>(null);
+  const [showMapView, setShowMapView] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAddingEvent, setIsAddingEvent] = useState(false);
@@ -210,6 +221,7 @@ export default function PlanDetailPage() {
   // Event editing
   const startEditEvent = (event: Event) => {
     setEditingEvent(event);
+    startEditing(event.id, 'event');
     setEditForm({
       title: event.title || '',
       description: event.description || '',
@@ -237,6 +249,7 @@ export default function PlanDetailPage() {
 
       if (!response.ok) throw new Error('Failed to update event');
 
+      stopEditing(editingEvent.id);
       setEditingEvent(null);
       await fetchPlan();
     } catch (err) {
@@ -573,6 +586,10 @@ export default function PlanDetailPage() {
             >
               ✏️ Edit Plan
             </button>
+            <PresenceIndicators
+              activeUsers={activeUsers}
+              currentUserId={session?.user?.id}
+            />
           </div>
         </div>
         <div className={styles.aiActions}>
@@ -704,6 +721,13 @@ export default function PlanDetailPage() {
         <div className={styles.sectionHeader}>
           <h2>Events</h2>
           <div className={styles.buttonGroup}>
+            <button
+              onClick={() => setShowMapView(!showMapView)}
+              className={styles.timelineButton}
+              aria-label={showMapView ? 'Hide map view' : 'Show map view'}
+            >
+              {showMapView ? '🗺️ Hide Map' : '🗺️ Map View'}
+            </button>
             {!showAiGenerator && !isAddingEvent && (
               <button
                 onClick={() => setShowAiGenerator(true)}
@@ -722,6 +746,10 @@ export default function PlanDetailPage() {
             )}
           </div>
         </div>
+
+        {showMapView && plan.events && plan.events.length > 0 && (
+          <MapView events={plan.events} />
+        )}
 
         {showAiGenerator && (
           <form onSubmit={generateEventFromAI} className={styles.eventForm}>

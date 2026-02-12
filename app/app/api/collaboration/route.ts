@@ -73,6 +73,12 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
+        if (elementType !== "event" && elementType !== "branch" && elementType !== "plan") {
+          return NextResponse.json(
+            { error: "elementType must be 'event', 'branch', or 'plan'" },
+            { status: 400 }
+          );
+        }
         await setEditingState(planId, userId, elementId, elementType);
         break;
 

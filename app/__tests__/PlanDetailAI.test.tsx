@@ -13,6 +13,14 @@ vi.mock('next/navigation', () => ({
   })),
 }));
 
+// Mock next-auth/react
+vi.mock('next-auth/react', () => ({
+  useSession: vi.fn(() => ({
+    data: { user: { id: 'user-1', name: 'Test User', email: 'test@test.com' } },
+    status: 'authenticated',
+  })),
+}));
+
 describe('PlanDetailPage - AI Generation', () => {
   beforeEach(() => {
     vi.mocked(useParams).mockReturnValue({ id: 'plan-1' });

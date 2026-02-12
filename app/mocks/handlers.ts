@@ -164,4 +164,27 @@ export const handlers = [
     
     return HttpResponse.json({ error: 'Invalid credentials' }, { status: 401 });
   }),
+
+  // AI API
+  http.post('/api/ai/generate-event', async ({ request }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const body = await request.json() as any;
+    const { userInput } = body;
+    
+    // Simple mock response for testing
+    return HttpResponse.json({
+      event: {
+        title: 'Generated Event',
+        description: `Event based on: ${userInput}`,
+        location: 'Mock Location',
+        duration: 60,
+        notes: null,
+      },
+      placement: {
+        strategy: 'end',
+        referenceEvent: null,
+        explanation: 'Added at the end of the list',
+      },
+    });
+  }),
 ];

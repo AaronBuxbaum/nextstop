@@ -229,6 +229,45 @@ Get AI-powered suggestions for improving the plan.
 }
 ```
 
+#### Generate Event from Natural Language
+```
+POST /api/ai/generate-event
+```
+
+Generate an event from a natural language description, with intelligent placement relative to existing events.
+
+**Request Body:**
+```json
+{
+  "planId": "plan_123",
+  "userInput": "I want to go to dinner at Eataly after the walk in the park"
+}
+```
+
+**Response:**
+```json
+{
+  "event": {
+    "title": "Dinner",
+    "description": "Dinner at Eataly",
+    "location": "Eataly",
+    "duration": 90,
+    "notes": null
+  },
+  "placement": {
+    "strategy": "after",
+    "referenceEvent": "Walk in the park",
+    "explanation": "User specified this event should come after the walk"
+  }
+}
+```
+
+**Placement Strategies:**
+- `after`: Insert after the specified reference event
+- `before`: Insert before the specified reference event  
+- `end`: Add at the end of the event list
+- `start`: Add at the beginning of the event list
+
 ### Authentication
 
 #### Sign In

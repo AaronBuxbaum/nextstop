@@ -4,32 +4,21 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
 import { nanoid } from "nanoid";
 
-// POST /api/events - Create a new event
+// POST /api/branches - Create a new branch
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
-    const {
-      planId,
-      title,
-      description,
-      location,
-      startTime,
-      endTime,
-      duration,
-      notes,
-      tags = [],
-      isOptional = false,
-    } = body;
+    const { planId, title, description, previousEventId, nextEventId } = body;
 
     if (!planId || !title) {
       return NextResponse.json(
-        { error: "Plan ID and title are required" },
+        { error: "planId and title are required" },
         { status: 400 }
       );
     }
@@ -51,31 +40,21 @@ export async function POST(req: NextRequest) {
 
     const id = nanoid();
 
-    // Calculate position for the new event
-    const posResult = await sql`
-      SELECT COALESCE(MAX(position), -1) + 1 as next_pos FROM events WHERE plan_id = ${planId}
-    `;
-    const position = posResult[0].next_pos;
-
     await sql`
-      INSERT INTO events (
-        id, plan_id, title, description, location, 
-        start_time, end_time, duration, notes, tags, is_optional, position
-      )
-      VALUES (
-        ${id}, ${planId}, ${title}, ${description || null}, ${location || null},
-        ${startTime || null}, ${endTime || null}, ${duration || null}, 
-        ${notes || null}, ${JSON.stringify(tags)}, ${isOptional}, ${position}
-      )
+      INSERT INTO branches (id, plan_id, title, description, previous_event_id, next_event_id)
+      VALUES (${id}, ${planId}, ${title}, ${description || null}, ${previousEventId || null}, ${nextEventId || null})
     `;
 
     const result = await sql`
-      SELECT * FROM events WHERE id = ${id}
+      SELECT * FROM branches WHERE id = ${id}
     `;
 
     return NextResponse.json(result[0], { status: 201 });
   } catch (error) {
-    console.error("Error creating event:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Error creating branch:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

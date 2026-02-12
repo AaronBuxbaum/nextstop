@@ -1,0 +1,48 @@
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  margin: 0.25rem 0;
+  background: var(--travel-bg, #f0f9ff);
+  border: 1px dashed var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  position: relative;
+}
+
+.bar::before,
+.bar::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  height: 0.25rem;
+  background: var(--border-color, #e5e7eb);
+}
+
+.bar::before {
+  top: -0.25rem;
+}
+
+.bar::after {
+  bottom: -0.25rem;
+}
+
+.loadingText {
+  font-family: var(--font-body), monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.modes {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.mode {
+  font-family: var(--font-body), monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+  white-space: nowrap;
+}

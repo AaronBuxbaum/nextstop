@@ -52,6 +52,7 @@ export interface Plan {
   id: string;
   title: string;
   description?: string;
+  date?: string; // Plan date in YYYY-MM-DD format
   theme?: string;
   userId: string;
   events: Event[];

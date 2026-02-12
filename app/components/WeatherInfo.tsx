@@ -85,8 +85,9 @@ export function WeatherInfo({ location, className }: WeatherInfoProps) {
         if (weatherData.current_weather) {
           const { temperature, weathercode } = weatherData.current_weather;
           const info = getWeatherFromCode(weathercode);
+          const temperatureF = Math.round(temperature * 9 / 5 + 32);
           setWeather({
-            temperature,
+            temperature: temperatureF,
             description: info.description,
             icon: info.icon,
           });
@@ -113,10 +114,10 @@ export function WeatherInfo({ location, className }: WeatherInfoProps) {
   return (
     <span
       className={`${styles.container} ${className || ''}`}
-      aria-label={`Weather at ${location}: ${weather.temperature}°C, ${weather.description}`}
+      aria-label={`Weather at ${location}: ${weather.temperature}°F, ${weather.description}`}
     >
       <span className={styles.icon}>{weather.icon}</span>
-      <span className={styles.temp}>{weather.temperature}°C</span>
+      <span className={styles.temp}>{weather.temperature}°F</span>
       <span className={styles.desc}>{weather.description}</span>
     </span>
   );

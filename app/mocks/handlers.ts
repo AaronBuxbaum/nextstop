@@ -5,6 +5,7 @@ const mockPlans = [
     id: 'plan-1',
     title: 'Weekend Adventure',
     description: 'A fun weekend outing',
+    date: '2026-03-15',
     theme: 'adventure',
     user_id: 'user-1',
     is_public: false,

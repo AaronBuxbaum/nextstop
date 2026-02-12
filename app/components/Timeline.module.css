@@ -32,6 +32,16 @@
   opacity: 0.85;
 }
 
+.item.dragging .content {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.item.editing .content {
+  border-color: var(--warning-color, #f59e0b);
+  background: var(--warning-bg, #fffbeb);
+}
+
 .marker {
   display: flex;
   flex-direction: column;
@@ -82,9 +92,16 @@
 
 .header {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: calc(var(--spacing-unit, 8px));
   margin-bottom: calc(var(--spacing-unit, 8px) * 0.5);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit, 8px) * 0.5);
 }
 
 .title {
@@ -107,6 +124,166 @@
   text-transform: uppercase;
 }
 
+.actions {
+  display: flex;
+  gap: calc(var(--spacing-unit, 8px) * 0.5);
+  flex-shrink: 0;
+}
+
+.editButton,
+.deleteButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.editButton {
+  color: var(--primary-color, #3b82f6);
+}
+
+.editButton:hover {
+  background: var(--primary-color, #3b82f6);
+  color: white;
+}
+
+.deleteButton {
+  color: var(--danger-color, #ef4444);
+}
+
+.deleteButton:hover {
+  background: var(--danger-color, #ef4444);
+  color: white;
+}
+
+.optionalButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+  transition: all 0.2s ease;
+}
+
+.optionalButton:hover {
+  background: var(--tag-bg, #dbeafe);
+  border-color: var(--tag-color, #1e40af);
+  color: var(--tag-color, #1e40af);
+}
+
+.dragHandle {
+  cursor: grab;
+  font-size: 1.125rem;
+  color: var(--text-secondary, #6b7280);
+  user-select: none;
+  padding: 0.125rem 0.25rem;
+  border-radius: 4px;
+  transition: color 0.2s ease, background 0.2s ease;
+  line-height: 1;
+}
+
+.dragHandle:hover {
+  color: var(--primary-color, #3b82f6);
+  background: var(--primary-bg, #eff6ff);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.description {
+  color: var(--text-secondary, #6b7280);
+  margin: 0 0 calc(var(--spacing-unit, 8px)) 0;
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit, 8px) * 0.5);
+}
+
+.detail {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit, 8px) * 0.5);
+  font-family: var(--font-body), monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.detailIcon {
+  font-size: 0.875rem;
+}
+
+.mapLink {
+  font-family: var(--font-body), monospace;
+  font-size: 0.7rem;
+  color: var(--primary-color, #3b82f6);
+  text-decoration: none;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--primary-color, #3b82f6);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  margin-left: calc(var(--spacing-unit, 8px) * 0.5);
+}
+
+.mapLink:hover {
+  background: var(--primary-color, #3b82f6);
+  color: white;
+}
+
+.notes {
+  background: var(--notes-bg, #f9fafb);
+  padding: calc(var(--spacing-unit, 8px));
+  border-radius: 6px;
+  font-size: 0.8rem;
+  margin-top: calc(var(--spacing-unit, 8px));
+  font-family: var(--font-body), monospace;
+}
+
+.notes strong {
+  color: var(--text-primary, #111827);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing-unit, 8px) * 0.5);
+  margin-top: calc(var(--spacing-unit, 8px));
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  background: var(--tag-bg, #dbeafe);
+  color: var(--tag-color, #1e40af);
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-family: var(--font-body), monospace;
+  font-weight: 600;
+}
+
+.travelTimeRow {
+  display: flex;
+  gap: calc(var(--spacing-unit, 8px) * 2);
+  padding-left: calc(var(--spacing-unit, 8px) * 1.5);
+  margin-bottom: calc(var(--spacing-unit, 8px));
+}
+
+.travelTimeMarker {
+  width: calc(var(--spacing-unit, 8px) * 4);
+  flex-shrink: 0;
+}
+
 .time,
 .duration,
 .location {
@@ -124,5 +301,13 @@
 
   .content {
     padding: calc(var(--spacing-unit, 8px));
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .actions {
+    margin-top: calc(var(--spacing-unit, 8px) * 0.5);
   }
 }

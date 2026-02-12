@@ -281,6 +281,23 @@
   color: var(--text-secondary, #6b7280);
 }
 
+.aiGeneratorTitle {
+  font-family: var(--font-display), serif;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+.aiGeneratorDescription {
+  font-family: var(--font-body), monospace;
+  color: var(--text-secondary, #6b7280);
+  margin-bottom: 1rem;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 0.75rem;
+}
+
 .branchesSection {
   margin-top: 2rem;
 }

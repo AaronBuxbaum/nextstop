@@ -20,6 +20,11 @@ export default function PlansPage() {
   const fetchPlans = async () => {
     try {
       const response = await fetch('/api/plans');
+      if (response.status === 401) {
+        // Redirect to sign-in page if not authenticated
+        router.push('/auth/signin');
+        return;
+      }
       if (!response.ok) throw new Error('Failed to fetch plans');
       const data = await response.json();
       setPlans(data);
@@ -41,6 +46,10 @@ export default function PlansPage() {
         body: JSON.stringify({ title: newPlanTitle }),
       });
 
+      if (response.status === 401) {
+        router.push('/auth/signin');
+        return;
+      }
       if (!response.ok) throw new Error('Failed to create plan');
       
       const newPlan = await response.json();
@@ -61,6 +70,10 @@ export default function PlansPage() {
         method: 'DELETE',
       });
 
+      if (response.status === 401) {
+        router.push('/auth/signin');
+        return;
+      }
       if (!response.ok) throw new Error('Failed to delete plan');
       
       setPlans(plans.filter(plan => plan.id !== id));

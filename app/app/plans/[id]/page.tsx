@@ -141,11 +141,11 @@ export default function PlanDetailPage() {
   };
 
   // Shared time calculation logic
-  const calculateTimeFields = (
-    eventData: { startTime: string; endTime: string; duration: string },
+  const calculateTimeFields = <T extends { startTime: string; endTime: string; duration: string }>(
+    eventData: T,
     field: 'startTime' | 'endTime' | 'duration',
     value: string
-  ) => {
+  ): T => {
     const updated = { ...eventData, [field]: value };
 
     // Calculate duration if both start and end times are provided

@@ -6,20 +6,42 @@ This guide will help you deploy NextStop to Vercel.
 
 - GitHub account
 - Vercel account (free tier is sufficient)
-- Neon Postgres account (free tier available)
-- Upstash Redis account (free tier available)
 - OpenAI API account (for AI features)
 
-## Step 1: Set Up Database (Neon Postgres)
+> **Note**: This project uses Neon Postgres and Upstash Redis, which are the recommended storage solutions for Vercel deployments. As of December 2024, Vercel provides these through Marketplace integrations, replacing the deprecated @vercel/postgres and @vercel/kv packages.
+
+## Step 1: Set Up Database - Neon Postgres (via Vercel Marketplace)
+
+**Recommended**: Add Neon through Vercel Marketplace for automatic configuration:
+
+1. In Vercel Dashboard, go to your project
+2. Navigate to "Storage" tab
+3. Click "Connect Store" → Select "Postgres"
+4. Choose "Neon" (Vercel's recommended Postgres provider)
+5. Follow the prompts to create and connect your database
+6. Vercel will automatically set the `DATABASE_URL` environment variable
+
+**Alternative**: Manual setup through Neon Console:
 
 1. Go to [Neon Console](https://console.neon.tech/)
 2. Click "Create Project"
 3. Choose a name for your project
 4. Select a region close to your users
 5. Copy the connection string (starts with `postgresql://`)
-6. Save this as your `DATABASE_URL`
+6. Add it to Vercel as `DATABASE_URL` environment variable
 
-## Step 2: Set Up Redis (Upstash)
+## Step 2: Set Up Redis - Upstash (via Vercel Marketplace)
+
+**Recommended**: Add Upstash through Vercel Marketplace for automatic configuration:
+
+1. In Vercel Dashboard, go to your project
+2. Navigate to "Storage" tab
+3. Click "Connect Store" → Select "KV" or "Redis"
+4. Choose "Upstash" (Vercel's recommended Redis provider)
+5. Follow the prompts to create and connect your Redis instance
+6. Vercel will automatically set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
+
+**Alternative**: Manual setup through Upstash Console:
 
 1. Go to [Upstash Console](https://console.upstash.com/)
 2. Click "Create Database"
@@ -28,6 +50,7 @@ This guide will help you deploy NextStop to Vercel.
 5. Go to the "REST API" tab
 6. Copy the `UPSTASH_REDIS_REST_URL`
 7. Copy the `UPSTASH_REDIS_REST_TOKEN`
+8. Add both to Vercel environment variables
 
 ## Step 3: Get OpenAI API Key
 
@@ -148,6 +171,7 @@ After deployment, the database tables will be created automatically on first API
 **Solutions**:
 - Verify `DATABASE_URL` is correct
 - Check Neon project is active
+- If using Vercel Marketplace integration, verify the integration is properly connected
 - Ensure connection pooling is enabled
 
 ### Redis Connection Fails
@@ -155,8 +179,9 @@ After deployment, the database tables will be created automatically on first API
 **Issue**: Real-time features don't work
 
 **Solutions**:
-- Verify Upstash credentials are correct
+- Verify Upstash credentials (`UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`) are correct
 - Check Upstash database is active
+- If using Vercel Marketplace integration, verify the integration is properly connected
 - Review connection limits
 
 ## Post-Deployment
@@ -201,23 +226,27 @@ Consider adding:
 
 **Free Tier Usage:**
 - Vercel: Hobby plan (free for personal projects)
-- Neon: 0.5GB storage, 1 project (free)
-- Upstash: 10K commands/day (free)
+- Neon Postgres (via Vercel Marketplace): 0.5GB storage (free tier)
+- Upstash Redis (via Vercel Marketplace): 10K commands/day (free tier)
 - OpenAI: Pay per use (estimate $5-20/month for moderate use)
 
 **Estimated Monthly Cost**: $5-20 (mostly OpenAI API usage)
+
+> **Note**: Using Vercel Marketplace integrations for Neon and Upstash provides unified billing through Vercel and automatic configuration.
 
 ## Scaling Considerations
 
 When your app grows:
 
-1. **Upgrade Database**: Neon Pro for more storage/compute
-2. **Upgrade Redis**: Upstash paid tier for more commands
+1. **Upgrade Database**: Neon Pro for more storage/compute (manage through Vercel or Neon Console)
+2. **Upgrade Redis**: Upstash paid tier for more commands (manage through Vercel or Upstash Console)
 3. **Add Caching**: Implement Redis caching for API responses
 4. **Enable CDN**: Vercel Edge Network (automatic)
 5. **Database Indexing**: Add indexes for frequently queried fields
 6. **Rate Limiting**: Implement API rate limiting
 7. **Load Testing**: Test with expected user loads
+
+> **Tip**: Vercel Marketplace integrations make it easy to upgrade your storage solutions directly from the Vercel Dashboard.
 
 ## Support
 

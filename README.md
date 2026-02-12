@@ -50,8 +50,8 @@ nextstop/
 
 **Backend**
 - Next.js API Routes (serverless functions)
-- Neon Postgres (formerly Vercel Postgres)
-- Upstash Redis for real-time collaboration
+- Neon Postgres (Vercel's recommended Postgres solution via Marketplace)
+- Upstash Redis (Vercel's recommended Redis solution via Marketplace)
 - Vercel Blob for file storage
 
 **AI & Integrations**
@@ -73,8 +73,8 @@ nextstop/
 - npm or yarn
 - A Vercel account (for deployment)
 - OpenAI API key (for AI features)
-- Neon Postgres database (free tier available)
-- Upstash Redis instance (free tier available)
+- Neon Postgres database (Vercel's recommended Postgres - free tier available)
+- Upstash Redis instance (Vercel's recommended Redis - free tier available)
 
 ### Installation
 
@@ -133,6 +133,8 @@ The application will be available at `http://localhost:3000`
 
 ### Database Setup
 
+> **Tip**: When deploying to Vercel, you can add Neon and Upstash through the Vercel Marketplace (Storage tab) for automatic configuration. The instructions below are for manual setup or local development.
+
 #### Neon Postgres Setup
 
 1. Go to [Neon Console](https://console.neon.tech/)
@@ -140,12 +142,18 @@ The application will be available at `http://localhost:3000`
 3. Copy the connection string
 4. Add it to your `.env.local` as `DATABASE_URL`
 
+Or add through Vercel Marketplace:
+- In Vercel Dashboard → Storage → Connect Store → Postgres → Neon
+
 #### Upstash Redis Setup
 
 1. Go to [Upstash Console](https://console.upstash.com/)
 2. Create a new Redis database
 3. Copy the REST URL and token
 4. Add them to your `.env.local`
+
+Or add through Vercel Marketplace:
+- In Vercel Dashboard → Storage → Connect Store → Redis → Upstash
 
 ### Getting API Keys
 

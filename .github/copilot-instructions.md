@@ -22,8 +22,8 @@ NextStop helps users plan amazing outings with:
 
 **Backend:**
 - Next.js API Routes (serverless)
-- Neon Postgres (database)
-- Upstash Redis (real-time features)
+- Neon Postgres (Vercel's recommended Postgres solution)
+- Upstash Redis (Vercel's recommended Redis solution)
 - Vercel Blob (file storage)
 
 **AI:**
@@ -168,13 +168,15 @@ app/
 
 Required in `.env.local`:
 ```bash
-DATABASE_URL=              # Neon Postgres
-UPSTASH_REDIS_REST_URL=   # Upstash Redis
+DATABASE_URL=              # Neon Postgres (Vercel's recommended solution)
+UPSTASH_REDIS_REST_URL=   # Upstash Redis (Vercel's recommended solution)
 UPSTASH_REDIS_REST_TOKEN= # Upstash token
 OPENAI_API_KEY=           # OpenAI API
 NEXTAUTH_SECRET=          # Auth secret
 NEXTAUTH_URL=             # App URL
 ```
+
+> **Note**: When deploying to Vercel, these can be automatically configured by adding Neon and Upstash through the Vercel Marketplace (Storage tab). This is the recommended approach as it provides unified billing and automatic configuration.
 
 ## Common Tasks
 

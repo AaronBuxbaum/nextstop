@@ -89,7 +89,7 @@ export function TravelTime({ fromLocation, toLocation }: TravelTimeProps) {
 
       // Estimate walking: distance-based at ~5km/h
       // Use straight-line distance as approximation, then apply 1.4x factor for roads
-      const R = 6371;
+      const earthRadiusKm = 6371;
       const dLat = ((toCoords.lat - fromCoords.lat) * Math.PI) / 180;
       const dLon = ((toCoords.lon - fromCoords.lon) * Math.PI) / 180;
       const a =
@@ -99,7 +99,7 @@ export function TravelTime({ fromLocation, toLocation }: TravelTimeProps) {
           Math.sin(dLon / 2) *
           Math.sin(dLon / 2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const distanceKm = R * c * 1.4; // road factor
+      const distanceKm = earthRadiusKm * c * 1.4; // road factor
       const walkingSec = (distanceKm / 5) * 3600;
       const transitSec = walkingSec * 0.4;
 

@@ -65,16 +65,16 @@ server.use(
 - Test CSS class application for dynamic styles
 
 ### What to Test
-- ✅ Component rendering with various props
-- ✅ User interactions (clicks, form submissions)
-- ✅ Conditional rendering based on props/state
-- ✅ Error handling and error states
-- ✅ Loading states
-- ✅ Accessibility (ARIA attributes, semantic HTML)
-- ✅ Data transformations and business logic
+- Component rendering with various props
+- User interactions (clicks, form submissions)
+- Conditional rendering based on props/state
+- Error handling and error states
+- Loading states
+- Accessibility (ARIA attributes, semantic HTML)
+- Data transformations and business logic
 
 ### What Not to Test
-- ❌ Third-party library internals
-- ❌ Next.js framework behavior
-- ❌ CSS styling (unless testing conditional classes)
-- ❌ External API implementation details
+- Third-party library internals
+- Next.js framework behavior
+- CSS styling (unless testing conditional classes)
+- External API implementation details

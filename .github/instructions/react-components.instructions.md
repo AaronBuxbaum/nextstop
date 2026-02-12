@@ -95,6 +95,14 @@ const handleClick = () => {
 
 // Conditional classes
 <div className={`${styles.card} ${isActive ? styles.active : ''}`}>
+
+// For complex conditional classes, consider using clsx or classnames:
+import clsx from 'clsx';
+<div className={clsx(styles.card, {
+  [styles.active]: isActive,
+  [styles.editing]: isEditing,
+  [styles.disabled]: isDisabled
+})}>
 ```
 
 ### NextStop Design Principles

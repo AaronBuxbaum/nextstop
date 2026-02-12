@@ -123,7 +123,8 @@ export async function GET() {
   if (!session?.user?.id) return unauthorized();
   
   const items = await sql`
-    SELECT * FROM table 
+    SELECT id, title, description, created_at, updated_at 
+    FROM table 
     WHERE user_id = ${session.user.id}
     ORDER BY created_at DESC
   `;

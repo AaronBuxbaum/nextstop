@@ -35,6 +35,36 @@ NextStop helps users plan amazing outings with:
 - Mock Service Worker (MSW) for API mocking
 - Testing Library for component tests
 
+## Documentation Policy
+
+### What NOT to Create
+**NEVER create markdown files that describe:**
+- Implementation details of fixes or features
+- Summaries of work completed (IMPLEMENTATION_SUMMARY.md, FEATURE_README.md, etc.)
+- Bug fix explanations (TYPESCRIPT_FIX.md, LINTING_FIXES.md, etc.)
+- Security summaries (SECURITY_SUMMARY.md)
+- Any other temporary documentation intended only for human review
+
+**Rationale:** Such information should be included in pull request descriptions where it's accessible via GitHub. AI agents are provided access to GitHub, so any information useful for understanding work should live there, not as files in the repository.
+
+### What TO Create
+**Documentation should ONLY be created when:**
+- It provides context that AI agents need to understand the codebase for future work
+- It documents APIs, architecture, or patterns that guide future development
+- It's placed in the `docs/` folder (if not already in a standard location like README.md)
+
+**Allowed documentation files:**
+- `README.md` - Project overview and setup instructions
+- `CONTRIBUTING.md` - Contribution guidelines
+- `API.md` - API endpoint documentation
+- `DEPLOYMENT.md` - Deployment instructions
+- `docs/` folder - Any additional AI-agent-oriented documentation
+
+### Working Memory
+- Use working memory (think through solutions mentally) instead of creating markdown files for planning, notes, or tracking
+- Include summaries and explanations in PR descriptions, not separate files
+- Keep code comments focused and minimal unless they explain complex logic
+
 ## Code Standards
 
 ### General Principles
@@ -42,7 +72,7 @@ NextStop helps users plan amazing outings with:
 - Follow TypeScript best practices with strict mode
 - Ensure all code changes include appropriate tests
 - Keep commits focused and atomic
-- Update documentation when making functional changes
+- Update core documentation (README.md, API.md, etc.) when making functional changes that affect public interfaces
 
 ### TypeScript
 - Use explicit types, avoid `any`

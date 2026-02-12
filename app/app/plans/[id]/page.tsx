@@ -17,6 +17,9 @@ export default function PlanDetailPage() {
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
   const [analyzingAI, setAnalyzingAI] = useState(false);
+  const [isGeneratingEvent, setIsGeneratingEvent] = useState(false);
+  const [aiInput, setAiInput] = useState('');
+  const [showAiGenerator, setShowAiGenerator] = useState(false);
 
   // New event form state
   const [newEvent, setNewEvent] = useState({
@@ -129,6 +132,47 @@ export default function PlanDetailPage() {
     }
   };
 
+  const generateEventFromAI = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!aiInput.trim()) return;
+
+    setIsGeneratingEvent(true);
+    try {
+      // Call AI to generate event details
+      const response = await fetch('/api/ai/generate-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId, userInput: aiInput }),
+      });
+
+      if (!response.ok) throw new Error('Failed to generate event');
+      const data = await response.json();
+
+      // Pre-fill the event form with AI-generated data
+      setNewEvent({
+        title: data.event.title || '',
+        description: data.event.description || '',
+        location: data.event.location || '',
+        startTime: '',
+        endTime: '',
+        duration: data.event.duration ? String(data.event.duration) : '',
+        notes: data.event.notes || '',
+      });
+
+      // Show the event form and hide AI generator
+      setIsAddingEvent(true);
+      setShowAiGenerator(false);
+      setAiInput('');
+
+      // Store placement info for later (we'll need to handle ordering in createEvent)
+      // For now, we'll just add it to the end as the simplest implementation
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to generate event');
+    } finally {
+      setIsGeneratingEvent(false);
+    }
+  };
+
   if (loading) {
     return <div className={styles.container}><div className={styles.loading}>Loading plan...</div></div>;
   }
@@ -223,15 +267,63 @@ export default function PlanDetailPage() {
       <section className={styles.eventsSection}>
         <div className={styles.sectionHeader}>
           <h2>Events</h2>
-          {!isAddingEvent && (
-            <button
-              onClick={() => setIsAddingEvent(true)}
-              className={styles.addButton}
-            >
-              + Add Event
-            </button>
-          )}
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            {!showAiGenerator && !isAddingEvent && (
+              <button
+                onClick={() => setShowAiGenerator(true)}
+                className={styles.aiButton}
+              >
+                ✨ AI Generate
+              </button>
+            )}
+            {!isAddingEvent && !showAiGenerator && (
+              <button
+                onClick={() => setIsAddingEvent(true)}
+                className={styles.addButton}
+              >
+                + Add Event
+              </button>
+            )}
+          </div>
         </div>
+
+        {showAiGenerator && (
+          <form onSubmit={generateEventFromAI} className={styles.eventForm}>
+            <h3 style={{ fontFamily: 'var(--font-display), serif', marginBottom: '1rem' }}>
+              ✨ AI Event Generator
+            </h3>
+            <p style={{ fontFamily: 'var(--font-body), monospace', color: 'var(--text-secondary, #6b7280)', marginBottom: '1rem' }}>
+              Describe the event you want to add in natural language. For example: &ldquo;I want to go to dinner at Eataly after the walk in the park&rdquo;
+            </p>
+            <textarea
+              value={aiInput}
+              onChange={(e) => setAiInput(e.target.value)}
+              placeholder="E.g., 'Add a coffee break at Starbucks before the museum visit' or 'I want to go shopping at the mall for 2 hours'"
+              className={styles.textarea}
+              rows={3}
+              required
+            />
+            <div className={styles.formActions}>
+              <button 
+                type="submit" 
+                className={styles.submitButton}
+                disabled={isGeneratingEvent}
+              >
+                {isGeneratingEvent ? '🤔 Generating...' : '✨ Generate Event'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAiGenerator(false);
+                  setAiInput('');
+                }}
+                className={styles.cancelButton}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
 
         {isAddingEvent && (
           <form onSubmit={createEvent} className={styles.eventForm}>

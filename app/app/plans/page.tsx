@@ -162,7 +162,7 @@ export default function PlansPage() {
                   </div>
                 )}
                 <div className={styles.planMeta}>
-                  <span>{plan.events?.length || 0} events</span>
+                  <span>{plan.event_count || plan.events?.length || 0} events</span>
                   {plan.collaborators && plan.collaborators.length > 0 && (
                     <span>• {plan.collaborators.length} collaborators</span>
                   )}

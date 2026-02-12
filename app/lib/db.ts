@@ -67,6 +67,7 @@ export const initDatabase = async () => {
         notes TEXT,
         tags JSONB DEFAULT '[]',
         is_optional BOOLEAN DEFAULT FALSE,
+        position INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE

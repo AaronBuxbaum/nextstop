@@ -18,6 +18,7 @@ export interface Event {
   duration?: number; // Duration in minutes
   notes?: string;
   tags?: string[];
+  position?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,6 +58,7 @@ export interface Plan {
   optionalEvents: Event[];
   collaborators: string[]; // User IDs
   isPublic: boolean;
+  event_count?: number;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -8,6 +8,7 @@ const mockPlans = [
     theme: 'adventure',
     user_id: 'user-1',
     is_public: false,
+    event_count: 1,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     collaborators: [],
@@ -27,10 +28,14 @@ const mockEvents = [
     notes: 'Try their specialty blend',
     tags: ['coffee', 'morning'],
     is_optional: false,
+    position: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
 ];
+
+const mockBranches: Record<string, unknown>[] = [];
+const mockBranchOptions: Record<string, unknown>[] = [];
 
 export const handlers = [
   // Plans API
@@ -163,5 +168,82 @@ export const handlers = [
     }
     
     return HttpResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+  }),
+
+  // Reorder events API
+  http.post('/api/events/reorder', async ({ request }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const body = await request.json() as any;
+    const { eventIds } = body;
+    if (Array.isArray(eventIds)) {
+      eventIds.forEach((id: string, index: number) => {
+        const ev = mockEvents.find(e => e.id === id);
+        if (ev) ev.position = index;
+      });
+    }
+    return HttpResponse.json({ success: true });
+  }),
+
+  // Branches API
+  http.post('/api/branches', async ({ request }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const body = await request.json() as any;
+    const newBranch = {
+      id: `branch-${Date.now()}`,
+      plan_id: body.planId,
+      title: body.title,
+      description: body.description || null,
+      previous_event_id: body.previousEventId || null,
+      next_event_id: body.nextEventId || null,
+      options: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    mockBranches.push(newBranch);
+    return HttpResponse.json(newBranch, { status: 201 });
+  }),
+
+  http.patch('/api/branches/:id', async ({ params, request }) => {
+    const { id } = params;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const body = await request.json() as any;
+    const branchIndex = mockBranches.findIndex(b => b.id === id);
+    if (branchIndex === -1) {
+      return HttpResponse.json({ error: 'Branch not found' }, { status: 404 });
+    }
+    mockBranches[branchIndex] = {
+      ...mockBranches[branchIndex],
+      ...body,
+      updated_at: new Date().toISOString(),
+    };
+    return HttpResponse.json(mockBranches[branchIndex]);
+  }),
+
+  http.delete('/api/branches/:id', ({ params }) => {
+    const { id } = params;
+    const branchIndex = mockBranches.findIndex(b => b.id === id);
+    if (branchIndex === -1) {
+      return HttpResponse.json({ error: 'Branch not found' }, { status: 404 });
+    }
+    mockBranches.splice(branchIndex, 1);
+    return HttpResponse.json({ success: true });
+  }),
+
+  // Branch options API
+  http.post('/api/branches/:id/options', async ({ params, request }) => {
+    const { id: branchId } = params;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const body = await request.json() as any;
+    const newOption = {
+      id: `option-${Date.now()}`,
+      branch_id: branchId,
+      label: body.label,
+      description: body.description || null,
+      decision_logic: body.decisionLogic || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    mockBranchOptions.push(newOption);
+    return HttpResponse.json(newOption, { status: 201 });
   }),
 ];

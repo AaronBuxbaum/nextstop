@@ -128,14 +128,17 @@ export async function PATCH(
       }
       eventIds.splice(newPosition, 0, id);
 
-      // Update positions for all events
-      for (let i = 0; i < eventIds.length; i++) {
-        await sql`
-          UPDATE events
-          SET position = ${i}, updated_at = CURRENT_TIMESTAMP
-          WHERE id = ${eventIds[i]}
-        `;
-      }
+      // Update positions for all events in batches to avoid too many queries
+      // Use Promise.all to update them in parallel
+      await Promise.all(
+        eventIds.map((eventId, idx) => 
+          sql`
+            UPDATE events
+            SET position = ${idx}, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ${eventId}
+          `
+        )
+      );
     }
 
     const result = await sql`

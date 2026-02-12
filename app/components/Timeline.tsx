@@ -21,6 +21,20 @@ interface TimelineProps {
   editingEventId?: string | null;
 }
 
+// Helper function to parse time string in HH:MM format
+function parseTimeString(time: string): number | null {
+  const parts = time.split(':');
+  if (parts.length < 2) return null;
+  
+  const hours = parseInt(parts[0], 10);
+  const minutes = parseInt(parts[1], 10);
+  
+  if (isNaN(hours) || isNaN(minutes)) return null;
+  if (hours < 0 || hours >= 24 || minutes < 0 || minutes >= 60) return null;
+  
+  return hours * 60 + minutes;
+}
+
 export function Timeline({
   events,
   planDate,
@@ -209,24 +223,25 @@ export function Timeline({
                 
                 // Calculate time between events if both have times
                 if (currentEvent.endTime && nextEvent.startTime) {
-                  // Parse times in HH:MM format
-                  const [endHour, endMin] = currentEvent.endTime.split(':').map(Number);
-                  const [startHour, startMin] = nextEvent.startTime.split(':').map(Number);
-                  const endMinutes = endHour * 60 + endMin;
-                  const startMinutes = startHour * 60 + startMin;
-                  timeBetween = startMinutes - endMinutes;
+                  const endMinutes = parseTimeString(currentEvent.endTime);
+                  const startMinutes = parseTimeString(nextEvent.startTime);
                   
-                  // Handle negative values (next day) or invalid values
-                  if (timeBetween < 0) timeBetween = undefined;
+                  if (endMinutes !== null && startMinutes !== null) {
+                    timeBetween = startMinutes - endMinutes;
+                    // Handle negative values (next day) or invalid values
+                    if (timeBetween < 0) timeBetween = undefined;
+                  }
                 } else if (currentEvent.startTime && currentEvent.duration && nextEvent.startTime) {
                   // Calculate using start time + duration
-                  const [startHour, startMin] = currentEvent.startTime.split(':').map(Number);
-                  const [nextStartHour, nextStartMin] = nextEvent.startTime.split(':').map(Number);
-                  const endMinutes = startHour * 60 + startMin + currentEvent.duration;
-                  const nextStartMinutes = nextStartHour * 60 + nextStartMin;
-                  timeBetween = nextStartMinutes - endMinutes;
+                  const startMinutes = parseTimeString(currentEvent.startTime);
+                  const nextStartMinutes = parseTimeString(nextEvent.startTime);
                   
-                  if (timeBetween < 0) timeBetween = undefined;
+                  if (startMinutes !== null && nextStartMinutes !== null) {
+                    const endMinutes = startMinutes + currentEvent.duration;
+                    timeBetween = nextStartMinutes - endMinutes;
+                    
+                    if (timeBetween < 0) timeBetween = undefined;
+                  }
                 }
                 
                 return (

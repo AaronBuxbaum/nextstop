@@ -97,9 +97,14 @@ export function WeatherInfo({ location, date, time, className }: WeatherInfoProp
           // Find the closest hour to the specified time
           let hourIndex = 0;
           if (time) {
-            const [hours] = time.split(':').map(Number);
-            // Find the index in hourly data that matches our time
-            hourIndex = Math.min(hours, weatherData.hourly.time.length - 1);
+            const timeParts = time.split(':');
+            if (timeParts.length >= 1) {
+              const hours = parseInt(timeParts[0], 10);
+              // Find the index in hourly data that matches our time
+              if (!isNaN(hours) && hours >= 0 && hours < 24) {
+                hourIndex = Math.min(hours, weatherData.hourly.time.length - 1);
+              }
+            }
           } else {
             // Default to noon if no time specified
             hourIndex = 12;

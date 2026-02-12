@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
+import { calculateDuration, calculateEndTime } from "@/lib/timeUtils";
 
 // PATCH /api/events/[id] - Update an event
 export async function PATCH(
@@ -53,11 +54,32 @@ export async function PATCH(
     const updatedDescription = description !== undefined ? description : currentEvent.description;
     const updatedLocation = location !== undefined ? location : currentEvent.location;
     const updatedStartTime = startTime !== undefined ? startTime : currentEvent.start_time;
-    const updatedEndTime = endTime !== undefined ? endTime : currentEvent.end_time;
-    const updatedDuration = duration !== undefined ? duration : currentEvent.duration;
+    let updatedEndTime = endTime !== undefined ? endTime : currentEvent.end_time;
+    let updatedDuration = duration !== undefined ? duration : currentEvent.duration;
     const updatedNotes = notes !== undefined ? notes : currentEvent.notes;
     const updatedTags = tags !== undefined ? JSON.stringify(tags) : currentEvent.tags;
     const updatedIsOptional = isOptional !== undefined ? isOptional : currentEvent.is_optional;
+
+    // Calculate missing time fields after updates
+    // If start and end times are provided, calculate duration
+    if (updatedStartTime && updatedEndTime && 
+        (startTime !== undefined || endTime !== undefined) && 
+        duration === undefined) {
+      const calculated = calculateDuration(updatedStartTime, updatedEndTime);
+      if (calculated !== null) {
+        updatedDuration = calculated;
+      }
+    }
+
+    // If start time and duration are provided, calculate end time
+    if (updatedStartTime && updatedDuration && 
+        (startTime !== undefined || duration !== undefined) && 
+        endTime === undefined) {
+      const calculated = calculateEndTime(updatedStartTime, updatedDuration);
+      if (calculated !== null) {
+        updatedEndTime = calculated;
+      }
+    }
 
     // Execute update with all values
     await sql`

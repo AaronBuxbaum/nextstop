@@ -1,11 +1,9 @@
 import { describe, it, expect } from 'vitest';
 
 describe('Server Instrumentation', () => {
-  it('instrumentation file exists', () => {
+  it('instrumentation file can be imported', async () => {
     // Check that the instrumentation file exists and can be imported
-    expect(async () => {
-      await import('../instrumentation');
-    }).toBeDefined();
+    await expect(import('../instrumentation')).resolves.toBeDefined();
   });
 
   it('register function is exported', async () => {
@@ -27,7 +25,7 @@ describe('Server Instrumentation', () => {
       const instrumentation = await import('../instrumentation');
       
       // Should not throw even without DATABASE_URL
-      await expect(instrumentation.register()).resolves.not.toThrow();
+      await expect(instrumentation.register()).resolves.toBeUndefined();
     } finally {
       // Restore environment
       if (originalEnv) process.env.DATABASE_URL = originalEnv;

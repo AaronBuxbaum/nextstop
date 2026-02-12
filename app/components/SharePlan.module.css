@@ -1,0 +1,66 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit, 8px));
+  flex-wrap: wrap;
+}
+
+.visibilityToggle {
+  display: flex;
+  align-items: center;
+}
+
+.toggleButton {
+  font-family: var(--font-body), monospace;
+  padding: calc(var(--spacing-unit, 8px) * 0.75) calc(var(--spacing-unit, 8px) * 1.5);
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: calc(var(--spacing-unit, 8px));
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.toggleButton.public {
+  border-color: var(--ai-border, #86efac);
+  color: var(--ai-color, #166534);
+  background: var(--ai-bg, #f0fdf4);
+}
+
+.toggleButton.private {
+  border-color: var(--border-color, #e5e7eb);
+  color: var(--text-secondary, #6b7280);
+}
+
+.toggleButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.toggleButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.shareActions {
+  display: flex;
+  gap: calc(var(--spacing-unit, 8px) * 0.5);
+}
+
+.copyButton {
+  font-family: var(--font-body), monospace;
+  padding: calc(var(--spacing-unit, 8px) * 0.75) calc(var(--spacing-unit, 8px) * 1.5);
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: calc(var(--spacing-unit, 8px));
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copyButton:hover {
+  background: var(--primary-hover, #2563eb);
+  transform: translateY(-2px);
+}

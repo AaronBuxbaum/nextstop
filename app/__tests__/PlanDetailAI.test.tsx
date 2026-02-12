@@ -6,6 +6,11 @@ import PlanDetailPage from '@/app/plans/[id]/page';
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
   useParams: vi.fn(),
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+  })),
 }));
 
 describe('PlanDetailPage - AI Generation', () => {

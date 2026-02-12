@@ -1,16 +1,19 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Plan, Event, Branch, DecisionLogic, AIAnalysis, AISuggestion } from '@/types';
 import { EventCard } from '@/components/EventCard';
 import { LocationAutocomplete } from '@/components/LocationAutocomplete';
 import { TravelTime } from '@/components/TravelTime';
 import { BranchCard } from '@/components/BranchCard';
+import { Timeline } from '@/components/Timeline';
+import { SharePlan } from '@/components/SharePlan';
 import styles from './page.module.css';
 
 export default function PlanDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const planId = params.id as string;
 
   const [plan, setPlan] = useState<Plan | null>(null);
@@ -23,6 +26,7 @@ export default function PlanDetailPage() {
   const [isGeneratingEvent, setIsGeneratingEvent] = useState(false);
   const [aiInput, setAiInput] = useState('');
   const [showAiGenerator, setShowAiGenerator] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
 
   // Drag state
   const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
@@ -235,6 +239,38 @@ export default function PlanDetailPage() {
     setDraggedEventId(null);
   };
 
+  // Toggle optional status
+  const toggleOptional = async (eventId: string, isOptional: boolean) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isOptional }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update event');
+      await fetchPlan();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to update event');
+    }
+  };
+
+  // Toggle plan public/private
+  const togglePublic = async (isPublic: boolean) => {
+    try {
+      const response = await fetch(`/api/plans/${planId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isPublic }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update plan');
+      await fetchPlan();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to update plan');
+    }
+  };
+
   // Branch handlers
   const createBranch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -392,6 +428,16 @@ export default function PlanDetailPage() {
 
   return (
     <div className={styles.container}>
+      <nav className={styles.backNav}>
+        <button
+          onClick={() => router.push('/plans')}
+          className={styles.backButton}
+          aria-label="Back to plans"
+        >
+          ← Back to Plans
+        </button>
+      </nav>
+
       <header className={styles.header}>
         <div>
           <h1 className={styles.title}>{plan.title}</h1>
@@ -402,6 +448,13 @@ export default function PlanDetailPage() {
               Theme: {plan.theme}
             </div>
           )}
+          <div className={styles.shareRow}>
+            <SharePlan
+              planId={planId}
+              isPublic={plan.isPublic}
+              onTogglePublic={togglePublic}
+            />
+          </div>
         </div>
         <div className={styles.aiActions}>
           <button
@@ -477,6 +530,13 @@ export default function PlanDetailPage() {
         <div className={styles.sectionHeader}>
           <h2>Events</h2>
           <div className={styles.buttonGroup}>
+            <button
+              onClick={() => setShowTimeline(!showTimeline)}
+              className={styles.timelineButton}
+              aria-label={showTimeline ? 'Hide timeline' : 'Show timeline'}
+            >
+              {showTimeline ? '📋 List View' : '📅 Timeline'}
+            </button>
             {!showAiGenerator && !isAddingEvent && (
               <button
                 onClick={() => setShowAiGenerator(true)}
@@ -495,6 +555,13 @@ export default function PlanDetailPage() {
             )}
           </div>
         </div>
+
+        {/* Timeline view */}
+        {showTimeline && plan.events && plan.events.length > 0 && (
+          <div className={styles.timelineSection}>
+            <Timeline events={plan.events} onEventClick={startEditEvent} />
+          </div>
+        )}
 
         {showAiGenerator && (
           <form onSubmit={generateEventFromAI} className={styles.eventForm}>
@@ -682,6 +749,7 @@ export default function PlanDetailPage() {
                   event={event}
                   onEdit={startEditEvent}
                   onDelete={deleteEvent}
+                  onToggleOptional={toggleOptional}
                   isEditing={editingEvent?.id === event.id}
                   isDragging={draggedEventId === event.id}
                   dragHandleProps={{

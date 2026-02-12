@@ -138,7 +138,19 @@ export const initDatabase = async () => {
           SELECT 1 FROM information_schema.columns 
           WHERE table_name = 'events' AND column_name = 'position'
         ) THEN
+          -- Add the column with default value
           ALTER TABLE events ADD COLUMN position INTEGER DEFAULT 0;
+          
+          -- Set position values for existing events based on creation order
+          -- This ensures existing events maintain their chronological ordering
+          WITH ranked_events AS (
+            SELECT id, ROW_NUMBER() OVER (PARTITION BY plan_id ORDER BY created_at ASC) - 1 AS new_position
+            FROM events
+          )
+          UPDATE events
+          SET position = ranked_events.new_position
+          FROM ranked_events
+          WHERE events.id = ranked_events.id;
         END IF;
       END $$;
     `;

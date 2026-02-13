@@ -29,12 +29,9 @@ jobs:
               draft: false
             });
 
-            const msg = `PR #${pull_number} marked as ready for review`;
-            console.log(msg);
-
             // Add a comment explaining the auto-conversion
-            const comment = '🤖 This PR has been automatically ' +
-              'marked as ready for review per repository policy.';
+            const comment = '🤖 This PR has been automatically marked ' +
+              'as ready for review per repository policy.';
 
             await github.rest.issues.createComment({
               owner,

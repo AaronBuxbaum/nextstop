@@ -23,7 +23,7 @@ async function geocode(location: string): Promise<Coordinates | null> {
     );
     if (!response.ok) return null;
     const data = await response.json();
-    if (data.length === 0) return null;
+    if (data.length === 0 || !data[0] || !data[0].lat || !data[0].lon) return null;
     return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
   } catch {
     return null;

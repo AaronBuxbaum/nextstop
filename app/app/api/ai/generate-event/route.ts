@@ -273,8 +273,10 @@ You MUST respond with ONLY a valid JSON object (no markdown, no code fences, no 
     // Parse the text response as JSON
     let result: GenerateEventResponse;
     try {
-      // Strip markdown code fences if present
-      const cleaned = text.replace(/^```(?:json)?\s*\n?/m, '').replace(/\n?```\s*$/m, '').trim();
+      // Strip markdown code fences (```json ... ```) that LLMs sometimes wrap responses in
+      const CODE_FENCE_START = /^```(?:json)?\s*\n?/m;
+      const CODE_FENCE_END = /\n?```\s*$/m;
+      const cleaned = text.replace(CODE_FENCE_START, '').replace(CODE_FENCE_END, '').trim();
       result = JSON.parse(cleaned) as GenerateEventResponse;
     } catch {
       console.error("Failed to parse AI response as JSON:", text);

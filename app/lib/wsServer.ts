@@ -115,7 +115,13 @@ export function initWebSocketServer(port: number = 3001) {
   }
 }
 
-function handleMessage(client: WSClient, message: { action: string; elementId?: string; elementType?: 'event' | 'branch' | 'plan' }) {
+interface WSMessage {
+  action: string;
+  elementId?: string;
+  elementType?: 'event' | 'branch' | 'plan';
+}
+
+function handleMessage(client: WSClient, message: WSMessage) {
   client.lastActive = Date.now();
 
   switch (message.action) {

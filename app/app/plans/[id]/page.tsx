@@ -138,19 +138,6 @@ export default function PlanDetailPage() {
     fetchPlan();
   }, [fetchPlan]);
 
-  const refreshAI = useCallback(async () => {
-    await Promise.all([analyzeWithAI(), getSuggestions()]);
-  }, [planId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Auto-load AI analysis and suggestions when plan is loaded
-  const aiLoadedRef = React.useRef(false);
-  useEffect(() => {
-    if (plan && plan.events && plan.events.length > 0 && !aiLoadedRef.current) {
-      aiLoadedRef.current = true;
-      refreshAI();
-    }
-  }, [plan, refreshAI]);
-
   const createEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newEvent.title.trim()) return;
@@ -487,7 +474,7 @@ export default function PlanDetailPage() {
   };
 
   // AI handlers
-  const analyzeWithAI = async () => {
+  const analyzeWithAI = useCallback(async () => {
     setAnalyzingAI(true);
     try {
       const response = await fetch('/api/ai/analyze', {
@@ -504,9 +491,9 @@ export default function PlanDetailPage() {
     } finally {
       setAnalyzingAI(false);
     }
-  };
+  }, [planId]);
 
-  const getSuggestions = async () => {
+  const getSuggestions = useCallback(async () => {
     setLoadingSuggestions(true);
     try {
       const response = await fetch('/api/ai/suggest', {
@@ -523,7 +510,20 @@ export default function PlanDetailPage() {
     } finally {
       setLoadingSuggestions(false);
     }
-  };
+  }, [planId]);
+
+  const refreshAI = useCallback(async () => {
+    await Promise.all([analyzeWithAI(), getSuggestions()]);
+  }, [analyzeWithAI, getSuggestions]);
+
+  // Auto-load AI analysis and suggestions when plan is loaded
+  const aiLoadedRef = React.useRef(false);
+  useEffect(() => {
+    if (plan && plan.events && plan.events.length > 0 && !aiLoadedRef.current) {
+      aiLoadedRef.current = true;
+      refreshAI();
+    }
+  }, [plan, refreshAI]);
 
   const generateEventFromAI = async (e: React.FormEvent) => {
     e.preventDefault();

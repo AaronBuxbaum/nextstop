@@ -19,7 +19,7 @@ async function geocodeAddress(address: string): Promise<{ lat: number; lon: numb
   try {
     const response = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
-      { headers: { 'Accept': 'application/json' } }
+      { headers: { 'Accept': 'application/json', 'User-Agent': 'NextStop/1.0' } }
     );
     const data = await response.json();
     if (data && data.length > 0) {
@@ -94,16 +94,16 @@ export function MapView({ events }: MapViewProps) {
     let cancelled = false;
 
     async function geocodeAll() {
-      const results: GeocodedEvent[] = [];
-      for (const item of eventsWithLocations) {
-        const coords = await geocodeAddress(item.event.location);
-        if (cancelled) return;
-        results.push({
-          ...item,
-          lat: coords?.lat,
-          lon: coords?.lon,
-        });
-      }
+      const results = await Promise.all(
+        eventsWithLocations.map(async (item) => {
+          const coords = await geocodeAddress(item.event.location);
+          return {
+            ...item,
+            lat: coords?.lat,
+            lon: coords?.lon,
+          };
+        })
+      );
       if (!cancelled) {
         setGeocodedEvents(results);
         setGeocodingDone(true);
@@ -164,7 +164,7 @@ export function MapView({ events }: MapViewProps) {
           title="Itinerary map"
           loading="lazy"
           referrerPolicy="no-referrer"
-          sandbox="allow-scripts"
+          sandbox="allow-scripts allow-same-origin"
         />
       </div>
       <div className={styles.legend} role="list" aria-label="Map locations">

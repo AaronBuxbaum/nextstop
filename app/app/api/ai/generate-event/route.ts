@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
-import { generateText } from "ai";
+import { generateText, tool, jsonSchema } from "ai";
 import { groq } from "@ai-sdk/groq";
 import { parseTimeString } from "@/lib/timeUtils";
+import { validateAndNormalizeAddress, getGeographicCenter } from "@/lib/nominatimUtils";
 
 interface EventListItem {
   title: string;
@@ -85,7 +86,7 @@ export async function POST(req: NextRequest) {
     const locations = events
       .filter((e: EventListItem) => e.location)
       .map((e: EventListItem) => e.location as string);
-    const uniqueLocations = Array.from(new Set(locations));
+    const uniqueLocations: string[] = Array.from(new Set(locations));
     const locationContext = uniqueLocations.join(', ');
 
     // Create a prompt for AI to parse the user's request
@@ -149,14 +150,12 @@ Return JSON in this format:
 IMPORTANT GUIDELINES:
 
 Location Requirements:
-- If the user mentions a business/venue (e.g., "Starbucks", "McDonald's", "Whole Foods"), provide a SPECIFIC, contextual suggestion
-- Use the existing event locations to determine the geographic area and suggest locations in that vicinity
-- Provide location suggestions in a complete address format when context allows (e.g., "Starbucks at 456 Broadway, Seattle, WA")
-- If existing events have specific addresses, infer the neighborhood/area and suggest venues that would logically exist there
-- For well-known chains, use realistic naming patterns (e.g., include a plausible street name or landmark near existing events)
-- Consider proximity and convenience - suggest locations that fit the geographic flow of the plan
-- If location context is limited, provide a descriptive location (e.g., "Starbucks in downtown Seattle area" or "Coffee shop near Pike Place Market")
-- Note: These are AI-suggested locations that users can edit and refine
+- If the user mentions a business/venue (e.g., "Starbucks", "McDonald's", "Whole Foods"), use the lookupAddress tool to get the complete OpenStreetMap address
+- Call lookupAddress with a descriptive query like "Starbucks near [existing location]" or "Starbucks in [neighborhood]" based on context from existing events
+- The lookupAddress tool will return the full, validated address including street, city, state, and country
+- ALWAYS use the lookupAddress tool for any location mentioned by the user - do not make up addresses
+- If lookupAddress returns no results, you can provide a general descriptive location
+- Use existing event locations to provide geographic context when calling lookupAddress
 
 Event Details:
 - Extract a clear, concise event title (e.g., "Coffee Break", "Dinner", "Walk in the park")
@@ -196,11 +195,41 @@ Multi-Option Variety:
 - Vary the price range, atmosphere, and character of each option
 - Each option should feel like a genuinely different experience`;
 
-    // Generate AI response
+    // Get geographic center from existing event locations for better address lookup
+    const center = await getGeographicCenter(uniqueLocations);
+
+    // Generate AI response with address lookup tool
     const { text } = await generateText({
       model: groq("llama-3.3-70b-versatile"),
       prompt,
       temperature: 0.7,
+      tools: {
+        lookupAddress: tool({
+          description: 'Look up a complete, validated address using OpenStreetMap. Use this tool whenever the user mentions a location, business name, or venue. Provide as much context as possible in the query (e.g., "Starbucks near Central Park, New York" instead of just "Starbucks").',
+          inputSchema: jsonSchema({
+            type: 'object',
+            properties: {
+              query: {
+                type: 'string',
+                description: 'The address or location to look up. Include nearby landmarks, neighborhoods, or existing event locations for better results.'
+              }
+            },
+            required: ['query']
+          }),
+          execute: async ({ query }: { query: string }) => {
+            // Validate and normalize the address using OpenStreetMap Nominatim
+            const validatedAddress = await validateAndNormalizeAddress(
+              query,
+              center?.lat,
+              center?.lon
+            );
+            return {
+              address: validatedAddress,
+              success: validatedAddress !== query
+            };
+          }
+        })
+      },
     });
 
     // Parse the response

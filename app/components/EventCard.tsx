@@ -1,6 +1,7 @@
 'use client';
 
 import { Event } from '@/types';
+import { calculateDuration, calculateEndTime } from '@/lib/timeUtils';
 import styles from './EventCard.module.css';
 import React from 'react';
 import { WeatherInfo } from './WeatherInfo';
@@ -39,6 +40,18 @@ export function EventCard({
   const mapsUrl = event.location
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`
     : null;
+
+  // Derive missing time fields for display
+  let displayEndTime = event.endTime;
+  let displayDuration = event.duration;
+
+  if (event.startTime && event.endTime && !displayDuration) {
+    const derived = calculateDuration(event.startTime, event.endTime);
+    if (derived !== null) displayDuration = derived;
+  }
+  if (event.startTime && displayDuration && !displayEndTime) {
+    displayEndTime = calculateEndTime(event.startTime, displayDuration) ?? undefined;
+  }
 
   return (
     <div
@@ -121,19 +134,19 @@ export function EventCard({
           </div>
         )}
 
-        {(event.startTime || event.endTime) && (
+        {(event.startTime || displayEndTime) && (
           <div className={styles.detail}>
             <span className={styles.icon}>🕐</span>
             <span>
-              {event.startTime} {event.endTime && `- ${event.endTime}`}
+              {event.startTime} {displayEndTime && `- ${displayEndTime}`}
             </span>
           </div>
         )}
 
-        {event.duration && (
+        {displayDuration && (
           <div className={styles.detail}>
             <span className={styles.icon}>⏱️</span>
-            <span>{event.duration} minutes</span>
+            <span>{displayDuration} minutes</span>
           </div>
         )}
 

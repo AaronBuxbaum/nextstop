@@ -219,4 +219,39 @@ describe('Timeline Component', () => {
     const travelTime = screen.getByTestId('travel-time');
     expect(travelTime).toHaveTextContent('30min'); // 30 minutes between 10:00 and 10:30
   });
+
+  it('derives duration from start and end time in timeline', () => {
+    const eventsWithDerivedDuration: Event[] = [
+      {
+        id: '1',
+        title: 'Event With Derivable Duration',
+        description: '',
+        location: '',
+        startTime: '09:00',
+        endTime: '10:30',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+    render(<Timeline events={eventsWithDerivedDuration} />);
+    expect(screen.getByText(/90 min/)).toBeInTheDocument();
+  });
+
+  it('derives end time from start time and duration in timeline', () => {
+    const eventsWithDerivedEnd: Event[] = [
+      {
+        id: '1',
+        title: 'Event With Derivable End',
+        description: '',
+        location: '',
+        startTime: '14:00',
+        duration: 120,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+    render(<Timeline events={eventsWithDerivedEnd} />);
+    expect(screen.getByText(/14:00.*16:00/)).toBeInTheDocument();
+    expect(screen.getByText(/120 min/)).toBeInTheDocument();
+  });
 });

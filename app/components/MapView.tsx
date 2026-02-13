@@ -16,10 +16,10 @@ interface GeocodedEvent {
 function buildMapUrl(events: GeocodedEvent[]): string {
   if (events.length === 0) return '';
 
-  // For a simple embedded map, use an OpenStreetMap-based approach
-  // We'll search for the first location to center the map
-  const firstLocation = encodeURIComponent(events[0].event.location);
-  return `https://www.openstreetmap.org/export/embed.html?bbox=&layer=mapnik&marker=&query=${firstLocation}`;
+  // For a simple embedded map, use OpenStreetMap without location-specific parameters
+  // This avoids null coordinate errors that occur when using marker= or bbox= with empty values
+  // Note: events parameter is kept for potential future enhancement (e.g., geocoding coordinates)
+  return `https://www.openstreetmap.org/export/embed.html?layer=mapnik`;
 }
 
 export function MapView({ events }: MapViewProps) {

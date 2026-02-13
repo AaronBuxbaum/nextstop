@@ -55,17 +55,29 @@ export async function POST(req: NextRequest) {
       ORDER BY start_time, created_at
     `;
 
+    // Build detailed location context from existing events (deduplicated)
+    const locations = events
+      .filter((e: EventListItem) => e.location)
+      .map((e: EventListItem) => e.location as string);
+    const uniqueLocations = Array.from(new Set(locations));
+    const locationContext = uniqueLocations.join(', ');
+
     // Create a prompt for AI to parse the user's request
     const prompt = `You are an AI assistant helping to create events for an outing plan. The user has provided a natural language description of an event they want to add.
 
 Plan Title: ${plan.title}
 Description: ${plan.description || 'None provided'}
 Theme: ${plan.theme || 'None set'}
+Date: ${plan.date || 'Not specified'}
 
-Existing Events (in order):
+Existing Events (in chronological order):
 ${events.map((e: EventListItem, idx: number) => `
-${idx + 1}. ${e.title}${e.location ? ` at ${e.location}` : ''}${e.start_time ? ` (${e.start_time})` : ''}${e.duration ? ` - ${e.duration} minutes` : ''}
+${idx + 1}. ${e.title}
+   Location: ${e.location || 'Not specified'}
+   Time: ${e.start_time || 'Not specified'}${e.duration ? ` (${e.duration} minutes)` : ''}
 `).join('')}
+
+${locationContext ? `Existing Event Locations: ${locationContext}` : 'No location information available yet.'}
 
 User's Request: "${userInput}"
 
@@ -74,7 +86,7 @@ Please analyze this request and extract the following information in JSON format
   "event": {
     "title": "<event title extracted from the request>",
     "description": "<brief description if you can infer it>",
-    "location": "<location mentioned or null>",
+    "location": "<SPECIFIC location with full address or details>",
     "duration": <estimated duration in minutes or null>,
     "notes": "<any additional notes or null>"
   },
@@ -85,13 +97,37 @@ Please analyze this request and extract the following information in JSON format
   }
 }
 
-Guidelines:
-- Extract a clear, concise event title (e.g., "Dinner", "Walk in the park", "Coffee break")
-- If a location is mentioned, include it exactly as stated
-- Estimate a reasonable duration based on the activity type (e.g., dinner: 90-120 min, coffee: 30 min, museum: 120-180 min)
-- For placement, determine if the user specified it should be "after" or "before" a specific event
-- If no placement is specified, use "end" to add it at the end
-- The referenceEvent should match an existing event title as closely as possible`;
+IMPORTANT GUIDELINES:
+
+Location Requirements:
+- If the user mentions a business/venue (e.g., "Starbucks", "McDonald's", "Whole Foods"), provide a SPECIFIC, contextual suggestion
+- Use the existing event locations to determine the geographic area and suggest locations in that vicinity
+- Provide location suggestions in a complete address format when context allows (e.g., "Starbucks at 456 Broadway, Seattle, WA")
+- If existing events have specific addresses, infer the neighborhood/area and suggest venues that would logically exist there
+- For well-known chains, use realistic naming patterns (e.g., include a plausible street name or landmark near existing events)
+- Consider proximity and convenience - suggest locations that fit the geographic flow of the plan
+- If location context is limited, provide a descriptive location (e.g., "Starbucks in downtown Seattle area" or "Coffee shop near Pike Place Market")
+- Note: These are AI-suggested locations that users can edit and refine
+
+Event Details:
+- Extract a clear, concise event title (e.g., "Coffee Break", "Dinner", "Walk in the park")
+- Write a brief, helpful description that adds context
+- Estimate a reasonable duration based on the activity type:
+  * Coffee/quick snack: 20-30 minutes
+  * Restaurant meal: 60-90 minutes (lunch) or 90-120 minutes (dinner)
+  * Museum/attraction: 90-180 minutes
+  * Shopping: 60-120 minutes
+  * Walk/outdoor activity: 30-60 minutes
+
+Timing and Placement:
+- Analyze the existing events' times to find logical gaps or appropriate placement
+- If user specifies "after X" or "before Y", honor that placement
+- If no placement specified, determine the best fit based on:
+  * Logical flow of events (e.g., coffee before activities, dinner in evening)
+  * Time gaps in the schedule
+  * Activity sequence that makes sense
+- The referenceEvent should match an existing event title as closely as possible
+- Provide clear reasoning for your placement choice`;
 
     // Generate AI response
     const { text } = await generateText({

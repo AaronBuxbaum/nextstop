@@ -79,15 +79,33 @@ export function WeatherInfo({ location, date, time, className }: WeatherInfoProp
         const { lat, lon } = geoData[0];
 
         // Build weather API URL based on whether we have a date
-        let weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`;
+        let weatherUrl: string;
         
         if (date) {
-          // Forecast for specific date - use hourly data
-          const startDate = date;
-          const endDate = date; // Same day
-          weatherUrl += `&start_date=${startDate}&end_date=${endDate}&hourly=temperature_2m,weathercode&temperature_unit=fahrenheit&timezone=auto`;
+          // Determine which API to use based on date
+          const targetDate = new Date(date);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          targetDate.setHours(0, 0, 0, 0);
+          
+          const daysDiff = Math.floor((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          
+          if (daysDiff < 0) {
+            // Past date - use historical archive API
+            weatherUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}`;
+            weatherUrl += `&start_date=${date}&end_date=${date}&hourly=temperature_2m,weathercode&temperature_unit=fahrenheit&timezone=auto`;
+          } else if (daysDiff <= 16) {
+            // Near future (0-16 days) - use forecast API
+            weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`;
+            weatherUrl += `&start_date=${date}&end_date=${date}&hourly=temperature_2m,weathercode&temperature_unit=fahrenheit&timezone=auto`;
+          } else {
+            // Far future (>16 days) - forecast API doesn't support, skip weather
+            setLoading(false);
+            return;
+          }
         } else {
           // Current weather
+          weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`;
           weatherUrl += `&current_weather=true&temperature_unit=fahrenheit`;
         }
 

@@ -26,8 +26,8 @@ This guide will help you deploy NextStop to Vercel.
 3. Choose a name and select a region
 4. Click "Create"
 5. Go to the "REST API" tab
-6. Copy the `UPSTASH_REDIS_REST_URL`
-7. Copy the `UPSTASH_REDIS_REST_TOKEN`
+6. Copy the `KV_REST_API_URL` (or `UPSTASH_REDIS_REST_URL`)
+7. Copy the `KV_REST_API_TOKEN` (or `UPSTASH_REDIS_REST_TOKEN`)
 
 ## Step 3: Get OpenAI API Key
 
@@ -66,8 +66,8 @@ Or use any password generator to create a long, random string.
 
 ```bash
 DATABASE_URL=postgresql://[your-neon-connection-string]
-UPSTASH_REDIS_REST_URL=https://[your-upstash-url]
-UPSTASH_REDIS_REST_TOKEN=[your-upstash-token]
+KV_REST_API_URL=https://[your-upstash-url]
+KV_REST_API_TOKEN=[your-upstash-token]
 OPENAI_API_KEY=sk-[your-openai-key]
 NEXTAUTH_SECRET=[your-generated-secret]
 NEXTAUTH_URL=https://[your-app].vercel.app
@@ -97,8 +97,8 @@ vercel
 5. Add environment variables:
 ```bash
 vercel env add DATABASE_URL
-vercel env add UPSTASH_REDIS_REST_URL
-vercel env add UPSTASH_REDIS_REST_TOKEN
+vercel env add KV_REST_API_URL
+vercel env add KV_REST_API_TOKEN
 vercel env add OPENAI_API_KEY
 vercel env add NEXTAUTH_SECRET
 vercel env add NEXTAUTH_URL

@@ -135,8 +135,8 @@ describe('PlanDetailPage - AI Generation', () => {
       expect(screen.getByText('Weekend Adventure')).toBeInTheDocument();
     });
 
-    // Open the edit plan form
-    const editButton = screen.getByText('✏️ Edit Plan');
+    // Open the edit plan form via pencil icon
+    const editButton = screen.getByLabelText('Edit plan details');
     fireEvent.click(editButton);
 
     await waitFor(() => {

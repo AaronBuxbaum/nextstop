@@ -36,6 +36,7 @@ export default function PlanDetailPage() {
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
   const [analyzingAI, setAnalyzingAI] = useState(false);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [isGeneratingEvent, setIsGeneratingEvent] = useState(false);
   const [aiInput, setAiInput] = useState('');
   const [showAiGenerator, setShowAiGenerator] = useState(false);
@@ -135,6 +136,19 @@ export default function PlanDetailPage() {
   useEffect(() => {
     fetchPlan();
   }, [fetchPlan]);
+
+  const refreshAI = useCallback(async () => {
+    await Promise.all([analyzeWithAI(), getSuggestions()]);
+  }, [planId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-load AI analysis and suggestions when plan is loaded
+  const aiLoadedRef = React.useRef(false);
+  useEffect(() => {
+    if (plan && plan.events && plan.events.length > 0 && !aiLoadedRef.current) {
+      aiLoadedRef.current = true;
+      refreshAI();
+    }
+  }, [plan, refreshAI]);
 
   const createEvent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -492,6 +506,7 @@ export default function PlanDetailPage() {
   };
 
   const getSuggestions = async () => {
+    setLoadingSuggestions(true);
     try {
       const response = await fetch('/api/ai/suggest', {
         method: 'POST',
@@ -503,7 +518,9 @@ export default function PlanDetailPage() {
       const data = await response.json();
       setSuggestions(data.suggestions || []);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to get suggestions');
+      console.error(err instanceof Error ? err.message : 'Failed to get suggestions');
+    } finally {
+      setLoadingSuggestions(false);
     }
   };
 
@@ -578,19 +595,25 @@ export default function PlanDetailPage() {
 
   return (
     <div className={styles.container}>
-      <nav className={styles.backNav}>
-        <button
-          onClick={() => router.push('/plans')}
-          className={styles.backButton}
-          aria-label="Back to plans"
-        >
-          ← Back to Plans
-        </button>
-      </nav>
-
       <header className={styles.header}>
         <div>
-          <h1 className={styles.title}>{plan.title}</h1>
+          <div className={styles.titleRow}>
+            <button
+              onClick={() => router.push('/plans')}
+              className={styles.backArrow}
+              aria-label="Back to plans"
+            >
+              ←
+            </button>
+            <h1 className={styles.title}>{plan.title}</h1>
+            <button
+              onClick={startEditPlan}
+              className={styles.pencilButton}
+              aria-label="Edit plan details"
+            >
+              ✏️
+            </button>
+          </div>
           {plan.description && <p className={styles.description}>{plan.description}</p>}
           {plan.date && (
             <div className={styles.date}>
@@ -610,33 +633,11 @@ export default function PlanDetailPage() {
               isPublic={plan.isPublic}
               onTogglePublic={togglePublic}
             />
-            <button
-              onClick={startEditPlan}
-              className={styles.planEditButton}
-              aria-label="Edit plan details"
-            >
-              ✏️ Edit Plan
-            </button>
             <PresenceIndicators
               activeUsers={activeUsers}
               currentUserId={session?.user?.id}
             />
           </div>
-        </div>
-        <div className={styles.aiActions}>
-          <button
-            onClick={analyzeWithAI}
-            disabled={analyzingAI}
-            className={styles.aiButton}
-          >
-            {analyzingAI ? '🤔 Analyzing...' : '🤖 AI Analysis'}
-          </button>
-          <button
-            onClick={getSuggestions}
-            className={styles.aiButton}
-          >
-            💡 Get Suggestions
-          </button>
         </div>
       </header>
 
@@ -707,58 +708,8 @@ export default function PlanDetailPage() {
         </form>
       )}
 
-      {analysis && (
-        <div className={styles.analysisPanel}>
-          <h2>AI Analysis</h2>
-          <div className={styles.analysisGrid}>
-            <div className={styles.analysisCard}>
-              <h3>Pacing</h3>
-              <div className={styles.rating}>⭐ {analysis.pacing.rating}/10</div>
-              <p>{analysis.pacing.feedback}</p>
-              {analysis.pacing.suggestions.length > 0 && (
-                <ul>
-                  {analysis.pacing.suggestions.map((s, i) => (
-                    <li key={i}>{s}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div className={styles.analysisCard}>
-              <h3>Quality</h3>
-              <div className={styles.rating}>⭐ {analysis.quality.rating}/10</div>
-              <p>{analysis.quality.feedback}</p>
-              {analysis.quality.improvements.length > 0 && (
-                <ul>
-                  {analysis.quality.improvements.map((s, i) => (
-                    <li key={i}>{s}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div className={styles.analysisCard}>
-              <h3>Theme</h3>
-              <div className={styles.rating}>⭐ {analysis.theme.coherence}/10</div>
-              <p><strong>Suggested:</strong> {analysis.theme.suggested}</p>
-              <p>{analysis.theme.description}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {suggestions.length > 0 && (
-        <div className={styles.suggestionsPanel}>
-          <h2>AI Suggestions</h2>
-          <div className={styles.suggestionsGrid}>
-            {suggestions.map((suggestion, idx) => (
-              <div key={idx} className={styles.suggestionCard}>
-                <h3>{suggestion.title}</h3>
-                <p>{suggestion.description}</p>
-                <div className={styles.reasoning}><em>{suggestion.reasoning}</em></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className={styles.pageLayout}>
+        <div className={styles.mainContent}>
 
       <section className={styles.eventsSection}>
         <div className={styles.sectionHeader}>
@@ -1153,6 +1104,88 @@ export default function PlanDetailPage() {
           </div>
         )}
       </section>
+
+        </div>{/* end mainContent */}
+
+        <aside className={styles.sidePanel} aria-label="AI Insights">
+          <div className={styles.sidePanelHeader}>
+            <h2 className={styles.sidePanelTitle}>🤖 AI Insights</h2>
+            <button
+              onClick={refreshAI}
+              disabled={analyzingAI || loadingSuggestions}
+              className={styles.refreshButton}
+              aria-label="Refresh AI analysis and suggestions"
+            >
+              {analyzingAI || loadingSuggestions ? '⏳' : '🔄'}
+            </button>
+          </div>
+
+          <div className={styles.sidePanelSection}>
+            <h3 className={styles.sidePanelSectionTitle}>Analysis</h3>
+            {analyzingAI && (
+              <p className={styles.sidePanelLoading}>Analyzing your plan...</p>
+            )}
+            {!analyzingAI && !analysis && (
+              <p className={styles.sidePanelEmpty}>No analysis yet. Add events to get AI insights.</p>
+            )}
+            {analysis && (
+              <div className={styles.analysisCards}>
+                <div className={styles.analysisCard}>
+                  <h4>Pacing</h4>
+                  <div className={styles.rating}>⭐ {analysis.pacing.rating}/10</div>
+                  <p>{analysis.pacing.feedback}</p>
+                  {analysis.pacing.suggestions.length > 0 && (
+                    <ul>
+                      {analysis.pacing.suggestions.map((s, i) => (
+                        <li key={i}>{s}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <div className={styles.analysisCard}>
+                  <h4>Quality</h4>
+                  <div className={styles.rating}>⭐ {analysis.quality.rating}/10</div>
+                  <p>{analysis.quality.feedback}</p>
+                  {analysis.quality.improvements.length > 0 && (
+                    <ul>
+                      {analysis.quality.improvements.map((s, i) => (
+                        <li key={i}>{s}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <div className={styles.analysisCard}>
+                  <h4>Theme</h4>
+                  <div className={styles.rating}>⭐ {analysis.theme.coherence}/10</div>
+                  <p><strong>Suggested:</strong> {analysis.theme.suggested}</p>
+                  <p>{analysis.theme.description}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.sidePanelSection}>
+            <h3 className={styles.sidePanelSectionTitle}>Suggestions</h3>
+            {loadingSuggestions && (
+              <p className={styles.sidePanelLoading}>Getting suggestions...</p>
+            )}
+            {!loadingSuggestions && suggestions.length === 0 && (
+              <p className={styles.sidePanelEmpty}>No suggestions yet.</p>
+            )}
+            {suggestions.length > 0 && (
+              <div className={styles.suggestionCards}>
+                {suggestions.map((suggestion, idx) => (
+                  <div key={idx} className={styles.suggestionCard}>
+                    <h4>{suggestion.title}</h4>
+                    <p>{suggestion.description}</p>
+                    <div className={styles.reasoning}><em>{suggestion.reasoning}</em></div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </aside>
+      </div>{/* end pageLayout */}
 
       {/* AI Generate Options Modal */}
       {aiGeneratedOptions.length > 0 && (

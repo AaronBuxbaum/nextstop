@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
-import { generateText, tool, jsonSchema, Output } from "ai";
+import { generateText, tool, jsonSchema } from "ai";
 import { groq } from "@ai-sdk/groq";
 import { parseTimeString } from "@/lib/timeUtils";
 import { validateAndNormalizeAddress, getGeographicCenter } from "@/lib/nominatimUtils";
@@ -201,82 +201,37 @@ Multi-Option Variety:
     // Get geographic center from existing event locations for better address lookup
     const center = await getGeographicCenter(uniqueLocations);
 
-    // Define the output schema for structured output
-    const outputSchema = jsonSchema({
-      type: 'object',
-      properties: {
-        options: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              event: {
-                type: 'object',
-                properties: {
-                  title: { 
-                    type: 'string',
-                    description: 'Clear, concise event title'
-                  },
-                  description: { 
-                    type: 'string',
-                    description: 'Brief, helpful description that adds context'
-                  },
-                  location: { 
-                    type: 'string',
-                    description: 'Specific location with full address or details'
-                  },
-                  startTime: { 
-                    type: ['string', 'null'],
-                    description: 'Calculated start time in HH:MM format based on surrounding events, or null'
-                  },
-                  duration: { 
-                    type: ['number', 'null'],
-                    description: 'Estimated duration in minutes or null'
-                  },
-                  notes: { 
-                    type: ['string', 'null'],
-                    description: 'Any additional notes or null'
-                  }
-                },
-                required: ['title', 'description', 'location', 'startTime', 'duration', 'notes']
-              },
-              placement: {
-                type: 'object',
-                properties: {
-                  strategy: {
-                    type: 'string',
-                    enum: ['after', 'before', 'end', 'start'],
-                    description: 'Placement strategy for the event'
-                  },
-                  referenceEvent: {
-                    type: ['string', 'null'],
-                    description: 'Title of the reference event if "after" or "before", otherwise null'
-                  },
-                  explanation: {
-                    type: 'string',
-                    description: 'Brief explanation of placement logic'
-                  }
-                },
-                required: ['strategy', 'referenceEvent', 'explanation']
-              },
-              style: {
-                type: 'string',
-                description: 'Short label describing the style/vibe (e.g., "Cozy & Intimate", "Trendy & Upscale", "Quick & Casual")'
-              }
-            },
-            required: ['event', 'placement', 'style']
-          }
-        }
-      },
-      required: ['options']
-    });
+    // Add instruction to return JSON in the prompt
+    const jsonPrompt = prompt + `
 
-    // Generate AI response with address lookup tool and structured output
-    const { output } = await generateText({
+RESPONSE FORMAT:
+You MUST respond with ONLY a valid JSON object (no markdown, no code fences, no extra text). The JSON must have this exact structure:
+{
+  "options": [
+    {
+      "event": {
+        "title": "string",
+        "description": "string",
+        "location": "string",
+        "startTime": "HH:MM" or null,
+        "duration": number or null,
+        "notes": "string" or null
+      },
+      "placement": {
+        "strategy": "after" | "before" | "end" | "start",
+        "referenceEvent": "string" or null,
+        "explanation": "string"
+      },
+      "style": "string (e.g., 'Cozy & Intimate', 'Trendy & Upscale', 'Quick & Casual')"
+    }
+  ]
+}`;
+
+    // Generate AI response with address lookup tool
+    const { text } = await generateText({
       model: groq("llama-3.3-70b-versatile"),
-      prompt,
+      prompt: jsonPrompt,
       temperature: 0.7,
-      output: Output.object({ schema: outputSchema }),
       tools: {
         lookupAddress: tool({
           description: 'Look up a complete, validated address using OpenStreetMap. Use this tool whenever the user mentions a location, business name, or venue. Provide as much context as possible in the query (e.g., "Starbucks near Central Park, New York" instead of just "Starbucks"). Returns { success: true, address: "full address" } if found, or { success: false, address: "original query" } if not found. If success is false, use a descriptive location based on the context.',
@@ -315,8 +270,19 @@ Multi-Option Variety:
       },
     });
 
-    // Cast output to the expected type
-    const result = output as GenerateEventResponse;
+    // Parse the text response as JSON
+    let result: GenerateEventResponse;
+    try {
+      // Strip markdown code fences if present
+      const cleaned = text.replace(/^```(?:json)?\s*\n?/m, '').replace(/\n?```\s*$/m, '').trim();
+      result = JSON.parse(cleaned) as GenerateEventResponse;
+    } catch {
+      console.error("Failed to parse AI response as JSON:", text);
+      return NextResponse.json({
+        error: "Failed to generate event options. Please try rephrasing your request with more specific details.",
+        details: "Invalid response format"
+      }, { status: 500 });
+    }
 
     // Validate the response structure (should always have options due to schema)
     if (!result.options || !Array.isArray(result.options) || result.options.length === 0) {

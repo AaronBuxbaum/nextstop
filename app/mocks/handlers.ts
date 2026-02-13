@@ -172,6 +172,22 @@ export const handlers = [
   }),
 
   // AI API
+  http.post('/api/ai/analyze', () => {
+    return HttpResponse.json({
+      pacing: { rating: 7, feedback: 'Good pacing overall', suggestions: ['Consider adding a break'] },
+      quality: { rating: 8, feedback: 'High quality plan', improvements: ['Add more variety'] },
+      theme: { coherence: 6, suggested: 'Urban Explorer', description: 'A city-focused adventure' },
+    });
+  }),
+
+  http.post('/api/ai/suggest', () => {
+    return HttpResponse.json({
+      suggestions: [
+        { title: 'Add a lunch stop', description: 'Consider adding lunch', reasoning: 'Long gap between events' },
+      ],
+    });
+  }),
+
   http.post('/api/ai/generate-event', async ({ request }) => {
     const body = await request.json() as { planId: string; userInput: string };
     const { userInput } = body;

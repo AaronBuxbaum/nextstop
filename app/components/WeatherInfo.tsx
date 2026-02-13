@@ -41,6 +41,8 @@ const weatherCodeMap: Record<number, { description: string; icon: string }> = {
   99: { description: 'Thunderstorm with heavy hail', icon: '⛈️' },
 };
 
+const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+
 function getWeatherFromCode(code: number): { description: string; icon: string } {
   return weatherCodeMap[code] || { description: 'Unknown', icon: '❓' };
 }
@@ -88,7 +90,7 @@ export function WeatherInfo({ location, date, time, className }: WeatherInfoProp
           today.setHours(0, 0, 0, 0);
           targetDate.setHours(0, 0, 0, 0);
           
-          const daysDiff = Math.floor((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          const daysDiff = Math.floor((targetDate.getTime() - today.getTime()) / MILLISECONDS_PER_DAY);
           
           if (daysDiff < 0) {
             // Past date - use historical archive API

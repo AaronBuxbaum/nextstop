@@ -154,8 +154,9 @@ Location Requirements:
 - Call lookupAddress with a descriptive query like "Starbucks near [existing location]" or "Starbucks in [neighborhood]" based on context from existing events
 - The lookupAddress tool will return the full, validated address including street, city, state, and country
 - ALWAYS use the lookupAddress tool for any location mentioned by the user - do not make up addresses
-- If lookupAddress returns no results, you can provide a general descriptive location
+- If lookupAddress returns { success: false }, it means the exact address could not be found. In this case, use a general descriptive location like "Starbucks in [neighborhood]" or "[Business Name] near [landmark]" based on the context
 - Use existing event locations to provide geographic context when calling lookupAddress
+- CRITICAL: Even if address lookup fails, you MUST still return valid JSON with all 3 event options
 
 Event Details:
 - Extract a clear, concise event title (e.g., "Coffee Break", "Dinner", "Walk in the park")
@@ -205,7 +206,7 @@ Multi-Option Variety:
       temperature: 0.7,
       tools: {
         lookupAddress: tool({
-          description: 'Look up a complete, validated address using OpenStreetMap. Use this tool whenever the user mentions a location, business name, or venue. Provide as much context as possible in the query (e.g., "Starbucks near Central Park, New York" instead of just "Starbucks").',
+          description: 'Look up a complete, validated address using OpenStreetMap. Use this tool whenever the user mentions a location, business name, or venue. Provide as much context as possible in the query (e.g., "Starbucks near Central Park, New York" instead of just "Starbucks"). Returns { success: true, address: "full address" } if found, or { success: false, address: "original query" } if not found. If success is false, use a descriptive location based on the context.',
           inputSchema: jsonSchema({
             type: 'object',
             properties: {
@@ -217,16 +218,25 @@ Multi-Option Variety:
             required: ['query']
           }),
           execute: async ({ query }: { query: string }) => {
-            // Validate and normalize the address using OpenStreetMap Nominatim
-            const validatedAddress = await validateAndNormalizeAddress(
-              query,
-              center?.lat,
-              center?.lon
-            );
-            return {
-              address: validatedAddress,
-              success: validatedAddress !== query
-            };
+            try {
+              // Validate and normalize the address using OpenStreetMap Nominatim
+              const validatedAddress = await validateAndNormalizeAddress(
+                query,
+                center?.lat,
+                center?.lon
+              );
+              return {
+                address: validatedAddress,
+                success: validatedAddress !== query
+              };
+            } catch (error) {
+              // Return original query with failure indicator on any error
+              console.error('Error in lookupAddress tool:', error);
+              return {
+                address: query,
+                success: false
+              };
+            }
           }
         })
       },
@@ -239,12 +249,15 @@ Multi-Option Variety:
       if (jsonMatch) {
         result = JSON.parse(jsonMatch[0]);
       } else {
+        // Log the full response to help debug
+        console.error("Failed to parse AI response - no JSON found. Full response:", text);
         throw new Error("No JSON found in response");
       }
     } catch (parseError) {
       console.error("Failed to parse AI response:", parseError, "Raw text:", text);
       return NextResponse.json({
-        error: "Failed to parse AI response",
+        error: "Failed to parse AI response. Please try again with a different description.",
+        details: parseError instanceof Error ? parseError.message : "Unknown error"
       }, { status: 500 });
     }
 

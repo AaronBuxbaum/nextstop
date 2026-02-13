@@ -49,10 +49,13 @@ describe('TravelTime Component', () => {
       <TravelTime fromLocation="Invalid Location" toLocation="Another Invalid" />
     );
     
-    // Should not crash and should handle error state
+    // Should handle error gracefully - component returns null on error
+    // so it renders nothing (empty container)
     await waitFor(() => {
-      // Component should either show nothing (returns null on error) or handle gracefully
       expect(container).toBeTruthy();
+      // When geocoding fails, component returns null (renders nothing)
+      // So there should be no travel time display
+      expect(container.querySelector('[class*="bar"]')).not.toBeInTheDocument();
     });
   });
 
@@ -74,8 +77,10 @@ describe('TravelTime Component', () => {
     );
     
     // Should not crash with null lat/lon access
+    // Component returns null on error, so renders nothing
     await waitFor(() => {
       expect(container).toBeTruthy();
+      expect(container.querySelector('[class*="bar"]')).not.toBeInTheDocument();
     }, { timeout: 2000 });
   });
 
@@ -97,8 +102,10 @@ describe('TravelTime Component', () => {
     );
     
     // Should not crash when data[0] is null
+    // Component returns null on error, so renders nothing
     await waitFor(() => {
       expect(container).toBeTruthy();
+      expect(container.querySelector('[class*="bar"]')).not.toBeInTheDocument();
     }, { timeout: 2000 });
   });
 });

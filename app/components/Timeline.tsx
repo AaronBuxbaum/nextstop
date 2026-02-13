@@ -3,6 +3,7 @@
 import React from 'react';
 import { Event } from '@/types';
 import { parseTimeString, calculateDuration, calculateEndTime } from '@/lib/timeUtils';
+import { simplifyAddress } from '@/lib/addressUtils';
 import { WeatherInfo } from './WeatherInfo';
 import { TravelTime } from './TravelTime';
 import styles from './Timeline.module.css';
@@ -186,18 +187,20 @@ export function Timeline({
                   {event.location && (
                     <div className={styles.detail}>
                       <span className={styles.detailIcon}>📍</span>
-                      <span>{event.location}</span>
-                      {mapsUrl && (
+                      {mapsUrl ? (
                         <a
                           href={mapsUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={styles.mapLink}
+                          title={event.location}
                           aria-label={`View ${event.location} on Google Maps`}
                           onClick={(e) => e.stopPropagation()}
                         >
-                          🗺️ Map
+                          {simplifyAddress(event.location)}
                         </a>
+                      ) : (
+                        <span title={event.location}>{simplifyAddress(event.location)}</span>
                       )}
                     </div>
                   )}

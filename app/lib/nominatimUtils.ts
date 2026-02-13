@@ -3,6 +3,11 @@
  * to validate and normalize addresses
  */
 
+const NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org';
+const NOMINATIM_USER_AGENT = 'NextStop/1.0';
+const NOMINATIM_TIMEOUT_MS = 5000;
+const MAX_ADDRESS_LENGTH = 500;
+
 interface NominatimSearchResult {
   place_id: number;
   display_name: string;
@@ -31,23 +36,29 @@ export async function validateAndNormalizeAddress(
     return address;
   }
 
+  // Validate address length to prevent abuse
+  if (address.length > MAX_ADDRESS_LENGTH) {
+    console.warn(`Address exceeds maximum length: ${address.length} > ${MAX_ADDRESS_LENGTH}`);
+    return address;
+  }
+
   try {
     // Build URL with optional viewbox parameter for centering
-    let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=5`;
+    let url = `${NOMINATIM_BASE_URL}/search?format=json&q=${encodeURIComponent(address)}&limit=5`;
     
     // Add viewbox parameter if center coordinates are provided
-    // Viewbox creates a ~10 mile radius around the center point
+    // Viewbox creates approximately ~10 mile radius at mid-latitudes (varies by latitude)
     if (centerLat !== undefined && centerLon !== undefined) {
-      const latDelta = 0.15; // approximately 10 miles
+      const latDelta = 0.15; // approximately 10 miles at mid-latitudes
       const lonDelta = 0.15;
       const viewbox = `${centerLon - lonDelta},${centerLat + latDelta},${centerLon + lonDelta},${centerLat - latDelta}`;
       url += `&viewbox=${viewbox}&bounded=0`;
     }
     
     const response = await fetch(url, { 
-      headers: { 'User-Agent': 'NextStop/1.0' },
+      headers: { 'User-Agent': NOMINATIM_USER_AGENT },
       // Add a timeout to prevent hanging
-      signal: AbortSignal.timeout(5000)
+      signal: AbortSignal.timeout(NOMINATIM_TIMEOUT_MS)
     });
 
     if (!response.ok) {
@@ -91,10 +102,10 @@ export async function getGeographicCenter(
 
   for (const address of addresses) {
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
+      const url = `${NOMINATIM_BASE_URL}/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
       const response = await fetch(url, { 
-        headers: { 'User-Agent': 'NextStop/1.0' },
-        signal: AbortSignal.timeout(5000)
+        headers: { 'User-Agent': NOMINATIM_USER_AGENT },
+        signal: AbortSignal.timeout(NOMINATIM_TIMEOUT_MS)
       });
 
       if (response.ok) {

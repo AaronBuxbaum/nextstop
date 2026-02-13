@@ -154,6 +154,7 @@ describe('POST /api/ai/suggest', () => {
   it('handles suggestions without locations', async () => {
     // Mock AI to return a suggestion without location
     const { generateText } = await import('ai');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(generateText).mockResolvedValueOnce({
       text: JSON.stringify([
         {
@@ -164,9 +165,23 @@ describe('POST /api/ai/suggest', () => {
         }
       ]),
       finishReason: 'stop' as const,
-      usage: { inputTokens: 0, outputTokens: 0 },
-      rawResponse: { headers: {} }
-    });
+      usage: { 
+        inputTokens: 0, 
+        outputTokens: 0,
+        inputTokenDetails: {
+          noCacheTokens: 0,
+          cacheReadTokens: 0,
+          cacheWriteTokens: 0
+        },
+        outputTokenDetails: {
+          textTokens: 0,
+          reasoningTokens: 0
+        },
+        totalTokens: 0
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        response: {} as any
+    } as any);
 
     const request = new NextRequest('http://localhost:3000/api/ai/suggest', {
       method: 'POST',
@@ -186,6 +201,7 @@ describe('POST /api/ai/suggest', () => {
   it('validates multiple event suggestions with locations', async () => {
     // Mock AI to return multiple suggestions with locations
     const { generateText } = await import('ai');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(generateText).mockResolvedValueOnce({
       text: JSON.stringify([
         {
@@ -212,9 +228,23 @@ describe('POST /api/ai/suggest', () => {
         }
       ]),
       finishReason: 'stop' as const,
-      usage: { inputTokens: 0, outputTokens: 0 },
-      rawResponse: { headers: {} }
-    });
+      usage: { 
+        inputTokens: 0, 
+        outputTokens: 0,
+        inputTokenDetails: {
+          noCacheTokens: 0,
+          cacheReadTokens: 0,
+          cacheWriteTokens: 0
+        },
+        outputTokenDetails: {
+          textTokens: 0,
+          reasoningTokens: 0
+        },
+        totalTokens: 0
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        response: {} as any
+    } as any);
 
     // Mock Nominatim for both locations
     server.use(

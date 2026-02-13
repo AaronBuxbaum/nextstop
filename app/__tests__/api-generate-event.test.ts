@@ -171,6 +171,7 @@ describe('POST /api/ai/generate-event', () => {
   it('handles multiple event options with different locations', async () => {
     // Mock AI to return multiple options
     const { generateText } = await import('ai');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(generateText).mockResolvedValueOnce({
       text: JSON.stringify({
         options: [
@@ -197,9 +198,23 @@ describe('POST /api/ai/generate-event', () => {
         ]
       }),
       finishReason: 'stop' as const,
-      usage: { inputTokens: 0, outputTokens: 0 },
-      rawResponse: { headers: {} }
-    });
+      usage: { 
+        inputTokens: 0, 
+        outputTokens: 0,
+        inputTokenDetails: {
+          noCacheTokens: 0,
+          cacheReadTokens: 0,
+          cacheWriteTokens: 0
+        },
+        outputTokenDetails: {
+          textTokens: 0,
+          reasoningTokens: 0
+        },
+        totalTokens: 0
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        response: {} as any
+    } as any);
 
     // Mock Nominatim for both locations
     server.use(

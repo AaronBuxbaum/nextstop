@@ -107,17 +107,19 @@ Please provide suggestions in the following JSON array format:
         .map((e: { location: string }) => e.location);
       const center = await getGeographicCenter(existingLocations);
 
-      // Validate and normalize each suggestion's location
-      for (const suggestion of suggestions) {
-        if (suggestion.event?.location) {
-          const validatedLocation = await validateAndNormalizeAddress(
-            suggestion.event.location,
-            center?.lat,
-            center?.lon
-          );
-          suggestion.event.location = validatedLocation;
-        }
-      }
+      // Validate and normalize each suggestion's location in parallel
+      await Promise.all(
+        suggestions.map(async (suggestion: { event?: { location?: string } }) => {
+          if (suggestion.event?.location) {
+            const validatedLocation = await validateAndNormalizeAddress(
+              suggestion.event.location,
+              center?.lat,
+              center?.lon
+            );
+            suggestion.event.location = validatedLocation;
+          }
+        })
+      );
     }
 
     return NextResponse.json({ suggestions });

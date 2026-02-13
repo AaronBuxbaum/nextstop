@@ -225,17 +225,19 @@ Multi-Option Variety:
       // Get geographic center from existing event locations for better validation
       const center = await getGeographicCenter(uniqueLocations);
 
-      // Validate and normalize each event's location
-      for (const option of result.options) {
-        if (option.event?.location) {
-          const validatedLocation = await validateAndNormalizeAddress(
-            option.event.location,
-            center?.lat,
-            center?.lon
-          );
-          option.event.location = validatedLocation;
-        }
-      }
+      // Validate and normalize each event's location in parallel
+      await Promise.all(
+        result.options.map(async (option: { event?: { location?: string } }) => {
+          if (option.event?.location) {
+            const validatedLocation = await validateAndNormalizeAddress(
+              option.event.location,
+              center?.lat,
+              center?.lon
+            );
+            option.event.location = validatedLocation;
+          }
+        })
+      );
     }
 
     // Post-process: validate and fix AI-generated start times against existing schedule

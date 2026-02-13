@@ -78,6 +78,12 @@ describe('nominatimUtils', () => {
       expect(result).toBe('');
     });
 
+    it('returns original address when address exceeds maximum length', async () => {
+      const longAddress = 'a'.repeat(501);
+      const result = await validateAndNormalizeAddress(longAddress);
+      expect(result).toBe(longAddress);
+    });
+
     it('includes viewbox in request when center coordinates provided', async () => {
       let requestUrl = '';
       server.use(

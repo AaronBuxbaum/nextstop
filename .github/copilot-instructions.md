@@ -177,7 +177,6 @@ app/
    - If PR is initially created as draft, convert it to ready for review before completing work
    - Ensure all tests pass before marking PR as ready
    - Include clear description of changes and testing performed
-   - After removing `[WIP]` from the PR title, push an empty commit to trigger CI/CD and notify reviewers
 
 ## Key Features to Maintain
 

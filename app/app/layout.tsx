@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Courier_Prime } from "next/font/google";
 import SessionProvider from "@/components/SessionProvider";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const playfairDisplay = Playfair_Display({
@@ -31,6 +32,7 @@ export default function RootLayout({
         className={`${playfairDisplay.variable} ${courierPrime.variable}`}
       >
         <SessionProvider>{children}</SessionProvider>
+        <Analytics />
       </body>
     </html>
   );

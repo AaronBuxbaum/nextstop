@@ -5,6 +5,7 @@ import { sql } from "@/lib/db";
 import { generateText } from "ai";
 import { groq } from "@ai-sdk/groq";
 import { parseTimeString } from "@/lib/timeUtils";
+import { validateAndNormalizeAddress, getGeographicCenter } from "@/lib/nominatimUtils";
 
 interface EventListItem {
   title: string;
@@ -85,7 +86,7 @@ export async function POST(req: NextRequest) {
     const locations = events
       .filter((e: EventListItem) => e.location)
       .map((e: EventListItem) => e.location as string);
-    const uniqueLocations = Array.from(new Set(locations));
+    const uniqueLocations: string[] = Array.from(new Set(locations));
     const locationContext = uniqueLocations.join(', ');
 
     // Create a prompt for AI to parse the user's request
@@ -217,6 +218,24 @@ Multi-Option Variety:
       return NextResponse.json({
         error: "Failed to parse AI response",
       }, { status: 500 });
+    }
+
+    // Post-process: validate and normalize addresses using OpenStreetMap
+    if (result.options && Array.isArray(result.options)) {
+      // Get geographic center from existing event locations for better validation
+      const center = await getGeographicCenter(uniqueLocations);
+
+      // Validate and normalize each event's location
+      for (const option of result.options) {
+        if (option.event?.location) {
+          const validatedLocation = await validateAndNormalizeAddress(
+            option.event.location,
+            center?.lat,
+            center?.lon
+          );
+          option.event.location = validatedLocation;
+        }
+      }
     }
 
     // Post-process: validate and fix AI-generated start times against existing schedule

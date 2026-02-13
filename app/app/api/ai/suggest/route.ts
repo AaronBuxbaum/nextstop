@@ -4,6 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
 import { generateText } from "ai";
 import { groq } from "@ai-sdk/groq";
+import { validateAndNormalizeAddress, getGeographicCenter } from "@/lib/nominatimUtils";
 
 // POST /api/ai/suggest - Get AI suggestions for improving the plan
 export async function POST(req: NextRequest) {
@@ -96,6 +97,27 @@ Please provide suggestions in the following JSON array format:
         error: "Failed to parse AI response",
         rawResponse: text,
       }, { status: 500 });
+    }
+
+    // Post-process: validate and normalize addresses using OpenStreetMap
+    if (Array.isArray(suggestions)) {
+      // Get geographic center from existing event locations for better validation
+      const existingLocations = events
+        .filter((e: { location?: string }) => e.location)
+        .map((e: { location: string }) => e.location);
+      const center = await getGeographicCenter(existingLocations);
+
+      // Validate and normalize each suggestion's location
+      for (const suggestion of suggestions) {
+        if (suggestion.event?.location) {
+          const validatedLocation = await validateAndNormalizeAddress(
+            suggestion.event.location,
+            center?.lat,
+            center?.lon
+          );
+          suggestion.event.location = validatedLocation;
+        }
+      }
     }
 
     return NextResponse.json({ suggestions });

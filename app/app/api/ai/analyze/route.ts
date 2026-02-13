@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
 import { generateText } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { groq } from "@ai-sdk/groq";
 
 // POST /api/ai/analyze - Analyze a plan for pacing, quality, and theme
 export async function POST(req: NextRequest) {
@@ -83,7 +83,7 @@ Please provide a comprehensive analysis in the following JSON format:
 
     // Generate AI response
     const { text } = await generateText({
-      model: openai("gpt-4-turbo"),
+      model: groq("llama-3.3-70b-versatile"),
       prompt,
       temperature: 0.7,
     });

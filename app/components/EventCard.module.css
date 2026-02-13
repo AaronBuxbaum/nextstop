@@ -192,23 +192,20 @@
   color: var(--tag-color, #1e40af);
 }
 
-.mapLink {
+.addressLink {
   font-family: var(--font-body), monospace;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--primary-color, #3b82f6);
   text-decoration: none;
-  padding: 0.125rem 0.5rem;
-  border: 1px solid var(--primary-color, #3b82f6);
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  margin-left: 0.5rem;
+  transition: color 0.2s ease;
+  cursor: pointer;
 }
 
-.mapLink:hover {
-  background: var(--primary-color, #3b82f6);
-  color: white;
+.addressLink:hover {
+  text-decoration: underline;
+  color: var(--primary-hover, #2563eb);
 }
 
-.mapLink::after {
+.addressLink::after {
   display: none;
 }

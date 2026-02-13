@@ -2,6 +2,7 @@
 
 import { Event } from '@/types';
 import { calculateDuration, calculateEndTime } from '@/lib/timeUtils';
+import { simplifyAddress } from '@/lib/addressUtils';
 import styles from './EventCard.module.css';
 import React from 'react';
 import { WeatherInfo } from './WeatherInfo';
@@ -119,17 +120,19 @@ export function EventCard({
         {event.location && (
           <div className={styles.detail}>
             <span className={styles.icon}>📍</span>
-            <span>{event.location}</span>
-            {mapsUrl && (
+            {mapsUrl ? (
               <a
                 href={mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={styles.mapLink}
+                className={styles.addressLink}
+                title={event.location}
                 aria-label={`View ${event.location} on Google Maps`}
               >
-                🗺️ Map
+                {simplifyAddress(event.location)}
               </a>
+            ) : (
+              <span title={event.location}>{simplifyAddress(event.location)}</span>
             )}
           </div>
         )}

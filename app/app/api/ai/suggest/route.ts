@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
-import { generateText } from "ai";
+import { generateText, tool, jsonSchema } from "ai";
 import { groq } from "@ai-sdk/groq";
 import { validateAndNormalizeAddress, getGeographicCenter } from "@/lib/nominatimUtils";
 
@@ -70,18 +70,53 @@ Please provide suggestions in the following JSON array format:
     "event": {
       "title": "<event title>",
       "description": "<event description>",
-      "location": "<suggested location>",
+      "location": "<suggested location - use lookupAddress tool to get complete OpenStreetMap address>",
       "duration": <minutes>,
       "notes": "<any notes>"
     },
     "reasoning": "<why this would improve the plan>"
   }
-]`;
+]
+
+IMPORTANT: For any location mentioned in suggested events, use the lookupAddress tool to get the complete, validated address from OpenStreetMap. Include nearby landmarks or existing event locations in your query for better results.`;
+
+    // Get geographic center from existing event locations for better address lookup
+    const existingLocations = events
+      .filter((e: { location?: string }) => e.location)
+      .map((e: { location: string }) => e.location);
+    const center = await getGeographicCenter(existingLocations);
 
     const { text } = await generateText({
       model: groq("llama-3.3-70b-versatile"),
       prompt,
       temperature: 0.8,
+      tools: {
+        lookupAddress: tool({
+          description: 'Look up a complete, validated address using OpenStreetMap. Use this tool whenever suggesting a location for an event. Provide as much context as possible in the query.',
+          inputSchema: jsonSchema({
+            type: 'object',
+            properties: {
+              query: {
+                type: 'string',
+                description: 'The address or location to look up. Include nearby landmarks, neighborhoods, or existing event locations for better results.'
+              }
+            },
+            required: ['query']
+          }),
+          execute: async ({ query }: { query: string }) => {
+            // Validate and normalize the address using OpenStreetMap Nominatim
+            const validatedAddress = await validateAndNormalizeAddress(
+              query,
+              center?.lat,
+              center?.lon
+            );
+            return {
+              address: validatedAddress,
+              success: validatedAddress !== query
+            };
+          }
+        })
+      },
     });
 
     let suggestions;
@@ -97,29 +132,6 @@ Please provide suggestions in the following JSON array format:
         error: "Failed to parse AI response",
         rawResponse: text,
       }, { status: 500 });
-    }
-
-    // Post-process: validate and normalize addresses using OpenStreetMap
-    if (Array.isArray(suggestions)) {
-      // Get geographic center from existing event locations for better validation
-      const existingLocations = events
-        .filter((e: { location?: string }) => e.location)
-        .map((e: { location: string }) => e.location);
-      const center = await getGeographicCenter(existingLocations);
-
-      // Validate and normalize each suggestion's location in parallel
-      await Promise.all(
-        suggestions.map(async (suggestion: { event?: { location?: string } }) => {
-          if (suggestion.event?.location) {
-            const validatedLocation = await validateAndNormalizeAddress(
-              suggestion.event.location,
-              center?.lat,
-              center?.lon
-            );
-            suggestion.event.location = validatedLocation;
-          }
-        })
-      );
     }
 
     return NextResponse.json({ suggestions });

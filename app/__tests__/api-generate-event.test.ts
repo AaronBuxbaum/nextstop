@@ -171,7 +171,6 @@ describe('POST /api/ai/generate-event', () => {
   it('handles multiple event options with different locations', async () => {
     // Mock AI to return multiple options
     const { generateText } = await import('ai');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(generateText).mockResolvedValueOnce({
       text: JSON.stringify({
         options: [
@@ -212,7 +211,6 @@ describe('POST /api/ai/generate-event', () => {
         },
         totalTokens: 0
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
         response: {} as any
     } as any);
 

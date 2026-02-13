@@ -154,7 +154,6 @@ describe('POST /api/ai/suggest', () => {
   it('handles suggestions without locations', async () => {
     // Mock AI to return a suggestion without location
     const { generateText } = await import('ai');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(generateText).mockResolvedValueOnce({
       text: JSON.stringify([
         {
@@ -179,7 +178,6 @@ describe('POST /api/ai/suggest', () => {
         },
         totalTokens: 0
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
         response: {} as any
     } as any);
 
@@ -201,7 +199,6 @@ describe('POST /api/ai/suggest', () => {
   it('validates multiple event suggestions with locations', async () => {
     // Mock AI to return multiple suggestions with locations
     const { generateText } = await import('ai');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(generateText).mockResolvedValueOnce({
       text: JSON.stringify([
         {
@@ -242,7 +239,6 @@ describe('POST /api/ai/suggest', () => {
         },
         totalTokens: 0
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
         response: {} as any
     } as any);
 

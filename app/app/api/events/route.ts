@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
 import { nanoid } from "nanoid";
-import { calculateDuration, calculateEndTime } from "@/lib/timeUtils";
+import { calculateDuration, calculateEndTime, parseTimeString } from "@/lib/timeUtils";
 
 // POST /api/events - Create a new event
 export async function POST(req: NextRequest) {
@@ -85,10 +85,12 @@ export async function POST(req: NextRequest) {
       `;
 
       // Find the first event with a start_time that comes after the new event's start time
+      const newTimeMinutes = parseTimeString(finalStartTime);
       let insertAt = existingEvents.length;
       for (let i = 0; i < existingEvents.length; i++) {
         const evStartTime = existingEvents[i].start_time;
-        if (evStartTime && evStartTime > finalStartTime) {
+        const evMinutes = parseTimeString(evStartTime);
+        if (evMinutes !== null && newTimeMinutes !== null && evMinutes > newTimeMinutes) {
           insertAt = i;
           break;
         }

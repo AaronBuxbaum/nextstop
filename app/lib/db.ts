@@ -26,6 +26,12 @@ export const sql = process.env.DATABASE_URL
 // - Prisma Migrate: https://www.prisma.io/docs/concepts/components/prisma-migrate
 // - Drizzle ORM: https://orm.drizzle.team/
 export const initDatabase = async () => {
+  // Skip initialization if DATABASE_URL is not set
+  if (!process.env.DATABASE_URL) {
+    console.warn('Skipping database initialization - DATABASE_URL not set');
+    return;
+  }
+
   try {
     // Users table
     await sql`

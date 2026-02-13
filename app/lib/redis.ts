@@ -46,10 +46,24 @@ export const getUserPresence = async (planId: string) => {
   const presence = await redis.hgetall(`presence:${planId}`) as Record<string, string> | null;
   if (!presence) return [];
   
-  return Object.entries(presence).map(([userId, data]) => ({
-    userId,
-    ...JSON.parse(data),
-  }));
+  return Object.entries(presence).map(([userId, data]) => {
+    try {
+      // Ensure data is a string before parsing
+      const dataStr = typeof data === 'string' ? data : JSON.stringify(data);
+      return {
+        userId,
+        ...JSON.parse(dataStr),
+      };
+    } catch (error) {
+      console.error(`Failed to parse presence data for user ${userId}:`, error, 'Data:', data);
+      // Return a default presence object if parsing fails
+      return {
+        userId,
+        userName: 'Unknown',
+        lastActive: Date.now(),
+      };
+    }
+  });
 };
 
 export const setEditingState = async (
@@ -72,8 +86,23 @@ export const getEditingStates = async (planId: string) => {
   const states = await redis.hgetall(`editing:${planId}`) as Record<string, string> | null;
   if (!states) return [];
   
-  return Object.entries(states).map(([elementId, data]) => ({
-    elementId,
-    ...JSON.parse(data),
-  }));
+  return Object.entries(states).map(([elementId, data]) => {
+    try {
+      // Ensure data is a string before parsing
+      const dataStr = typeof data === 'string' ? data : JSON.stringify(data);
+      return {
+        elementId,
+        ...JSON.parse(dataStr),
+      };
+    } catch (error) {
+      console.error(`Failed to parse editing state for element ${elementId}:`, error, 'Data:', data);
+      // Return a default editing state if parsing fails
+      return {
+        elementId,
+        userId: 'unknown',
+        elementType: 'event' as const,
+        timestamp: Date.now(),
+      };
+    }
+  });
 };

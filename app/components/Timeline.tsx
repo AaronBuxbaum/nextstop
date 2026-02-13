@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Event } from '@/types';
-import { parseTimeString } from '@/lib/timeUtils';
+import { parseTimeString, calculateDuration, calculateEndTime } from '@/lib/timeUtils';
 import { WeatherInfo } from './WeatherInfo';
 import { TravelTime } from './TravelTime';
 import styles from './Timeline.module.css';
@@ -79,6 +79,18 @@ export function Timeline({
         const mapsUrl = event.location
           ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`
           : null;
+
+        // Derive missing time fields for display
+        let displayEndTime = event.endTime;
+        let displayDuration = event.duration;
+
+        if (event.startTime && event.endTime && !displayDuration) {
+          const derived = calculateDuration(event.startTime, event.endTime);
+          if (derived !== null) displayDuration = derived;
+        }
+        if (event.startTime && displayDuration && !displayEndTime) {
+          displayEndTime = calculateEndTime(event.startTime, displayDuration) ?? undefined;
+        }
 
         return (
           <React.Fragment key={event.id}>
@@ -189,18 +201,18 @@ export function Timeline({
                       )}
                     </div>
                   )}
-                  {(event.startTime || event.endTime) && (
+                  {(event.startTime || displayEndTime) && (
                     <div className={styles.detail}>
                       <span className={styles.detailIcon}>🕐</span>
                       <span>
-                        {event.startTime}{event.endTime ? ` - ${event.endTime}` : ''}
+                        {event.startTime}{displayEndTime ? ` - ${displayEndTime}` : ''}
                       </span>
                     </div>
                   )}
-                  {event.duration && (
+                  {displayDuration && (
                     <div className={styles.detail}>
                       <span className={styles.detailIcon}>⏱️</span>
-                      <span>{event.duration} min</span>
+                      <span>{displayDuration} min</span>
                     </div>
                   )}
                   {event.location && (

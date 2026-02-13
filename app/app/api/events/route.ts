@@ -74,10 +74,39 @@ export async function POST(req: NextRequest) {
     const id = nanoid();
 
     // Calculate position for the new event
-    const posResult = await sql`
-      SELECT COALESCE(MAX(position), -1) + 1 as next_pos FROM events WHERE plan_id = ${planId}
-    `;
-    const position = posResult[0].next_pos;
+    let position: number;
+
+    if (finalStartTime) {
+      // Find the correct position based on chronological order
+      const existingEvents = await sql`
+        SELECT id, start_time, position FROM events
+        WHERE plan_id = ${planId}
+        ORDER BY position ASC
+      `;
+
+      // Find the first event with a start_time that comes after the new event's start time
+      let insertAt = existingEvents.length;
+      for (let i = 0; i < existingEvents.length; i++) {
+        const evStartTime = existingEvents[i].start_time;
+        if (evStartTime && evStartTime > finalStartTime) {
+          insertAt = i;
+          break;
+        }
+      }
+      position = insertAt;
+
+      // Shift positions of events at or after the insert point
+      await sql`
+        UPDATE events SET position = position + 1, updated_at = CURRENT_TIMESTAMP
+        WHERE plan_id = ${planId} AND position >= ${position}
+      `;
+    } else {
+      // No start time: append to the end
+      const posResult = await sql`
+        SELECT COALESCE(MAX(position), -1) + 1 as next_pos FROM events WHERE plan_id = ${planId}
+      `;
+      position = posResult[0].next_pos;
+    }
 
     await sql`
       INSERT INTO events (

@@ -72,7 +72,7 @@ export function WeatherInfo({ location, date, time, className }: WeatherInfoProp
         );
         const geoData = await geoRes.json();
 
-        if (!geoData || geoData.length === 0) {
+        if (!geoData || geoData.length === 0 || !geoData[0] || !geoData[0].lat || !geoData[0].lon) {
           setError('Location not found');
           setLoading(false);
           return;

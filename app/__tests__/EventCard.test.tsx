@@ -91,4 +91,37 @@ describe('EventCard Component', () => {
     render(<EventCard event={minimalEvent} />);
     expect(screen.getByText('Simple Event')).toBeInTheDocument();
   });
+
+  it('derives duration from start and end time when duration is missing', () => {
+    const eventWithoutDuration: Event = {
+      id: '3',
+      title: 'Derived Duration',
+      description: '',
+      location: '',
+      startTime: '09:00',
+      endTime: '10:30',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    render(<EventCard event={eventWithoutDuration} />);
+    expect(screen.getByText('90 minutes')).toBeInTheDocument();
+  });
+
+  it('derives end time from start time and duration when end time is missing', () => {
+    const eventWithoutEndTime: Event = {
+      id: '4',
+      title: 'Derived End Time',
+      description: '',
+      location: '',
+      startTime: '14:00',
+      duration: 120,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    render(<EventCard event={eventWithoutEndTime} />);
+    expect(screen.getByText(/14:00.*16:00/)).toBeInTheDocument();
+    expect(screen.getByText('120 minutes')).toBeInTheDocument();
+  });
 });

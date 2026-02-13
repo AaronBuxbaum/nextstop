@@ -100,13 +100,14 @@ Please analyze this request and extract the following information in JSON format
 IMPORTANT GUIDELINES:
 
 Location Requirements:
-- If the user mentions a business/venue (e.g., "Starbucks", "McDonald's", "Whole Foods"), provide a SPECIFIC, plausible location
+- If the user mentions a business/venue (e.g., "Starbucks", "McDonald's", "Whole Foods"), provide a SPECIFIC, contextual suggestion
 - Use the existing event locations to determine the geographic area and suggest locations in that vicinity
-- Provide a complete, realistic address format (e.g., "Starbucks at 123 Main St, Seattle, WA 98122")
+- Provide location suggestions in a complete address format when context allows (e.g., "Starbucks at 456 Broadway, Seattle, WA")
 - If existing events have specific addresses, infer the neighborhood/area and suggest venues that would logically exist there
+- For well-known chains, use realistic naming patterns (e.g., include a plausible street name or landmark near existing events)
 - Consider proximity and convenience - suggest locations that fit the geographic flow of the plan
-- Generate plausible street addresses and details based on the context, using realistic naming patterns for the area
-- If no location context is available, still provide a specific, plausible location based on the user's request
+- If location context is limited, provide a descriptive location (e.g., "Starbucks in downtown Seattle area" or "Coffee shop near Pike Place Market")
+- Note: These are AI-suggested locations that users can edit and refine
 
 Event Details:
 - Extract a clear, concise event title (e.g., "Coffee Break", "Dinner", "Walk in the park")

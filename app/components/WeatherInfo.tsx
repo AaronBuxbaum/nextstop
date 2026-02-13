@@ -82,6 +82,7 @@ export function WeatherInfo({ location, date, time, className }: WeatherInfoProp
 
         // Build weather API URL based on whether we have a date
         let weatherUrl: string;
+        let useSeasonalApi = false;
         
         if (date) {
           // Determine which API to use based on date
@@ -100,8 +101,13 @@ export function WeatherInfo({ location, date, time, className }: WeatherInfoProp
             // Near future (0-16 days) - use forecast API
             weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`;
             weatherUrl += `&start_date=${date}&end_date=${date}&hourly=temperature_2m,weathercode&temperature_unit=fahrenheit&timezone=auto`;
+          } else if (daysDiff <= 210) {
+            // Far future (17-210 days, ~7 months) - use seasonal forecast API
+            useSeasonalApi = true;
+            weatherUrl = `https://seasonal-api.open-meteo.com/v1/seasonal?latitude=${lat}&longitude=${lon}`;
+            weatherUrl += `&start_date=${date}&end_date=${date}&daily=temperature_2m_mean,weathercode&temperature_unit=fahrenheit&models=ecmwf_seas5`;
           } else {
-            // Far future (>16 days) - forecast API doesn't support, skip weather
+            // Very far future (>210 days) - beyond seasonal forecast limit, skip weather
             setLoading(false);
             return;
           }
@@ -114,7 +120,18 @@ export function WeatherInfo({ location, date, time, className }: WeatherInfoProp
         const weatherRes = await fetch(weatherUrl, { signal: controller.signal });
         const weatherData = await weatherRes.json();
 
-        if (date && weatherData.hourly) {
+        if (useSeasonalApi && weatherData.daily) {
+          // Seasonal API returns daily data (mean temperature and weathercode)
+          const temperature = weatherData.daily.temperature_2m_mean[0];
+          const weathercode = weatherData.daily.weathercode[0];
+          const info = getWeatherFromCode(weathercode);
+          
+          setWeather({
+            temperature: Math.round(temperature),
+            description: info.description,
+            icon: info.icon,
+          });
+        } else if (date && weatherData.hourly) {
           // Find the closest hour to the specified time
           let hourIndex = 12; // Default to noon
           if (time) {

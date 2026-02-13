@@ -78,11 +78,46 @@ describe('WeatherInfo Component', () => {
     expect(screen.getByText(/68°F/i)).toBeInTheDocument();
   });
 
-  it('skips weather for dates more than 16 days in the future', async () => {
+  it('uses seasonal API for dates 17-210 days in the future', async () => {
     const today = new Date();
     const farFutureDate = new Date(today);
-    farFutureDate.setDate(today.getDate() + 20);
+    farFutureDate.setDate(today.getDate() + 30); // 30 days out
     const dateStr = farFutureDate.toISOString().split('T')[0];
+
+    // Mock the APIs
+    server.use(
+      http.get('https://nominatim.openstreetmap.org/search', () => {
+        return HttpResponse.json([{ lat: '40.7128', lon: '-74.0060' }]);
+      }),
+      http.get('https://seasonal-api.open-meteo.com/v1/seasonal', ({ request }) => {
+        const url = new URL(request.url);
+        expect(url.searchParams.get('start_date')).toBe(dateStr);
+        expect(url.searchParams.get('models')).toBe('ecmwf_seas5');
+        return HttpResponse.json({
+          daily: {
+            time: [dateStr],
+            temperature_2m_mean: [72],
+            weathercode: [1]
+          }
+        });
+      })
+    );
+
+    render(<WeatherInfo location="New York" date={dateStr} />);
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
+    }, { timeout: 3000 });
+
+    // Should display weather from seasonal forecast
+    expect(screen.getByText(/72°F/i)).toBeInTheDocument();
+  });
+
+  it('skips weather for dates more than 210 days in the future', async () => {
+    const today = new Date();
+    const veryFarFutureDate = new Date(today);
+    veryFarFutureDate.setDate(today.getDate() + 220); // Beyond 210 days
+    const dateStr = veryFarFutureDate.toISOString().split('T')[0];
 
     // Mock geocoding only
     server.use(

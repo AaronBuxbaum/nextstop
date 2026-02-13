@@ -18,6 +18,7 @@ function buildMapUrl(events: GeocodedEvent[]): string {
 
   // For a simple embedded map, use OpenStreetMap without location-specific parameters
   // This avoids null coordinate errors that occur when using marker= or bbox= with empty values
+  // Note: events parameter is kept for potential future enhancement (e.g., geocoding coordinates)
   return `https://www.openstreetmap.org/export/embed.html?layer=mapnik`;
 }
 

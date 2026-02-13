@@ -55,11 +55,12 @@ export async function POST(req: NextRequest) {
       ORDER BY start_time, created_at
     `;
 
-    // Build detailed location context from existing events
-    const locationContext = events
+    // Build detailed location context from existing events (deduplicated)
+    const locations = events
       .filter((e: EventListItem) => e.location)
-      .map((e: EventListItem) => e.location)
-      .join(', ');
+      .map((e: EventListItem) => e.location as string);
+    const uniqueLocations = Array.from(new Set(locations));
+    const locationContext = uniqueLocations.join(', ');
 
     // Create a prompt for AI to parse the user's request
     const prompt = `You are an AI assistant helping to create events for an outing plan. The user has provided a natural language description of an event they want to add.
@@ -99,12 +100,13 @@ Please analyze this request and extract the following information in JSON format
 IMPORTANT GUIDELINES:
 
 Location Requirements:
-- If the user mentions a business/venue (e.g., "Starbucks", "McDonald's", "Whole Foods"), you MUST find a REAL, SPECIFIC location
-- Use the existing event locations to determine the geographic area
-- Provide a complete address or specific location details (e.g., "Starbucks at 123 Main St, Seattle, WA" NOT just "Starbucks")
-- If existing events have addresses/locations, find a venue that makes geographic sense near those locations
-- Consider proximity and convenience when suggesting specific locations
-- If no location context is available, still provide the most specific location possible based on the user's request
+- If the user mentions a business/venue (e.g., "Starbucks", "McDonald's", "Whole Foods"), provide a SPECIFIC, plausible location
+- Use the existing event locations to determine the geographic area and suggest locations in that vicinity
+- Provide a complete, realistic address format (e.g., "Starbucks at 123 Main St, Seattle, WA 98122")
+- If existing events have specific addresses, infer the neighborhood/area and suggest venues that would logically exist there
+- Consider proximity and convenience - suggest locations that fit the geographic flow of the plan
+- Generate plausible street addresses and details based on the context, using realistic naming patterns for the area
+- If no location context is available, still provide a specific, plausible location based on the user's request
 
 Event Details:
 - Extract a clear, concise event title (e.g., "Coffee Break", "Dinner", "Walk in the park")

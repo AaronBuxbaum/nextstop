@@ -10,19 +10,15 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
 
     // Get plan with authorization check
+    // Allow access if: user owns it, is a collaborator, OR plan is public (even if not authenticated)
     const planResult = await sql`
       SELECT p.* FROM plans p
       LEFT JOIN plan_collaborators pc ON p.id = pc.plan_id
       WHERE p.id = ${id}
-        AND (p.user_id = ${session.user.id} OR pc.user_id = ${session.user.id} OR p.is_public = true)
+        AND (p.user_id = ${session?.user?.id} OR pc.user_id = ${session?.user?.id} OR p.is_public = true)
     `;
 
     if (planResult.length === 0) {

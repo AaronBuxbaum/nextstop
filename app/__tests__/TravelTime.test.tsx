@@ -14,6 +14,11 @@ describe('TravelTime Component', () => {
     expect(screen.getByText('Calculating travel time...')).toBeInTheDocument();
   });
 
+  it('shows loading state initially with showDriving false', () => {
+    render(<TravelTime fromLocation="New York" toLocation="Boston" showDriving={false} />);
+    expect(screen.getByText('Calculating travel time...')).toBeInTheDocument();
+  });
+
   it('renders without crashing', () => {
     const { container } = render(
       <TravelTime fromLocation="Central Park, New York" toLocation="Times Square, New York" />

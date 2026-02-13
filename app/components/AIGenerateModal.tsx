@@ -45,7 +45,7 @@ export function AIGenerateModal({ options, onSelect, onClose }: AIGenerateModalP
         </div>
         <div className={styles.optionsGrid}>
           {options.map((option, index) => (
-            <div key={index} className={styles.optionCard}>
+            <div key={`${option.event.title}-${option.style}-${index}`} className={styles.optionCard}>
               <div className={styles.styleBadge}>{option.style}</div>
               <h3 className={styles.optionTitle}>{option.event.title}</h3>
               {option.event.description && (

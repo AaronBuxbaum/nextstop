@@ -48,6 +48,13 @@ export interface Branch {
   nextEventId?: string;
 }
 
+export interface Collaborator {
+  id: string;
+  name?: string;
+  email?: string;
+  role?: string;
+}
+
 export interface Plan {
   id: string;
   title: string;
@@ -58,7 +65,7 @@ export interface Plan {
   events: Event[];
   branches: Branch[];
   optionalEvents: Event[];
-  collaborators: string[]; // User IDs
+  collaborators: Collaborator[];
   isPublic: boolean;
   showDriving?: boolean;
   event_count?: number;

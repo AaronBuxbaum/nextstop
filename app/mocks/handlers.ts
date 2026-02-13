@@ -338,4 +338,30 @@ export const handlers = [
       editingStates: [],
     });
   }),
+
+  // Collaborators API
+  http.get('/api/plans/:id/collaborators', () => {
+    return HttpResponse.json([]);
+  }),
+
+  http.post('/api/plans/:id/collaborators', async ({ request }) => {
+    const body = await request.json() as { email: string; role?: string };
+    return HttpResponse.json({
+      id: `user-${Date.now()}`,
+      name: 'Collaborator',
+      email: body.email,
+      role: body.role || 'editor',
+    }, { status: 201 });
+  }),
+
+  http.delete('/api/plans/:id/collaborators', () => {
+    return HttpResponse.json({ success: true });
+  }),
+
+  // Auth session (for WebSocket connection)
+  http.get('/api/auth/session', () => {
+    return HttpResponse.json({
+      user: { id: 'user-1', name: 'Test User', email: 'test@test.com' },
+    });
+  }),
 ];

@@ -11,6 +11,7 @@ import { SharePlan } from '@/components/SharePlan';
 import { PresenceIndicators } from '@/components/PresenceIndicators';
 import { MapView } from '@/components/MapView';
 import { AIGenerateModal } from '@/components/AIGenerateModal';
+import { CollaborationPanel } from '@/components/CollaborationPanel';
 import { useGeolocation } from '@/lib/useGeolocation';
 import { useCollaboration } from '@/lib/useCollaboration';
 import { calculateDuration, calculateEndTime } from '@/lib/timeUtils';
@@ -638,6 +639,11 @@ export default function PlanDetailPage() {
               currentUserId={session?.user?.id}
             />
           </div>
+          <CollaborationPanel
+            planId={planId}
+            collaborators={plan.collaborators || []}
+            onCollaboratorsChange={fetchPlan}
+          />
         </div>
       </header>
 

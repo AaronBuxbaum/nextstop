@@ -16,5 +16,15 @@ export async function register() {
       // Don't throw - allow server to start even if DB init fails
       // This prevents startup failures if DATABASE_URL is temporarily unavailable
     }
+
+    // Start WebSocket server for real-time collaboration
+    try {
+      const { initWebSocketServer } = await import('@/lib/wsServer');
+      const wsPort = parseInt(process.env.WS_PORT || '3001', 10);
+      initWebSocketServer(wsPort);
+    } catch (error) {
+      console.error('Failed to start WebSocket server:', error);
+      // Don't throw - collaboration will fall back to polling
+    }
   }
 }

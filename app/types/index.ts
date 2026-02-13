@@ -60,6 +60,7 @@ export interface Plan {
   optionalEvents: Event[];
   collaborators: string[]; // User IDs
   isPublic: boolean;
+  showDriving?: boolean;
   event_count?: number;
   createdAt: Date;
   updatedAt: Date;

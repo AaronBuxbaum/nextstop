@@ -81,20 +81,29 @@ ${locationContext ? `Existing Event Locations: ${locationContext}` : 'No locatio
 
 User's Request: "${userInput}"
 
-Please analyze this request and extract the following information in JSON format:
+Please analyze this request and generate exactly 3 different event options with a wide variance of styles.
+Each option should represent a distinct interpretation of the user's request — vary the venue, vibe, and details.
+
+Return JSON in this format:
 {
-  "event": {
-    "title": "<event title extracted from the request>",
-    "description": "<brief description if you can infer it>",
-    "location": "<SPECIFIC location with full address or details>",
-    "duration": <estimated duration in minutes or null>,
-    "notes": "<any additional notes or null>"
-  },
-  "placement": {
-    "strategy": "after" | "before" | "end" | "start",
-    "referenceEvent": "<title of the reference event if 'after' or 'before', otherwise null>",
-    "explanation": "<brief explanation of placement logic>"
-  }
+  "options": [
+    {
+      "event": {
+        "title": "<event title>",
+        "description": "<brief description>",
+        "location": "<SPECIFIC location with full address or details>",
+        "startTime": "<calculated start time in HH:MM format based on surrounding events, or null>",
+        "duration": <estimated duration in minutes or null>,
+        "notes": "<any additional notes or null>"
+      },
+      "placement": {
+        "strategy": "after" | "before" | "end" | "start",
+        "referenceEvent": "<title of the reference event if 'after' or 'before', otherwise null>",
+        "explanation": "<brief explanation of placement logic>"
+      },
+      "style": "<a short label describing the style/vibe, e.g. 'Cozy & Intimate', 'Trendy & Upscale', 'Quick & Casual'>"
+    }
+  ]
 }
 
 IMPORTANT GUIDELINES:
@@ -127,13 +136,30 @@ Timing and Placement:
   * Time gaps in the schedule
   * Activity sequence that makes sense
 - The referenceEvent should match an existing event title as closely as possible
-- Provide clear reasoning for your placement choice`;
+- Provide clear reasoning for your placement choice
+
+Start Time Calculation (IMPORTANT):
+- You MUST calculate and provide a startTime in HH:MM format for each option whenever possible
+- If a reference event has a start_time and duration, calculate the end time of the reference event, then add reasonable travel/transition time (10-30 minutes depending on distance) to determine the new event's start time
+- If placing "after" an event: startTime = reference event end time + estimated travel/transition time
+- If placing "before" an event: startTime = reference event start time - new event duration - estimated travel/transition time
+- If placing at "start" or "end": use the earliest or latest time slot that makes sense for the plan
+- Consider typical hours for activities (coffee: 7-11am, lunch: 11:30am-2pm, dinner: 5-9pm, etc.)
+- Consider proximity to other event locations when estimating travel time between them
+- Consider which venues would be open at the calculated time
+- Only return null for startTime if there is absolutely no timing context available
+
+Multi-Option Variety:
+- Generate 3 options with WIDE variance in style, venue type, and vibe
+- For example, if the user asks for coffee, one option could be a cozy independent café, another a trendy modern spot, and another a quick grab-and-go chain
+- Vary the price range, atmosphere, and character of each option
+- Each option should feel like a genuinely different experience`;
 
     // Generate AI response
     const { text } = await generateText({
       model: groq("llama-3.3-70b-versatile"),
       prompt,
-      temperature: 0.3,
+      temperature: 0.7,
     });
 
     // Parse the response

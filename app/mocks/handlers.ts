@@ -176,20 +176,58 @@ export const handlers = [
     const body = await request.json() as { planId: string; userInput: string };
     const { userInput } = body;
     
-    // Simple mock response for testing
+    // Mock response with 3 options
     return HttpResponse.json({
-      event: {
-        title: 'Generated Event',
-        description: `Event based on: ${userInput}`,
-        location: 'Mock Location',
-        duration: 60,
-        notes: null,
-      },
-      placement: {
-        strategy: 'end',
-        referenceEvent: null,
-        explanation: 'Added at the end of the list',
-      },
+      options: [
+        {
+          event: {
+            title: 'Generated Event - Option 1',
+            description: `Event based on: ${userInput}`,
+            location: 'Mock Location A',
+            startTime: '10:30',
+            duration: 60,
+            notes: null,
+          },
+          placement: {
+            strategy: 'end',
+            referenceEvent: null,
+            explanation: 'Added at the end of the list',
+          },
+          style: 'Cozy & Intimate',
+        },
+        {
+          event: {
+            title: 'Generated Event - Option 2',
+            description: `Alternative for: ${userInput}`,
+            location: 'Mock Location B',
+            startTime: '11:00',
+            duration: 45,
+            notes: null,
+          },
+          placement: {
+            strategy: 'end',
+            referenceEvent: null,
+            explanation: 'Added at the end of the list',
+          },
+          style: 'Trendy & Upscale',
+        },
+        {
+          event: {
+            title: 'Generated Event - Option 3',
+            description: `Quick option for: ${userInput}`,
+            location: 'Mock Location C',
+            startTime: '10:15',
+            duration: 30,
+            notes: null,
+          },
+          placement: {
+            strategy: 'end',
+            referenceEvent: null,
+            explanation: 'Added at the end of the list',
+          },
+          style: 'Quick & Casual',
+        },
+      ],
     });
   }),
 

@@ -11,6 +11,7 @@ import styles from './Timeline.module.css';
 interface TimelineProps {
   events: Event[];
   planDate?: string; // Plan date in YYYY-MM-DD format
+  showDriving?: boolean;
   onEventClick?: (event: Event) => void;
   onEdit?: (event: Event) => void;
   onDelete?: (eventId: string) => void;
@@ -55,6 +56,7 @@ function calculateTimeBetween(currentEvent: Event, nextEvent: Event): number | u
 export function Timeline({
   events,
   planDate,
+  showDriving = true,
   onEventClick,
   onEdit,
   onDelete,
@@ -254,6 +256,7 @@ export function Timeline({
                     fromLocation={event.location}
                     toLocation={events[index + 1].location}
                     timeBetween={calculateTimeBetween(event, events[index + 1])}
+                    showDriving={showDriving}
                   />
                 </div>
               )

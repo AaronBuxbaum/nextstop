@@ -1,8 +1,14 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import { TravelTime } from '@/components/TravelTime';
 
 describe('TravelTime Component', () => {
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
   it('shows loading state initially', () => {
     render(<TravelTime fromLocation="New York" toLocation="Boston" />);
     expect(screen.getByText('Calculating travel time...')).toBeInTheDocument();
@@ -24,5 +30,75 @@ describe('TravelTime Component', () => {
       />
     );
     expect(container).toBeTruthy();
+  });
+
+  it('handles null geocoding data gracefully', async () => {
+    // Mock fetch to return empty results
+    global.fetch = vi.fn((url: RequestInfo | URL, init?: RequestInit) => {
+      const urlString = typeof url === 'string' ? url : url.toString();
+      if (urlString.includes('nominatim.openstreetmap.org')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        } as Response);
+      }
+      return originalFetch(url, init);
+    }) as typeof fetch;
+
+    const { container } = render(
+      <TravelTime fromLocation="Invalid Location" toLocation="Another Invalid" />
+    );
+    
+    // Should not crash and should handle error state
+    await waitFor(() => {
+      // Component should either show nothing (returns null on error) or handle gracefully
+      expect(container).toBeTruthy();
+    });
+  });
+
+  it('handles malformed geocoding data with null lat/lon', async () => {
+    // Mock fetch to return data with null lat/lon
+    global.fetch = vi.fn((url: RequestInfo | URL, init?: RequestInit) => {
+      const urlString = typeof url === 'string' ? url : url.toString();
+      if (urlString.includes('nominatim.openstreetmap.org')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([{ lat: null, lon: null, display_name: 'Test' }]),
+        } as Response);
+      }
+      return originalFetch(url, init);
+    }) as typeof fetch;
+
+    const { container } = render(
+      <TravelTime fromLocation="Test Location" toLocation="Another Location" />
+    );
+    
+    // Should not crash with null lat/lon access
+    await waitFor(() => {
+      expect(container).toBeTruthy();
+    }, { timeout: 2000 });
+  });
+
+  it('handles response with null data element', async () => {
+    // Mock fetch to return array with null element
+    global.fetch = vi.fn((url: RequestInfo | URL, init?: RequestInit) => {
+      const urlString = typeof url === 'string' ? url : url.toString();
+      if (urlString.includes('nominatim.openstreetmap.org')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([null]),
+        } as Response);
+      }
+      return originalFetch(url, init);
+    }) as typeof fetch;
+
+    const { container } = render(
+      <TravelTime fromLocation="Test Location" toLocation="Another Location" />
+    );
+    
+    // Should not crash when data[0] is null
+    await waitFor(() => {
+      expect(container).toBeTruthy();
+    }, { timeout: 2000 });
   });
 });

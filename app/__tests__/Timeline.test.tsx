@@ -11,12 +11,13 @@ vi.mock('@/components/WeatherInfo', () => ({
 }));
 
 vi.mock('@/components/TravelTime', () => ({
-  TravelTime: ({ timeBetween }: { 
+  TravelTime: ({ timeBetween, showDriving }: { 
     fromLocation: string; 
     toLocation: string;
     timeBetween?: number;
+    showDriving?: boolean;
   }) => (
-    <span data-testid="travel-time">Travel time{timeBetween ? ` (${timeBetween}min)` : ''}</span>
+    <span data-testid="travel-time" data-show-driving={showDriving !== false}>Travel time{timeBetween ? ` (${timeBetween}min)` : ''}</span>
   ),
 }));
 
@@ -253,5 +254,21 @@ describe('Timeline Component', () => {
     render(<Timeline events={eventsWithDerivedEnd} />);
     expect(screen.getByText(/14:00.*16:00/)).toBeInTheDocument();
     expect(screen.getByText(/120 min/)).toBeInTheDocument();
+  });
+
+  it('passes showDriving prop to TravelTime components', () => {
+    const { container } = render(<Timeline events={mockEvents} showDriving={false} />);
+    const travelTimes = container.querySelectorAll('[data-testid="travel-time"]');
+    travelTimes.forEach(el => {
+      expect(el.getAttribute('data-show-driving')).toBe('false');
+    });
+  });
+
+  it('passes showDriving=true by default to TravelTime components', () => {
+    const { container } = render(<Timeline events={mockEvents} />);
+    const travelTimes = container.querySelectorAll('[data-testid="travel-time"]');
+    travelTimes.forEach(el => {
+      expect(el.getAttribute('data-show-driving')).toBe('true');
+    });
   });
 });

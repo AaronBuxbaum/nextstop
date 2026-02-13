@@ -98,4 +98,49 @@ describe('PlanDetailPage - AI Generation', () => {
     // Button should be enabled (not disabled)
     expect(generateButton).not.toBeDisabled();
   });
+
+  it('should show option selection modal after generating', async () => {
+    render(<PlanDetailPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Weekend Adventure')).toBeInTheDocument();
+    });
+
+    const aiGenerateButton = screen.getByText('✨ AI Generate');
+    fireEvent.click(aiGenerateButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('✨ AI Event Generator')).toBeInTheDocument();
+    });
+
+    const textarea = screen.getByPlaceholderText(/Add a coffee break/);
+    fireEvent.change(textarea, { target: { value: 'Add a coffee break' } });
+
+    const generateButton = screen.getByText('✨ Generate Event');
+    fireEvent.click(generateButton);
+
+    // Wait for modal with options to appear
+    await waitFor(() => {
+      expect(screen.getByText('✨ Choose an Option')).toBeInTheDocument();
+      expect(screen.getByText('Generated Event - Option 1')).toBeInTheDocument();
+      expect(screen.getByText('Generated Event - Option 2')).toBeInTheDocument();
+      expect(screen.getByText('Generated Event - Option 3')).toBeInTheDocument();
+    });
+  });
+
+  it('should show driving toggle in plan edit form', async () => {
+    render(<PlanDetailPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Weekend Adventure')).toBeInTheDocument();
+    });
+
+    // Open the edit plan form
+    const editButton = screen.getByText('✏️ Edit Plan');
+    fireEvent.click(editButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Show driving time')).toBeInTheDocument();
+    });
+  });
 });

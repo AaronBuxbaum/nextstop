@@ -169,6 +169,19 @@ export const initDatabase = async () => {
       END $$;
     `;
 
+    // Migration: Add show_driving column to plans table if it doesn't exist
+    await sql`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'plans' AND column_name = 'show_driving'
+        ) THEN
+          ALTER TABLE plans ADD COLUMN show_driving BOOLEAN DEFAULT TRUE;
+        END IF;
+      END $$;
+    `;
+
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization failed:', error);

@@ -1,0 +1,191 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: calc(var(--spacing-unit, 8px) * 2);
+}
+
+.modal {
+  background: white;
+  border-radius: calc(var(--spacing-unit, 8px) * 2);
+  max-width: 1000px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: calc(var(--spacing-unit, 8px) * 4);
+  position: relative;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: calc(var(--spacing-unit, 8px) * 3);
+  position: relative;
+}
+
+.title {
+  font-family: var(--font-display), serif;
+  font-size: 1.75rem;
+  font-weight: 900;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary, #111827);
+}
+
+.subtitle {
+  font-family: var(--font-body), monospace;
+  color: var(--text-secondary, #6b7280);
+  margin: 0;
+  font-size: 1rem;
+}
+
+.closeButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--text-secondary, #6b7280);
+  padding: calc(var(--spacing-unit, 8px) * 0.5);
+  transition: color 0.2s ease;
+}
+
+.closeButton:hover {
+  color: var(--text-primary, #111827);
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--primary-color, #3b82f6);
+  outline-offset: 2px;
+}
+
+.optionsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: calc(var(--spacing-unit, 8px) * 2);
+}
+
+@media (max-width: 768px) {
+  .optionsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.optionCard {
+  background: var(--panel-bg, #fafafa);
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: calc(var(--spacing-unit, 8px) * 1.5);
+  padding: calc(var(--spacing-unit, 8px) * 3);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+
+.optionCard:hover {
+  border-color: var(--primary-color, #3b82f6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.styleBadge {
+  display: inline-block;
+  align-self: flex-start;
+  padding: calc(var(--spacing-unit, 8px) * 0.5) calc(var(--spacing-unit, 8px) * 1.5);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-family: var(--font-body), monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: calc(var(--spacing-unit, 8px) * 0.5);
+  margin-bottom: calc(var(--spacing-unit, 8px) * 1.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.optionTitle {
+  font-family: var(--font-display), serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary, #111827);
+}
+
+.optionDescription {
+  font-family: var(--font-body), monospace;
+  color: var(--text-secondary, #6b7280);
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  flex-grow: 1;
+}
+
+.optionDetails {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit, 8px) * 0.75);
+  margin-bottom: calc(var(--spacing-unit, 8px) * 1.5);
+}
+
+.detail {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit, 8px) * 0.75);
+  font-family: var(--font-body), monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.detailIcon {
+  flex-shrink: 0;
+}
+
+.placement {
+  font-family: var(--font-body), monospace;
+  font-size: 0.75rem;
+  color: var(--text-tertiary, #9ca3af);
+  margin-bottom: calc(var(--spacing-unit, 8px) * 2);
+  padding-top: calc(var(--spacing-unit, 8px) * 1);
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.selectButton {
+  font-family: var(--font-body), monospace;
+  padding: calc(var(--spacing-unit, 8px) * 1.25) calc(var(--spacing-unit, 8px) * 2);
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: calc(var(--spacing-unit, 8px) * 1);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+.selectButton:hover {
+  background: var(--primary-hover, #2563eb);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.selectButton:focus-visible {
+  outline: 2px solid var(--primary-color, #3b82f6);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .optionCard,
+  .selectButton,
+  .closeButton {
+    transition: none;
+  }
+
+  .optionCard:hover,
+  .selectButton:hover {
+    transform: none;
+  }
+}

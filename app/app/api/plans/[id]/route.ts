@@ -87,7 +87,7 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await req.json();
-    const { title, description, date, theme, isPublic } = body;
+    const { title, description, date, theme, isPublic, showDriving } = body;
 
     // Check authorization
     const planResult = await sql`
@@ -108,6 +108,7 @@ export async function PATCH(
     const updatedDate = date !== undefined ? date : currentPlan.date;
     const updatedTheme = theme !== undefined ? theme : currentPlan.theme;
     const updatedIsPublic = isPublic !== undefined ? isPublic : currentPlan.is_public;
+    const updatedShowDriving = showDriving !== undefined ? showDriving : (currentPlan.show_driving ?? true);
 
     // Execute update with all values
     await sql`
@@ -118,6 +119,7 @@ export async function PATCH(
         date = ${updatedDate},
         theme = ${updatedTheme},
         is_public = ${updatedIsPublic},
+        show_driving = ${updatedShowDriving},
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}
     `;

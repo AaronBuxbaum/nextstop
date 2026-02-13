@@ -10,6 +10,7 @@ import { Timeline } from '@/components/Timeline';
 import { SharePlan } from '@/components/SharePlan';
 import { PresenceIndicators } from '@/components/PresenceIndicators';
 import { MapView } from '@/components/MapView';
+import { AIGenerateModal } from '@/components/AIGenerateModal';
 import { useGeolocation } from '@/lib/useGeolocation';
 import { useCollaboration } from '@/lib/useCollaboration';
 import { calculateDuration, calculateEndTime } from '@/lib/timeUtils';
@@ -38,6 +39,11 @@ export default function PlanDetailPage() {
   const [isGeneratingEvent, setIsGeneratingEvent] = useState(false);
   const [aiInput, setAiInput] = useState('');
   const [showAiGenerator, setShowAiGenerator] = useState(false);
+  const [aiGeneratedOptions, setAiGeneratedOptions] = useState<{
+    event: { title: string; description?: string; location?: string; startTime?: string | null; duration?: number | null; notes?: string | null };
+    placement: { strategy: string; referenceEvent?: string | null; explanation: string };
+    style: string;
+  }[]>([]);
 
   // Plan editing state
   const [isEditingPlan, setIsEditingPlan] = useState(false);
@@ -46,6 +52,7 @@ export default function PlanDetailPage() {
     description: '',
     date: '',
     theme: '',
+    showDriving: true,
   });
 
   // Drag state
@@ -101,6 +108,7 @@ export default function PlanDetailPage() {
       const mappedPlan: Plan = {
         ...data,
         isPublic: data.is_public ?? data.isPublic ?? false,
+        showDriving: data.show_driving ?? data.showDriving ?? true,
         userId: data.user_id ?? data.userId,
         createdAt: data.created_at ?? data.createdAt,
         updatedAt: data.updated_at ?? data.updatedAt,
@@ -363,6 +371,7 @@ export default function PlanDetailPage() {
       description: plan.description || '',
       date: plan.date || '',
       theme: plan.theme || '',
+      showDriving: plan.showDriving !== false,
     });
     setIsEditingPlan(true);
   };
@@ -380,6 +389,7 @@ export default function PlanDetailPage() {
           description: planEditForm.description || null,
           date: planEditForm.date || null,
           theme: planEditForm.theme || null,
+          showDriving: planEditForm.showDriving,
         }),
       });
 
@@ -503,7 +513,7 @@ export default function PlanDetailPage() {
 
     setIsGeneratingEvent(true);
     try {
-      // Call AI to generate event details
+      // Call AI to generate event options
       const response = await fetch('/api/ai/generate-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -513,29 +523,49 @@ export default function PlanDetailPage() {
       if (!response.ok) throw new Error('Failed to generate event');
       const data = await response.json();
 
-      // Pre-fill the event form with AI-generated data
-      setNewEvent({
-        title: data.event.title || '',
-        description: data.event.description || '',
-        location: data.event.location || '',
-        startTime: '',
-        endTime: '',
-        duration: data.event.duration ? String(data.event.duration) : '',
-        notes: data.event.notes || '',
-      });
-
-      // Show the event form and hide AI generator
-      setIsAddingEvent(true);
-      setShowAiGenerator(false);
-      setAiInput('');
-
-      // Store placement info for later (we'll need to handle ordering in createEvent)
-      // For now, we'll just add it to the end as the simplest implementation
+      // Handle new multi-option format
+      if (data.options && Array.isArray(data.options)) {
+        setAiGeneratedOptions(data.options);
+      } else if (data.event) {
+        // Backwards compatibility: wrap single result as option
+        setAiGeneratedOptions([{
+          event: data.event,
+          placement: data.placement,
+          style: 'Suggested',
+        }]);
+      }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to generate event');
     } finally {
       setIsGeneratingEvent(false);
     }
+  };
+
+  const handleSelectAiOption = (option: typeof aiGeneratedOptions[0]) => {
+    const startTime = option.event.startTime || '';
+    const duration = option.event.duration ? String(option.event.duration) : '';
+    let endTime = '';
+    if (startTime && duration) {
+      const durationNum = parseInt(duration);
+      if (!isNaN(durationNum) && durationNum > 0) {
+        endTime = calculateEndTime(startTime, durationNum) ?? '';
+      }
+    }
+
+    setNewEvent({
+      title: option.event.title || '',
+      description: option.event.description || '',
+      location: option.event.location || '',
+      startTime,
+      endTime,
+      duration,
+      notes: option.event.notes || '',
+    });
+
+    setAiGeneratedOptions([]);
+    setIsAddingEvent(true);
+    setShowAiGenerator(false);
+    setAiInput('');
   };
 
   if (loading) {
@@ -649,6 +679,18 @@ export default function PlanDetailPage() {
                 className={styles.input}
               />
             </div>
+          </div>
+          <div className={styles.toggleRow}>
+            <label className={styles.toggleLabel}>
+              <input
+                type="checkbox"
+                checked={planEditForm.showDriving}
+                onChange={(e) => setPlanEditForm({ ...planEditForm, showDriving: e.target.checked })}
+                className={styles.toggleCheckbox}
+              />
+              <span className={styles.toggleSwitch} />
+              Show driving time
+            </label>
           </div>
           <div className={styles.formActions}>
             <button type="submit" className={styles.submitButton}>
@@ -939,6 +981,7 @@ export default function PlanDetailPage() {
             <Timeline
               events={plan.events}
               planDate={plan.date}
+              showDriving={plan.showDriving !== false}
               onEventClick={startEditEvent}
               onEdit={startEditEvent}
               onDelete={deleteEvent}
@@ -1110,6 +1153,15 @@ export default function PlanDetailPage() {
           </div>
         )}
       </section>
+
+      {/* AI Generate Options Modal */}
+      {aiGeneratedOptions.length > 0 && (
+        <AIGenerateModal
+          options={aiGeneratedOptions}
+          onSelect={handleSelectAiOption}
+          onClose={() => setAiGeneratedOptions([])}
+        />
+      )}
     </div>
   );
 }

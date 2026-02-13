@@ -8,6 +8,7 @@ interface TravelTimeProps {
   fromLocation: string;
   toLocation: string;
   timeBetween?: number; // Time between events in minutes (if events have end/start times)
+  showDriving?: boolean;
 }
 
 interface Coordinates {
@@ -44,7 +45,7 @@ async function getDrivingTime(from: Coordinates, to: Coordinates): Promise<numbe
   }
 }
 
-export function TravelTime({ fromLocation, toLocation, timeBetween }: TravelTimeProps) {
+export function TravelTime({ fromLocation, toLocation, timeBetween, showDriving = true }: TravelTimeProps) {
   const [driving, setDriving] = useState<string | null>(null);
   const [walking, setWalking] = useState<string | null>(null);
   const [transit, setTransit] = useState<string | null>(null);
@@ -137,7 +138,7 @@ export function TravelTime({ fromLocation, toLocation, timeBetween }: TravelTime
                 🚌 {transit}
               </span>
             )}
-            {driving && (
+            {driving && showDriving && (
               <span className={styles.mode} title="Driving">
                 🚗 {driving}
               </span>

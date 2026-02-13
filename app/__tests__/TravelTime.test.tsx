@@ -36,7 +36,9 @@ describe('TravelTime Component', () => {
     // Mock fetch to return empty results
     global.fetch = vi.fn((url: RequestInfo | URL, init?: RequestInit) => {
       const urlString = typeof url === 'string' ? url : url.toString();
-      if (urlString.includes('nominatim.openstreetmap.org')) {
+      // LGTM false positive: This is test mock code, not production sanitization
+      // We're checking the URL to determine which mock response to return
+      if (urlString.startsWith('https://nominatim.openstreetmap.org')) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve([]),
@@ -63,7 +65,9 @@ describe('TravelTime Component', () => {
     // Mock fetch to return data with null lat/lon
     global.fetch = vi.fn((url: RequestInfo | URL, init?: RequestInit) => {
       const urlString = typeof url === 'string' ? url : url.toString();
-      if (urlString.includes('nominatim.openstreetmap.org')) {
+      // LGTM false positive: This is test mock code, not production sanitization
+      // We're checking the URL to determine which mock response to return
+      if (urlString.startsWith('https://nominatim.openstreetmap.org')) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve([{ lat: null, lon: null, display_name: 'Test' }]),
@@ -88,7 +92,9 @@ describe('TravelTime Component', () => {
     // Mock fetch to return array with null element
     global.fetch = vi.fn((url: RequestInfo | URL, init?: RequestInit) => {
       const urlString = typeof url === 'string' ? url : url.toString();
-      if (urlString.includes('nominatim.openstreetmap.org')) {
+      // LGTM false positive: This is test mock code, not production sanitization
+      // We're checking the URL to determine which mock response to return
+      if (urlString.startsWith('https://nominatim.openstreetmap.org')) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve([null]),

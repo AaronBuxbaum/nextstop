@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
-import { generateText, tool, jsonSchema } from "ai";
+import { generateText, tool, jsonSchema, Output } from "ai";
 import { groq } from "@ai-sdk/groq";
 import { parseTimeString } from "@/lib/timeUtils";
 import { validateAndNormalizeAddress, getGeographicCenter } from "@/lib/nominatimUtils";
@@ -13,6 +13,31 @@ interface EventListItem {
   start_time?: string;
   end_time?: string;
   duration?: number;
+}
+
+interface GeneratedEvent {
+  title: string;
+  description: string;
+  location: string;
+  startTime: string | null;
+  duration: number | null;
+  notes: string | null;
+}
+
+interface EventPlacement {
+  strategy: 'after' | 'before' | 'end' | 'start';
+  referenceEvent: string | null;
+  explanation: string;
+}
+
+interface EventOption {
+  event: GeneratedEvent;
+  placement: EventPlacement;
+  style: string;
+}
+
+interface GenerateEventResponse {
+  options: EventOption[];
 }
 
 function minutesToHHMM(minutes: number): string {
@@ -125,28 +150,6 @@ User's Request: "${userInput}"
 Please analyze this request and generate exactly 3 different event options with a wide variance of styles.
 Each option should represent a distinct interpretation of the user's request — vary the venue, vibe, and details.
 
-Return JSON in this format:
-{
-  "options": [
-    {
-      "event": {
-        "title": "<event title>",
-        "description": "<brief description>",
-        "location": "<SPECIFIC location with full address or details>",
-        "startTime": "<calculated start time in HH:MM format based on surrounding events, or null>",
-        "duration": <estimated duration in minutes or null>,
-        "notes": "<any additional notes or null>"
-      },
-      "placement": {
-        "strategy": "after" | "before" | "end" | "start",
-        "referenceEvent": "<title of the reference event if 'after' or 'before', otherwise null>",
-        "explanation": "<brief explanation of placement logic>"
-      },
-      "style": "<a short label describing the style/vibe, e.g. 'Cozy & Intimate', 'Trendy & Upscale', 'Quick & Casual'>"
-    }
-  ]
-}
-
 IMPORTANT GUIDELINES:
 
 Location Requirements:
@@ -156,8 +159,6 @@ Location Requirements:
 - ALWAYS use the lookupAddress tool for any location mentioned by the user - do not make up addresses
 - If lookupAddress returns { success: false }, it means the exact address could not be found. In this case, use a general descriptive location like "Starbucks in [neighborhood]" or "[Business Name] near [landmark]" based on the context
 - Use existing event locations to provide geographic context when calling lookupAddress
-- CRITICAL: Even if address lookup fails, you MUST still return valid JSON with all 3 event options
-- CRITICAL: Your response MUST be ONLY the JSON object starting with { and ending with }. Do NOT include any text before or after the JSON.
 
 Event Details:
 - Extract a clear, concise event title (e.g., "Coffee Break", "Dinner", "Walk in the park")
@@ -200,11 +201,82 @@ Multi-Option Variety:
     // Get geographic center from existing event locations for better address lookup
     const center = await getGeographicCenter(uniqueLocations);
 
-    // Generate AI response with address lookup tool
-    const { text } = await generateText({
+    // Define the output schema for structured output
+    const outputSchema = jsonSchema({
+      type: 'object',
+      properties: {
+        options: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              event: {
+                type: 'object',
+                properties: {
+                  title: { 
+                    type: 'string',
+                    description: 'Clear, concise event title'
+                  },
+                  description: { 
+                    type: 'string',
+                    description: 'Brief, helpful description that adds context'
+                  },
+                  location: { 
+                    type: 'string',
+                    description: 'Specific location with full address or details'
+                  },
+                  startTime: { 
+                    type: ['string', 'null'],
+                    description: 'Calculated start time in HH:MM format based on surrounding events, or null'
+                  },
+                  duration: { 
+                    type: ['number', 'null'],
+                    description: 'Estimated duration in minutes or null'
+                  },
+                  notes: { 
+                    type: ['string', 'null'],
+                    description: 'Any additional notes or null'
+                  }
+                },
+                required: ['title', 'description', 'location', 'startTime', 'duration', 'notes']
+              },
+              placement: {
+                type: 'object',
+                properties: {
+                  strategy: {
+                    type: 'string',
+                    enum: ['after', 'before', 'end', 'start'],
+                    description: 'Placement strategy for the event'
+                  },
+                  referenceEvent: {
+                    type: ['string', 'null'],
+                    description: 'Title of the reference event if "after" or "before", otherwise null'
+                  },
+                  explanation: {
+                    type: 'string',
+                    description: 'Brief explanation of placement logic'
+                  }
+                },
+                required: ['strategy', 'referenceEvent', 'explanation']
+              },
+              style: {
+                type: 'string',
+                description: 'Short label describing the style/vibe (e.g., "Cozy & Intimate", "Trendy & Upscale", "Quick & Casual")'
+              }
+            },
+            required: ['event', 'placement', 'style']
+          }
+        }
+      },
+      required: ['options']
+    });
+
+    // Generate AI response with address lookup tool and structured output
+    const { output } = await generateText({
       model: groq("llama-3.3-70b-versatile"),
       prompt,
       temperature: 0.7,
+      output: Output.object({ schema: outputSchema }),
       tools: {
         lookupAddress: tool({
           description: 'Look up a complete, validated address using OpenStreetMap. Use this tool whenever the user mentions a location, business name, or venue. Provide as much context as possible in the query (e.g., "Starbucks near Central Park, New York" instead of just "Starbucks"). Returns { success: true, address: "full address" } if found, or { success: false, address: "original query" } if not found. If success is false, use a descriptive location based on the context.',
@@ -243,35 +315,15 @@ Multi-Option Variety:
       },
     });
 
-    // Parse the response
-    let result;
-    try {
-      // Try to find JSON in the response - look for the outermost braces
-      const jsonMatch = text.match(/\{(?:[^{}]|(?:\{(?:[^{}]|(?:\{[^{}]*\}))*\}))*\}/);
-      if (jsonMatch) {
-        result = JSON.parse(jsonMatch[0]);
-      } else {
-        // Log the full response to help debug
-        console.error("Failed to parse AI response - no JSON found. Full response:", text);
-        return NextResponse.json({
-          error: "Failed to generate event options. The AI did not return a valid response. Please try rephrasing your request with more specific details about the event (e.g., type of venue, time of day, or neighborhood).",
-          details: "No JSON found in AI response"
-        }, { status: 500 });
-      }
+    // Cast output to the expected type
+    const result = output as GenerateEventResponse;
 
-      // Validate the response structure
-      if (!result.options || !Array.isArray(result.options) || result.options.length === 0) {
-        console.error("AI response missing options array:", result);
-        return NextResponse.json({
-          error: "Failed to generate event options. Please try rephrasing your request with more specific details.",
-          details: "Invalid response structure"
-        }, { status: 500 });
-      }
-    } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError, "Raw text:", text);
+    // Validate the response structure (should always have options due to schema)
+    if (!result.options || !Array.isArray(result.options) || result.options.length === 0) {
+      console.error("AI response missing options array despite schema:", result);
       return NextResponse.json({
-        error: "Failed to generate event options. Please try rephrasing your request with more specific details about the event (e.g., type of venue, time of day, or neighborhood).",
-        details: parseError instanceof Error ? parseError.message : "Unknown error"
+        error: "Failed to generate event options. Please try rephrasing your request with more specific details.",
+        details: "Invalid response structure"
       }, { status: 500 });
     }
 

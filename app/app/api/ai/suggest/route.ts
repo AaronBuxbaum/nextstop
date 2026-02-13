@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sql } from "@/lib/db";
 import { generateText } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { groq } from "@ai-sdk/groq";
 
 // POST /api/ai/suggest - Get AI suggestions for improving the plan
 export async function POST(req: NextRequest) {
@@ -78,7 +78,7 @@ Please provide suggestions in the following JSON array format:
 ]`;
 
     const { text } = await generateText({
-      model: openai("gpt-4-turbo"),
+      model: groq("llama-3.3-70b-versatile"),
       prompt,
       temperature: 0.8,
     });

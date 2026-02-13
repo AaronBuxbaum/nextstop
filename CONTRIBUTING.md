@@ -97,6 +97,7 @@ git push origin feature/your-feature-name
    - What changed
    - Why it changed
    - How to test it
+5. **Create pull requests as ready for review, not as drafts**
 
 ## Skills Development
 

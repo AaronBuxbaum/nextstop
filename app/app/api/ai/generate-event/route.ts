@@ -31,6 +31,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (typeof userInput !== 'string' || userInput.length > 1000) {
+      return NextResponse.json(
+        { error: "User input must be a string of 1000 characters or less" },
+        { status: 400 }
+      );
+    }
+
     // Get plan with events
     const planResult = await sql`
       SELECT p.* FROM plans p
@@ -175,7 +182,6 @@ Multi-Option Variety:
       console.error("Failed to parse AI response:", parseError, "Raw text:", text);
       return NextResponse.json({
         error: "Failed to parse AI response",
-        rawResponse: text,
       }, { status: 500 });
     }
 
@@ -183,7 +189,7 @@ Multi-Option Variety:
   } catch (error) {
     console.error("Error generating event:", error);
     return NextResponse.json(
-      { error: "Internal server error", details: String(error) },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

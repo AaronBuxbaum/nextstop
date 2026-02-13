@@ -16,7 +16,7 @@ vi.mock('next-auth', () => ({
 
 // Mock database
 vi.mock('@/lib/db', () => ({
-  sql: vi.fn((strings: TemplateStringsArray, ...values: unknown[]) => {
+  sql: vi.fn((strings: TemplateStringsArray, ..._values: unknown[]) => {
     const query = strings.join('?');
     
     // Mock plan query
@@ -196,10 +196,10 @@ describe('POST /api/ai/generate-event', () => {
           }
         ]
       }),
-      finishReason: 'stop',
-      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
-      rawResponse: { headers: {} as any }
-    } as any);
+      finishReason: 'stop' as const,
+      usage: { inputTokens: 0, outputTokens: 0 },
+      rawResponse: { headers: {} }
+    });
 
     // Mock Nominatim for both locations
     server.use(

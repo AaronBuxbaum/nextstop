@@ -17,6 +17,7 @@
     "@auth/core": "^0.34.3",
     "@neondatabase/serverless": "^1.0.2",
     "@upstash/redis": "^1.36.2",
+    "@vercel/analytics": "^1.6.1",
     "@vercel/blob": "^2.2.0",
     "ai": "^6.0.81",
     "bcryptjs": "^3.0.3",

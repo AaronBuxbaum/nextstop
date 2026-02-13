@@ -172,6 +172,12 @@ app/
    - Keep commits atomic
    - Reference issues if applicable
 
+5. **Creating Pull Requests:**
+   - **ALWAYS create pull requests as ready for review, NOT as drafts**
+   - If PR is initially created as draft, convert it to ready for review before completing work
+   - Ensure all tests pass before marking PR as ready
+   - Include clear description of changes and testing performed
+
 ## Key Features to Maintain
 
 ### Plans

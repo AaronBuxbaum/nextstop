@@ -97,8 +97,7 @@ git push origin feature/your-feature-name
    - What changed
    - Why it changed
    - How to test it
-
-**Note**: All pull requests are automatically marked as ready for review. If you open a PR as a draft, it will be automatically converted to a ready-for-review state per repository policy.
+5. **Create pull requests as ready for review, not as drafts**
 
 ## Skills Development
 

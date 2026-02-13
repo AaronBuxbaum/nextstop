@@ -157,6 +157,7 @@ Location Requirements:
 - If lookupAddress returns { success: false }, it means the exact address could not be found. In this case, use a general descriptive location like "Starbucks in [neighborhood]" or "[Business Name] near [landmark]" based on the context
 - Use existing event locations to provide geographic context when calling lookupAddress
 - CRITICAL: Even if address lookup fails, you MUST still return valid JSON with all 3 event options
+- CRITICAL: Your response MUST be ONLY the JSON object starting with { and ending with }. Do NOT include any text before or after the JSON.
 
 Event Details:
 - Extract a clear, concise event title (e.g., "Coffee Break", "Dinner", "Walk in the park")
@@ -245,13 +246,26 @@ Multi-Option Variety:
     // Parse the response
     let result;
     try {
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      // Try to find JSON in the response - look for the outermost braces
+      const jsonMatch = text.match(/\{(?:[^{}]|(?:\{(?:[^{}]|(?:\{[^{}]*\}))*\}))*\}/);
       if (jsonMatch) {
         result = JSON.parse(jsonMatch[0]);
       } else {
         // Log the full response to help debug
         console.error("Failed to parse AI response - no JSON found. Full response:", text);
-        throw new Error("No JSON found in response");
+        return NextResponse.json({
+          error: "Failed to generate event options. The AI did not return a valid response. Please try rephrasing your request with more specific details about the event (e.g., type of venue, time of day, or neighborhood).",
+          details: "No JSON found in AI response"
+        }, { status: 500 });
+      }
+
+      // Validate the response structure
+      if (!result.options || !Array.isArray(result.options) || result.options.length === 0) {
+        console.error("AI response missing options array:", result);
+        return NextResponse.json({
+          error: "Failed to generate event options. Please try rephrasing your request with more specific details.",
+          details: "Invalid response structure"
+        }, { status: 500 });
       }
     } catch (parseError) {
       console.error("Failed to parse AI response:", parseError, "Raw text:", text);

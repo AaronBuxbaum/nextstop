@@ -210,11 +210,11 @@ app/
 Required in `.env.local`:
 ```bash
 DATABASE_URL=              # Neon Postgres
-UPSTASH_REDIS_REST_URL=   # Upstash Redis
-UPSTASH_REDIS_REST_TOKEN= # Upstash token
-OPENAI_API_KEY=           # OpenAI API
-NEXTAUTH_SECRET=          # Auth secret
-NEXTAUTH_URL=             # App URL
+KV_REST_API_URL=           # Upstash Redis URL
+KV_REST_API_TOKEN=         # Upstash Redis token
+OPENAI_API_KEY=            # OpenAI API
+NEXTAUTH_SECRET=           # Auth secret
+NEXTAUTH_URL=              # App URL
 ```
 
 ## Common Tasks

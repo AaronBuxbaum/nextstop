@@ -97,9 +97,9 @@ Create a `.env.local` file in the `app` directory based on `.env.example`:
 # Database (Neon Postgres)
 DATABASE_URL=your_neon_database_url
 
-# Redis (Upstash)
-UPSTASH_REDIS_REST_URL=your_upstash_url
-UPSTASH_REDIS_REST_TOKEN=your_upstash_token
+# Redis (Upstash) - Use Upstash-provided environment variables
+KV_REST_API_URL=your_upstash_url
+KV_REST_API_TOKEN=your_upstash_token
 
 # Vercel Blob Storage (optional)
 BLOB_READ_WRITE_TOKEN=your_blob_token
@@ -329,8 +329,8 @@ git push origin main
    
 In Vercel dashboard, add all variables from `.env.example`:
    - `DATABASE_URL`
-   - `UPSTASH_REDIS_REST_URL`
-   - `UPSTASH_REDIS_REST_TOKEN`
+   - `KV_REST_API_URL`
+   - `KV_REST_API_TOKEN`
    - `OPENAI_API_KEY`
    - `NEXTAUTH_SECRET`
    - `NEXTAUTH_URL` (your production URL)

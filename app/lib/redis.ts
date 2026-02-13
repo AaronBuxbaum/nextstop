@@ -1,16 +1,19 @@
 import { Redis } from '@upstash/redis';
 
-// Allow build to succeed without Redis credentials
-// In production, set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN for real-time features
+// Support Upstash environment variables (KV_REST_API_*) with fallback to legacy names (UPSTASH_REDIS_REST_*)
+// In production, set KV_REST_API_URL and KV_REST_API_TOKEN for real-time features
 // When missing, the mock Redis implementation below will be used (no actual Redis operations)
-if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+if (!redisUrl || !redisToken) {
   console.warn('Redis environment variables not set - using mock Redis implementation below');
 }
 
-export const redis = (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
+export const redis = (redisUrl && redisToken)
   ? new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      url: redisUrl,
+      token: redisToken,
     })
   : {
       // Mock Redis for build time

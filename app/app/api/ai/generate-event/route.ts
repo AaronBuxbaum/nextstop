@@ -256,7 +256,7 @@ Multi-Option Variety:
     } catch (parseError) {
       console.error("Failed to parse AI response:", parseError, "Raw text:", text);
       return NextResponse.json({
-        error: "Failed to parse AI response. Please try again with a different description.",
+        error: "Failed to generate event options. Please try rephrasing your request with more specific details about the event (e.g., type of venue, time of day, or neighborhood).",
         details: parseError instanceof Error ? parseError.message : "Unknown error"
       }, { status: 500 });
     }

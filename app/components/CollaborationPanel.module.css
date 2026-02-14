@@ -1,0 +1,221 @@
+.container {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  background: var(--panel-bg, #fafafa);
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-family: var(--font-display), serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary, #111827);
+}
+
+.inviteButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.4rem 0.8rem;
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.inviteButton:hover {
+  background: var(--primary-hover, #2563eb);
+  transform: translateY(-1px);
+}
+
+.inviteForm {
+  background: white;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.input {
+  font-family: var(--font-body), monospace;
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 0.875rem;
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary-color, #3b82f6);
+}
+
+.roleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.roleLabel {
+  font-family: var(--font-body), monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.roleSelect {
+  font-family: var(--font-body), monospace;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 6px;
+  background: white;
+}
+
+.roleSelect:focus {
+  outline: none;
+  border-color: var(--primary-color, #3b82f6);
+}
+
+.error {
+  font-family: var(--font-body), monospace;
+  color: var(--danger-color, #ef4444);
+  font-size: 0.8rem;
+  margin: 0 0 0.75rem 0;
+}
+
+.formActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.submitButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.4rem 0.8rem;
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: var(--primary-hover, #2563eb);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  font-family: var(--font-body), monospace;
+  padding: 0.4rem 0.8rem;
+  background: transparent;
+  color: var(--text-secondary, #6b7280);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  border-color: var(--text-secondary, #6b7280);
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.collabInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body), monospace;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.name {
+  font-family: var(--font-body), monospace;
+  font-size: 0.875rem;
+  color: var(--text-primary, #111827);
+  display: block;
+}
+
+.role {
+  font-family: var(--font-body), monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+  text-transform: capitalize;
+}
+
+.removeButton {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #6b7280);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.removeButton:hover {
+  color: var(--danger-color, #ef4444);
+  background: var(--danger-bg, #fef2f2);
+}
+
+.empty {
+  font-family: var(--font-body), monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+  text-align: center;
+  margin: 0;
+  padding: 1rem;
+}

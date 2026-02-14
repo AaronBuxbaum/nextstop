@@ -172,6 +172,22 @@ export const handlers = [
   }),
 
   // AI API
+  http.post('/api/ai/analyze', () => {
+    return HttpResponse.json({
+      pacing: { rating: 7, feedback: 'Good pacing overall', suggestions: ['Consider adding a break'] },
+      quality: { rating: 8, feedback: 'High quality plan', improvements: ['Add more variety'] },
+      theme: { coherence: 6, suggested: 'Urban Explorer', description: 'A city-focused adventure' },
+    });
+  }),
+
+  http.post('/api/ai/suggest', () => {
+    return HttpResponse.json({
+      suggestions: [
+        { title: 'Add a lunch stop', description: 'Consider adding lunch', reasoning: 'Long gap between events' },
+      ],
+    });
+  }),
+
   http.post('/api/ai/generate-event', async ({ request }) => {
     const body = await request.json() as { planId: string; userInput: string };
     const { userInput } = body;
@@ -320,6 +336,32 @@ export const handlers = [
     return HttpResponse.json({
       activeUsers: [],
       editingStates: [],
+    });
+  }),
+
+  // Collaborators API
+  http.get('/api/plans/:id/collaborators', () => {
+    return HttpResponse.json([]);
+  }),
+
+  http.post('/api/plans/:id/collaborators', async ({ request }) => {
+    const body = await request.json() as { email: string; role?: string };
+    return HttpResponse.json({
+      id: `user-${Date.now()}`,
+      name: 'Collaborator',
+      email: body.email,
+      role: body.role || 'editor',
+    }, { status: 201 });
+  }),
+
+  http.delete('/api/plans/:id/collaborators', () => {
+    return HttpResponse.json({ success: true });
+  }),
+
+  // Auth session (for WebSocket connection)
+  http.get('/api/auth/session', () => {
+    return HttpResponse.json({
+      user: { id: 'user-1', name: 'Test User', email: 'test@test.com' },
     });
   }),
 ];

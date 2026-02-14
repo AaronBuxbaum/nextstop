@@ -11,7 +11,13 @@ export default function PlansPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
-  const [newPlanTitle, setNewPlanTitle] = useState('');
+  const [newPlan, setNewPlan] = useState({
+    title: '',
+    description: '',
+    date: '',
+    theme: '',
+    showDriving: true,
+  });
 
   // Helper to handle fetch with auth redirect
   const fetchWithAuth = useCallback(async (url: string, options?: RequestInit): Promise<Response | null> => {
@@ -43,22 +49,28 @@ export default function PlansPage() {
 
   const createPlan = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPlanTitle.trim()) return;
+    if (!newPlan.title.trim()) return;
 
     try {
       const response = await fetchWithAuth('/api/plans', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: newPlanTitle }),
+        body: JSON.stringify({
+          title: newPlan.title,
+          description: newPlan.description || null,
+          date: newPlan.date || null,
+          theme: newPlan.theme || null,
+          showDriving: newPlan.showDriving,
+        }),
       });
       if (!response) return; // Redirected to sign-in
       if (!response.ok) throw new Error('Failed to create plan');
       
-      const newPlan = await response.json();
-      setPlans([newPlan, ...plans]);
-      setNewPlanTitle('');
+      const created = await response.json();
+      setPlans([created, ...plans]);
+      setNewPlan({ title: '', description: '', date: '', theme: '', showDriving: true });
       setIsCreating(false);
-      router.push(`/plans/${newPlan.id}`);
+      router.push(`/plans/${created.id}`);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to create plan');
     }
@@ -117,21 +129,62 @@ export default function PlansPage() {
         <form onSubmit={createPlan} className={styles.createForm}>
           <input
             type="text"
-            value={newPlanTitle}
-            onChange={(e) => setNewPlanTitle(e.target.value)}
-            placeholder="Enter plan title..."
+            value={newPlan.title}
+            onChange={(e) => setNewPlan({ ...newPlan, title: e.target.value })}
+            placeholder="Plan title*"
             className={styles.input}
             autoFocus
+            required
           />
+          <textarea
+            value={newPlan.description}
+            onChange={(e) => setNewPlan({ ...newPlan, description: e.target.value })}
+            placeholder="Description (optional)"
+            className={styles.textarea}
+            rows={3}
+          />
+          <div className={styles.fieldRow}>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Date</label>
+              <input
+                type="date"
+                value={newPlan.date}
+                onChange={(e) => setNewPlan({ ...newPlan, date: e.target.value })}
+                className={styles.input}
+              />
+            </div>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Theme</label>
+              <input
+                type="text"
+                value={newPlan.theme}
+                onChange={(e) => setNewPlan({ ...newPlan, theme: e.target.value })}
+                placeholder="e.g., Adventure, Romantic, Cultural"
+                className={styles.input}
+              />
+            </div>
+          </div>
+          <div className={styles.toggleRow}>
+            <label className={styles.toggleLabel}>
+              <input
+                type="checkbox"
+                checked={newPlan.showDriving}
+                onChange={(e) => setNewPlan({ ...newPlan, showDriving: e.target.checked })}
+                className={styles.toggleCheckbox}
+              />
+              <span className={styles.toggleSwitch} />
+              Show driving time between events
+            </label>
+          </div>
           <div className={styles.formActions}>
             <button type="submit" className={styles.submitButton}>
-              Create
+              Create Plan
             </button>
             <button
               type="button"
               onClick={() => {
                 setIsCreating(false);
-                setNewPlanTitle('');
+                setNewPlan({ title: '', description: '', date: '', theme: '', showDriving: true });
               }}
               className={styles.cancelButton}
             >

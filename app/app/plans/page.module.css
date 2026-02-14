@@ -71,6 +71,97 @@
   border-color: var(--primary-color, #3b82f6);
 }
 
+.textarea {
+  font-family: var(--font-body), monospace;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s ease;
+  resize: vertical;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary-color, #3b82f6);
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldLabel {
+  font-family: var(--font-body), monospace;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+  margin-bottom: 0.25rem;
+}
+
+.toggleRow {
+  margin-bottom: 1rem;
+}
+
+.toggleLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-body), monospace;
+  font-size: 0.875rem;
+  color: var(--text-primary, #111827);
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggleCheckbox {
+  display: none;
+}
+
+.toggleSwitch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.toggleSwitch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.toggleCheckbox:checked + .toggleSwitch {
+  background: var(--primary-color, #3b82f6);
+}
+
+.toggleCheckbox:checked + .toggleSwitch::after {
+  transform: translateX(20px);
+}
+
+.toggleCheckbox:focus-visible + .toggleSwitch {
+  outline: 2px solid var(--primary-color, #3b82f6);
+  outline-offset: 2px;
+}
+
 .formActions {
   display: flex;
   gap: 0.75rem;
